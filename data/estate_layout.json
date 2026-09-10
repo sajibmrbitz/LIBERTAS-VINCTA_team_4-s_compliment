@@ -1,0 +1,313 @@
+{
+  "intro": {
+    "width": 1800,
+    "names": [
+      "Cold Foyer"
+    ],
+    "surface": "STONE",
+    "enemy": 0,
+    "props": [
+      [
+        "flashlight",
+        "flashlight",
+        430,
+        480
+      ],
+      [
+        "lockpick_tool",
+        "lockpick_tool",
+        900,
+        430
+      ],
+      [
+        "locked_door",
+        "intro_exit",
+        1590,
+        480,
+        {
+          "destination": "ground"
+        }
+      ]
+    ]
+  },
+  "ground": {
+    "width": 7200,
+    "names": [
+      "Music Room",
+      "Dining Hall",
+      "Servant's Pantry"
+    ],
+    "surface": "WOOD",
+    "enemy": 2640,
+    "props": [
+      [
+        "exit_trigger",
+        "front_door",
+        180,
+        475,
+        {
+          "ending_type": "full_awakening",
+          "text": "Three seals bind the front door."
+        }
+      ],
+      [
+        "letter_pickup",
+        "vantree_01",
+        600,
+        430,
+        {
+          "title": "Vantree — I",
+          "text": "[Prototype letter]\\nThe Custodian keeps the ledger. The senses were severed for containment."
+        }
+      ],
+      [
+        "puzzle_interactable",
+        "piano_seal",
+        1800,
+        435,
+        {
+          "title": "Piano seal",
+          "puzzle_steps": 3
+        }
+      ],
+      [
+        "key_pickup",
+        "hearing_key",
+        2140,
+        475,
+        {
+          "sense": "hearing",
+          "required_flag": "piano_seal"
+        }
+      ],
+      [
+        "hiding_spot",
+        "ground_hide_01",
+        2420,
+        420
+      ],
+      [
+        "letter_pickup",
+        "vantree_02",
+        3650,
+        430,
+        {
+          "title": "Vantree — II",
+          "text": "[Prototype letter]\\nJailer and prisoner share a threshold. Restoring a sense weakens a seal."
+        }
+      ],
+      [
+        "hiding_spot",
+        "ground_hide_02",
+        4160,
+        575
+      ],
+      [
+        "letter_pickup",
+        "vantree_03",
+        5480,
+        430,
+        {
+          "title": "Vantree — III",
+          "text": "[Prototype letter]\\nThe Vantree record leaves a choice: keep the remaining seals, or finish the awakening."
+        }
+      ],
+      [
+        "exit_trigger",
+        "custodian_seal",
+        5900,
+        430,
+        {
+          "ending_type": "vantree",
+          "text": "The Vantree record is incomplete, or too many seals are broken."
+        }
+      ],
+      [
+        "door",
+        "upper_stairs",
+        6980,
+        480,
+        {
+          "destination": "upper",
+          "required_flag": "hearing",
+          "text": "The hearing seal binds these stairs."
+        }
+      ]
+    ]
+  },
+  "upper": {
+    "width": 7200,
+    "names": [
+      "Portrait Gallery",
+      "Master Bedroom",
+      "Nursery / Linen Passage"
+    ],
+    "surface": "CARPET",
+    "enemy": 2750,
+    "props": [
+      [
+        "door",
+        "ground_stairs",
+        180,
+        480,
+        {
+          "destination": "ground",
+          "entrance": "end"
+        }
+      ],
+      [
+        "hiding_spot",
+        "upper_hide_01",
+        1700,
+        420
+      ],
+      [
+        "puzzle_interactable",
+        "vanity_seal",
+        2150,
+        440,
+        {
+          "required_flag": "hearing",
+          "puzzle_steps": 3,
+          "action_seconds": 1.1
+        }
+      ],
+      [
+        "key_pickup",
+        "sight_key",
+        2370,
+        480,
+        {
+          "sense": "sight",
+          "required_flag": "vanity_seal"
+        }
+      ],
+      [
+        "hiding_spot",
+        "upper_hide_02",
+        3520,
+        575
+      ],
+      [
+        "letter_pickup",
+        "vantree_04",
+        4420,
+        430,
+        {
+          "title": "Vantree — IV",
+          "text": "[Prototype letter]\\nLight was useful while it could not see. The old shutters leave a strip of shadow."
+        }
+      ],
+      [
+        "hiding_spot",
+        "linen_hide",
+        5770,
+        420
+      ],
+      [
+        "door",
+        "basement_stairs",
+        6980,
+        480,
+        {
+          "destination": "basement",
+          "required_flag": "sight",
+          "text": "The sight seal binds this passage."
+        }
+      ]
+    ]
+  },
+  "basement": {
+    "width": 7200,
+    "names": [
+      "Flooded Cellar",
+      "Wine Cellar",
+      "Ritual Chamber"
+    ],
+    "surface": "STONE",
+    "enemy": 4320,
+    "props": [
+      [
+        "door",
+        "upper_stairs",
+        180,
+        480,
+        {
+          "destination": "upper",
+          "entrance": "end"
+        }
+      ],
+      [
+        "exit_trigger",
+        "maintenance_exit",
+        620,
+        430,
+        {
+          "ending_type": "partial_mercy",
+          "text": "The flood passage opens only while two senses are restored."
+        }
+      ],
+      [
+        "hiding_spot",
+        "basement_hide_01",
+        1860,
+        420
+      ],
+      [
+        "letter_pickup",
+        "vantree_05",
+        2840,
+        430,
+        {
+          "title": "Vantree — V",
+          "text": "[Prototype letter]\\nThe final seal holds memory. A place of refuge can become a place it remembers."
+        }
+      ],
+      [
+        "hiding_spot",
+        "basement_hide_02",
+        3650,
+        575
+      ],
+      [
+        "puzzle_interactable",
+        "ritual_seal",
+        4090,
+        430,
+        {
+          "required_flag": "sight",
+          "puzzle_steps": 3,
+          "action_seconds": 1.25
+        }
+      ],
+      [
+        "key_pickup",
+        "memory_key",
+        4310,
+        480,
+        {
+          "sense": "memory",
+          "required_flag": "ritual_seal"
+        }
+      ],
+      [
+        "hiding_spot",
+        "basement_hide_03",
+        5050,
+        420
+      ],
+      [
+        "door",
+        "service_return",
+        6890,
+        480,
+        {
+          "destination": "ground",
+          "entrance": "end",
+          "required_flag": "memory",
+          "text": "The final seal binds this return passage."
+        }
+      ]
+    ]
+  }
+}

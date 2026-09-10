@@ -1,0 +1,207 @@
+[gd_scene load_steps=8 format=3]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_Floor"]
+size = Vector2(6528, 64)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_LeftWall"]
+size = Vector2(64, 480)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_RightWall"]
+size = Vector2(64, 480)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_Ceiling"]
+size = Vector2(6528, 64)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_LowDuct01"]
+size = Vector2(240, 120)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_LowDuct02"]
+size = Vector2(320, 120)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_OverheadCabinet"]
+size = Vector2(240, 240)
+
+[node name="HearingTestLevel" type="Node2D"]
+
+[node name="Backdrop" type="Node2D" parent="."]
+
+[node name="Wall" type="Polygon2D" parent="Backdrop"]
+position = Vector2(3200, 280)
+color = Color(0.105, 0.115, 0.135, 1)
+polygon = PackedVector2Array(-3200, -240, 3200, -240, 3200, 240, -3200, 240)
+
+[node name="WallPanel01" type="Polygon2D" parent="Backdrop"]
+position = Vector2(320, 280)
+color = Color(0.115, 0.125, 0.145, 1)
+polygon = PackedVector2Array(-300, -220, 300, -220, 300, 220, -300, 220)
+
+[node name="WallPanel02" type="Polygon2D" parent="Backdrop"]
+position = Vector2(960, 280)
+color = Color(0.13, 0.14, 0.16, 1)
+polygon = PackedVector2Array(-300, -220, 300, -220, 300, 220, -300, 220)
+
+[node name="WallPanel03" type="Polygon2D" parent="Backdrop"]
+position = Vector2(1600, 280)
+color = Color(0.115, 0.125, 0.145, 1)
+polygon = PackedVector2Array(-300, -220, 300, -220, 300, 220, -300, 220)
+
+[node name="WallPanel04" type="Polygon2D" parent="Backdrop"]
+position = Vector2(2240, 280)
+color = Color(0.13, 0.14, 0.16, 1)
+polygon = PackedVector2Array(-300, -220, 300, -220, 300, 220, -300, 220)
+
+[node name="WallPanel05" type="Polygon2D" parent="Backdrop"]
+position = Vector2(2880, 280)
+color = Color(0.115, 0.125, 0.145, 1)
+polygon = PackedVector2Array(-300, -220, 300, -220, 300, 220, -300, 220)
+
+[node name="WallPanel06" type="Polygon2D" parent="Backdrop"]
+position = Vector2(3520, 280)
+color = Color(0.13, 0.14, 0.16, 1)
+polygon = PackedVector2Array(-300, -220, 300, -220, 300, 220, -300, 220)
+
+[node name="WallPanel07" type="Polygon2D" parent="Backdrop"]
+position = Vector2(4160, 280)
+color = Color(0.115, 0.125, 0.145, 1)
+polygon = PackedVector2Array(-300, -220, 300, -220, 300, 220, -300, 220)
+
+[node name="WallPanel08" type="Polygon2D" parent="Backdrop"]
+position = Vector2(4800, 280)
+color = Color(0.13, 0.14, 0.16, 1)
+polygon = PackedVector2Array(-300, -220, 300, -220, 300, 220, -300, 220)
+
+[node name="WallPanel09" type="Polygon2D" parent="Backdrop"]
+position = Vector2(5440, 280)
+color = Color(0.115, 0.125, 0.145, 1)
+polygon = PackedVector2Array(-300, -220, 300, -220, 300, 220, -300, 220)
+
+[node name="WallPanel10" type="Polygon2D" parent="Backdrop"]
+position = Vector2(6080, 280)
+color = Color(0.13, 0.14, 0.16, 1)
+polygon = PackedVector2Array(-300, -220, 300, -220, 300, 220, -300, 220)
+
+[node name="Geometry" type="Node2D" parent="."]
+
+[node name="Floor" type="StaticBody2D" parent="Geometry"]
+position = Vector2(3200, 552)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Geometry/Floor"]
+shape = SubResource("RectangleShape2D_Floor")
+
+[node name="PlaceholderVisual" type="Polygon2D" parent="Geometry/Floor"]
+color = Color(0.28, 0.30, 0.33, 1)
+polygon = PackedVector2Array(-3264, -32, 3264, -32, 3264, 32, -3264, 32)
+
+[node name="LeftWall" type="StaticBody2D" parent="Geometry"]
+position = Vector2(-32, 280)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Geometry/LeftWall"]
+shape = SubResource("RectangleShape2D_LeftWall")
+
+[node name="PlaceholderVisual" type="Polygon2D" parent="Geometry/LeftWall"]
+color = Color(0.32, 0.34, 0.37, 1)
+polygon = PackedVector2Array(-32, -240, 32, -240, 32, 240, -32, 240)
+
+[node name="RightWall" type="StaticBody2D" parent="Geometry"]
+position = Vector2(6432, 280)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Geometry/RightWall"]
+shape = SubResource("RectangleShape2D_RightWall")
+
+[node name="PlaceholderVisual" type="Polygon2D" parent="Geometry/RightWall"]
+color = Color(0.32, 0.34, 0.37, 1)
+polygon = PackedVector2Array(-32, -240, 32, -240, 32, 240, -32, 240)
+
+[node name="Ceiling" type="StaticBody2D" parent="Geometry"]
+position = Vector2(3200, 8)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Geometry/Ceiling"]
+shape = SubResource("RectangleShape2D_Ceiling")
+
+[node name="PlaceholderVisual" type="Polygon2D" parent="Geometry/Ceiling"]
+color = Color(0.25, 0.27, 0.30, 1)
+polygon = PackedVector2Array(-3264, -32, 3264, -32, 3264, 32, -3264, 32)
+
+[node name="Obstacles" type="Node2D" parent="."]
+
+[node name="LowDuct01" type="StaticBody2D" parent="Obstacles"]
+position = Vector2(1560, 420)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Obstacles/LowDuct01"]
+shape = SubResource("RectangleShape2D_LowDuct01")
+
+[node name="PlaceholderVisual" type="Polygon2D" parent="Obstacles/LowDuct01"]
+color = Color(0.40, 0.34, 0.27, 1)
+polygon = PackedVector2Array(-120, -60, 120, -60, 120, 60, -120, 60)
+
+[node name="LowDuct02" type="StaticBody2D" parent="Obstacles"]
+position = Vector2(3820, 420)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Obstacles/LowDuct02"]
+shape = SubResource("RectangleShape2D_LowDuct02")
+
+[node name="PlaceholderVisual" type="Polygon2D" parent="Obstacles/LowDuct02"]
+color = Color(0.40, 0.34, 0.27, 1)
+polygon = PackedVector2Array(-160, -60, 160, -60, 160, 60, -160, 60)
+
+[node name="OverheadCabinet" type="StaticBody2D" parent="Obstacles"]
+position = Vector2(2780, 160)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Obstacles/OverheadCabinet"]
+shape = SubResource("RectangleShape2D_OverheadCabinet")
+
+[node name="PlaceholderVisual" type="Polygon2D" parent="Obstacles/OverheadCabinet"]
+color = Color(0.30, 0.32, 0.35, 1)
+polygon = PackedVector2Array(-120, -120, 120, -120, 120, 120, -120, 120)
+
+[node name="Locations" type="Node2D" parent="."]
+
+[node name="PlayerSpawn" type="Marker2D" parent="Locations"]
+position = Vector2(240, 520)
+
+[node name="HidingSpot01" type="Marker2D" parent="Locations"]
+position = Vector2(2520, 520)
+
+[node name="HearingKeySpawn" type="Marker2D" parent="Locations"]
+position = Vector2(3240, 520)
+
+[node name="EnemySpawn" type="Marker2D" parent="Locations"]
+position = Vector2(4700, 520)
+
+[node name="ExitPoint" type="Marker2D" parent="Locations"]
+position = Vector2(6150, 520)
+
+[node name="SpawnStripe" type="Polygon2D" parent="Locations/PlayerSpawn"]
+position = Vector2(0, -2)
+color = Color(0.55, 0.70, 0.72, 1)
+polygon = PackedVector2Array(-30, -2, 30, -2, 30, 2, -30, 2)
+
+[node name="LockerSilhouette" type="Polygon2D" parent="Locations/HidingSpot01"]
+position = Vector2(0, -64)
+color = Color(0.19, 0.32, 0.36, 1)
+polygon = PackedVector2Array(-44, -64, 44, -64, 44, 64, -44, 64)
+
+[node name="LockerInset" type="Polygon2D" parent="Locations/HidingSpot01"]
+position = Vector2(0, -66)
+color = Color(0.12, 0.20, 0.23, 1)
+polygon = PackedVector2Array(-32, -52, 32, -52, 32, 52, -32, 52)
+
+[node name="KeyLocation" type="Polygon2D" parent="Locations/HearingKeySpawn"]
+position = Vector2(0, -40)
+color = Color(0.78, 0.64, 0.28, 1)
+polygon = PackedVector2Array(-9, -9, 9, -9, 9, 9, -9, 9)
+
+[node name="SpawnLocation" type="Polygon2D" parent="Locations/EnemySpawn"]
+position = Vector2(0, -3)
+color = Color(0.62, 0.29, 0.29, 1)
+polygon = PackedVector2Array(-32, -3, 32, -3, 32, 3, -32, 3)
+
+[node name="ExitDoor" type="Polygon2D" parent="Locations/ExitPoint"]
+position = Vector2(0, -72)
+color = Color(0.28, 0.43, 0.32, 1)
+polygon = PackedVector2Array(-50, -72, 50, -72, 50, 72, -50, 72)
+
+[node name="ExitInset" type="Polygon2D" parent="Locations/ExitPoint"]
+position = Vector2(0, -72)
+color = Color(0.15, 0.23, 0.18, 1)
+polygon = PackedVector2Array(-38, -60, 38, -60, 38, 60, -38, 60)

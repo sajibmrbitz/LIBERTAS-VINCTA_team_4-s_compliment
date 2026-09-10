@@ -15,6 +15,14 @@ run/main_scene="res://scenes/main/main.tscn"
 config/features=PackedStringArray("4.7", "GL Compatibility")
 config/icon="res://icon.svg"
 
+[autoload]
+
+EventBus="*res://scripts/core/event_bus.gd"
+FreedomLedger="*res://scripts/core/freedom_ledger.gd"
+GameManager="*res://scripts/core/game_manager.gd"
+NoiseModel="*res://scripts/systems/noise_model.gd"
+SessionSettings="*res://scripts/systems/session_settings.gd"
+
 [display]
 
 window/size/viewport_width=1280
@@ -24,6 +32,14 @@ window/stretch/aspect="expand"
 
 [input]
 
+move_up={
+"deadzone": 0.2,
+"events": [Object(InputEventKey,"physical_keycode":87), Object(InputEventKey,"physical_keycode":4194320)]
+}
+move_down={
+"deadzone": 0.2,
+"events": [Object(InputEventKey,"physical_keycode":83), Object(InputEventKey,"physical_keycode":4194322)]
+}
 move_left={
 "deadzone": 0.2,
 "events": [Object(InputEventKey,"physical_keycode":65), Object(InputEventKey,"physical_keycode":4194321)]
@@ -55,6 +71,7 @@ pause={
 
 [physics]
 
+common/physics_ticks_per_second=60
 3d/physics_engine="Jolt Physics"
 
 [rendering]

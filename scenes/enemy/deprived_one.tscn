@@ -1,0 +1,23 @@
+[gd_scene load_steps=3 format=3]
+[ext_resource type="Script" path="res://scripts/enemy/deprived_one.gd" id="1"]
+[sub_resource type="RectangleShape2D" id="feet"]
+size = Vector2(24, 14)
+[node name="DeprivedOne" type="CharacterBody2D"]
+collision_layer = 4
+collision_mask = 1
+motion_mode = 1
+script = ExtResource("1")
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(0, -7)
+shape = SubResource("feet")
+[node name="Visual" type="Node2D" parent="."]
+[node name="PlaceholderVisual" type="Polygon2D" parent="Visual"]
+color = Color(0.36, 0.16, 0.18, 1)
+polygon = PackedVector2Array(-18, 0, -23, -59, -9, -85, 9, -85, 23, -59, 18, 0)
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="Visual"]
+visible = false
+position = Vector2(0, -40)
+[node name="DebugState" type="Label" parent="."]
+visible = false
+offset_left = -80.0
+offset_top = -115.0
