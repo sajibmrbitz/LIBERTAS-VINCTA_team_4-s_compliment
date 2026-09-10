@@ -9,7 +9,7 @@
 5. Approach the flashlight around x=430 and tool kit around x=900. E collects each once.
 6. Approach the foyer door around x=1590. First E gives “Locked.” / “Of course.”. With both pickups, another E opens it after a brief lockpick beat and “Hello?”.
 7. Ground floor: use E three times on the Music Room piano seal around x=1800, then collect the gold Hearing Key at x=2140. The end stairs are offscreen at the start.
-8. Sprint over the debris after the key, then compare crouching on the lower carpet lane. The red enemy should investigate loud noise.
+8. Sprint over the debris after the key, then compare crouching on the lower carpet lane. The zombie should investigate loud noise.
 9. Use the upper-floor stairs around x=6980. Complete the vanity near x=2150, then collect Sight at x=2370.
 10. Compare crossing moonlight with the flashlight on versus crouching in the lower shadow lane. Furniture should block vision.
 11. Use E at a blue hiding silhouette, then E to leave. Unseen entry is reliable. Entering directly in view is unsafe.
@@ -45,3 +45,18 @@ The temporary test scripts, screenshots and logs were removed during cleanup. Th
 - [ ] Export and play Windows and Web builds with the layout JSON included.
 
 Automated results and environment limitations are recorded in the implementation report. Team release playtesting remains required.
+
+## Character integration checks
+
+- On F5, Els should display the female sprite during Awakening and after gaining control.
+- Move in all eight directions, sprint, stop and crouch; no character placeholder should appear.
+- Collect tools/keys, use a puzzle or door, and toggle the flashlight to check action clips.
+- After the intro, find the dormant zombie; restore Hearing to check walking and investigation.
+- Restore Sight and trigger a chase to check running. Capture should play zombie attack and
+  Els death before the existing checkpoint restart. Also check capture from a remembered hiding spot.
+- Check feet against collision and floor props, pause/resume, and room/checkpoint reloads.
+
+Static validation of the integrated resources passed: 80 female clips (960 frames) and
+32 zombie clips (640 frames), with all source files present, atlas regions within sheet
+bounds and nonempty alpha in every referenced cell. Godot runtime and visual playtesting
+were not run in the integration environment because no Godot executable was found.

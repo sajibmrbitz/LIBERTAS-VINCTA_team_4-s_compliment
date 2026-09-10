@@ -8,7 +8,7 @@
 
 A compact psychological survival horror / stealth exploration game set in Hollowmere Estate. The project uses Godot 2D to compose a three-quarter elevated side view: upright characters, visible floor depth, horizontal exploration and restrained depth movement. No jumping, gravity-based platforming, 3D, combat or inventory combinations.
 
-The non-asset framework is playable from Awakening through three short ending branches. All visuals, letter copy and audio slots are prototypes.
+The non-asset framework is playable from Awakening through three short ending branches. The female main character and zombie enemy use the supplied sprite sheets. Environment visuals, letter copy and audio slots remain prototypes.
 
 ## Run
 
@@ -61,4 +61,4 @@ Death fades into the latest runtime checkpoint. Checkpoints are taken on room en
 - [Asset credits](ASSET_CREDITS.md)
 - [AI disclosure](AI_DISCLOSURE.md)
 
-Windows Desktop and single-threaded Web export presets are supplied. Install matching Godot 4.7.2 export templates before exporting. The layout JSON is explicitly included. Exports and caches are ignored by Git. No export binaries or external assets are included.
+Windows Desktop and single-threaded Web export presets are supplied. Install matching Godot 4.7.2 export templates before exporting. The layout JSON is explicitly included. Exports and caches are ignored by Git. No export binaries are included. Character assets are under `ifat/female` and `zombie`.

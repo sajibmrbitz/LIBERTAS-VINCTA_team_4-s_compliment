@@ -1,4 +1,5 @@
 extends CharacterBody2D
+const CharacterAnimation := preload("res://scripts/player/character_animation.gd")
 enum State { DORMANT, WANDER, INVESTIGATE, SEARCH, CHASE, PREDICT_HUNT }
 @export var walk_speed: float = 100.0
 @export var chase_speed: float = 220.0
@@ -40,6 +41,8 @@ func _ready() -> void:
 	EventBus.player_hidden.connect(_hidden)
 	EventBus.player_left_hiding.connect(_left_hiding)
 	EventBus.sense_restored.connect(_restored)
+	EventBus.player_caught.connect(_attack)
+	CharacterAnimation.play(sprite, "idle", facing)
 	if FreedomLedger.hearing_restored:
 		change_state(State.WANDER)
 	_observe_debug()
@@ -80,6 +83,7 @@ func _physics_process(delta: float) -> void:
 	match state:
 		State.DORMANT:
 			velocity = Vector2.ZERO
+			CharacterAnimation.play(sprite, "idle", facing)
 			return
 		State.WANDER:
 			if global_position.distance_to(target) < 30.0 or state_clock > 10.0:
@@ -111,6 +115,8 @@ func _physics_process(delta: float) -> void:
 				observed_route.clear()
 			elif state_clock > 8.0:
 				change_state(State.WANDER)
+	if GameManager.state != GameManager.State.PLAYING:
+		return
 	_move(delta)
 	if FreedomLedger.hearing_restored and global_position.distance_to(player.global_position) < catch_distance:
 		if player.hidden_spot == null or player.hidden_spot.interaction_id == witnessed_hide:
@@ -145,14 +151,16 @@ func _move(delta: float) -> void:
 		path_clock = 0.0
 		stalled_time = 0.0
 		change_state(State.INVESTIGATE)
-	var animation := "walk_left" if facing.x < 0 else "walk_right"
-	if sprite.sprite_frames != null and sprite.sprite_frames.has_animation(animation):
-		sprite.visible = true
-		$Visual/PlaceholderVisual.hide()
-		sprite.play(animation)
-	else:
-		sprite.hide()
-		$Visual/PlaceholderVisual.show()
+	var animation := "idle"
+	if global_position.distance_to(before) > 0.01:
+		animation = "run" if state == State.CHASE else "walk"
+	CharacterAnimation.play(sprite, animation, facing)
+
+func _attack() -> void:
+	velocity = Vector2.ZERO
+	if is_instance_valid(player):
+		facing = global_position.direction_to(player.global_position)
+	CharacterAnimation.play(sprite, "attack", facing)
 
 func _hear(point: Vector2, intensity: float, _surface: String) -> void:
 	if not FreedomLedger.hearing_restored or state == State.CHASE or GameManager.state != GameManager.State.PLAYING:

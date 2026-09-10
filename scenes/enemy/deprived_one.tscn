@@ -1,5 +1,6 @@
-[gd_scene load_steps=3 format=3]
+[gd_scene load_steps=4 format=3]
 [ext_resource type="Script" path="res://scripts/enemy/deprived_one.gd" id="1"]
+[ext_resource type="SpriteFrames" path="res://scenes/enemy/zombie_frames.tres" id="2"]
 [sub_resource type="RectangleShape2D" id="feet"]
 size = Vector2(24, 14)
 [node name="DeprivedOne" type="CharacterBody2D"]
@@ -12,11 +13,15 @@ position = Vector2(0, -7)
 shape = SubResource("feet")
 [node name="Visual" type="Node2D" parent="."]
 [node name="PlaceholderVisual" type="Polygon2D" parent="Visual"]
+visible = false
 color = Color(0.36, 0.16, 0.18, 1)
 polygon = PackedVector2Array(-18, 0, -23, -59, -9, -85, 9, -85, 23, -59, 18, 0)
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="Visual"]
-visible = false
-position = Vector2(0, -40)
+scale = Vector2(0.55, 0.55)
+offset = Vector2(0, -96)
+sprite_frames = ExtResource("2")
+animation = &"idle_w"
+autoplay = "idle_w"
 [node name="DebugState" type="Label" parent="."]
 visible = false
 offset_left = -80.0

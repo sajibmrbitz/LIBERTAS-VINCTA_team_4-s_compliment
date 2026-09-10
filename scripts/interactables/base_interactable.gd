@@ -42,7 +42,12 @@ func interact(player: Node2D) -> void:
 		return
 	busy = true
 	EventBus.interaction_started.emit(self)
-	player.play_action("interact")
+	var action := "interact"
+	if kind in ["key", "tool", "letter"]:
+		action = "pickup"
+	elif kind in ["locked_door", "door", "puzzle"]:
+		action = "unlock"
+	player.play_action(action, action_seconds if kind == "puzzle" else 1.0)
 	match kind:
 		"flashlight":
 			FreedomLedger.flags[interaction_id] = true
@@ -73,8 +78,8 @@ func interact(player: Node2D) -> void:
 				player.control_enabled = false
 				EventBus.audio_requested.emit("lockpick")
 				await get_tree().create_timer(action_seconds, false).timeout
-				player.control_enabled = true
 				if GameManager.state == GameManager.State.PLAYING:
+					player.control_enabled = true
 					progress += 1
 					EventBus.noise_created.emit(global_position, 0.55, "GENERIC")
 					if progress >= puzzle_steps:

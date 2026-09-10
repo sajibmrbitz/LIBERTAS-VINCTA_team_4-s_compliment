@@ -4,14 +4,37 @@ Collision, interactions and sensing never infer dimensions or behavior from text
 
 ## Characters
 
-| Asset type | Assignment point | Contract |
-| --- | --- | --- |
-| Player SpriteFrames resource / sprite sheets | `scenes/player/player.tscn → Visual/AnimatedSprite2D.sprite_frames` | Art uses a foot origin; adjust sprite position/scale to align feet. |
-| Enemy SpriteFrames resource | `scenes/enemy/deprived_one.tscn → Visual/AnimatedSprite2D.sprite_frames` | Supply walk_left and walk_right for current enemy hooks. |
-| Optional flashlight beam texture | Player `Visual/Flashlight/PointLight2D.texture` | Replace generated radial light texture; retain node names. Hide BeamPlaceholder when final effect is assigned. |
-| Collision tuning | Character `CollisionShape2D` | Independent 24×14 foot footprint; keep the foot origin at the actor's position. |
+The playable Els uses `scenes/player/female_frames.tres`, built from the ten sheets in
+`ifat/female`. The existing Deprived One enemy uses `scenes/enemy/zombie_frames.tres`,
+built from the supplied zombie Idle, Walk, Run and Attack1 sheets. Main spawns that
+enemy on the ground, upper and basement floors; it remains dormant until Hearing.
 
-Player animation hooks: idle_left, idle_right, walk_left, walk_right, walk_up, walk_down, sprint_left, sprint_right, crouch_idle, crouch_walk, interact, flashlight, caught. Missing animations fall back to muted placeholder geometry without errors. Provide every listed state to remove fallback flashes. Awake/get-up is currently a restrained visual rotation tween in the intro sequencer; replace that presentation independently of its control lock.
+Both scenes assign SpriteFrames directly, so their art is also visible in the editor.
+Animation names use `<action>_<direction>` with s, sw, w, nw, n, ne, e and se suffixes.
+`character_animation.gd` maps facing to those directions and preserves gait frames
+when turning. Female sheets use direction rows; zombie sheets use separate angle
+files (0 south, 090 east) with frames read left to right, then top to bottom.
+
+Player movement selects idle/walk/run. Crouching slows walk playback and compresses
+the existing Visual node because no crouch sheet was supplied. Interactions select
+interact, pickup, unlock or flashlight; caught plays death and holds its final frame.
+Damage and stagger clips are available for future hooks; this game currently uses
+instant capture rather than health or combat. Zombie animation selects idle when
+stationary, walk while investigating/patrolling, run while chasing, and attack on capture.
+
+Both sprites retain fixed 256-pixel cells and a (128, 224) foot anchor, using offset
+(0, -96) on centered sprites. Player scale is 0.4; zombie scale is 0.55. Collision
+remains an independent 24 by 14 foot footprint. No per-frame cropping is performed.
+Awakening retains its existing rotation tween and control lock.
+
+Rebuild the checked-in resources after replacing sheets:
+
+```powershell
+python scripts/tools/build_character_frames.py
+```
+
+Godot imports PNGs automatically; Python is only needed to rebuild resources.
+The flashlight still uses its generated radial light and beam placeholder.
 
 ## Environment
 
@@ -58,7 +81,7 @@ Edit Awakening timing/lines in `scripts/intro/awakening.gd` and pickup/door line
 
 ## Integration checklist
 
-1. Assign character SpriteFrames and verify every fallback state.
+1. Verify the integrated female and zombie animations in all eight directions.
 2. Assign room-art scenes; hide only environment placeholders.
 3. Align props to their existing foot markers and assign textures.
 4. Assign audio streams and check loops, mix and subtitle timing.

@@ -1,7 +1,8 @@
-[gd_scene load_steps=6 format=3 uid="uid://c374yl7rj3kup"]
+[gd_scene load_steps=7 format=3 uid="uid://c374yl7rj3kup"]
 
 [ext_resource type="Script" path="res://scripts/player/player.gd" id="1"]
 [ext_resource type="Script" path="res://scripts/player/room_camera.gd" id="2"]
+[ext_resource type="SpriteFrames" path="res://scenes/player/female_frames.tres" id="3"]
 
 [sub_resource type="RectangleShape2D" id="feet"]
 size = Vector2(24, 14)
@@ -34,12 +35,17 @@ color = Color(0.03, 0.03, 0.04, 0.5)
 polygon = PackedVector2Array(-19, -4, 0, -10, 19, -4, 0, 3)
 
 [node name="PlaceholderVisual" type="Polygon2D" parent="Visual"]
+visible = false
 color = Color(0.49, 0.61, 0.67, 1)
 polygon = PackedVector2Array(-12, 0, -14, -43, -9, -58, 9, -58, 14, -43, 12, 0)
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="Visual"]
-visible = false
-position = Vector2(0, -28)
+texture_filter = 1
+scale = Vector2(0.4, 0.4)
+offset = Vector2(0, -96)
+sprite_frames = ExtResource("3")
+animation = &"idle_e"
+autoplay = "idle_e"
 
 [node name="Flashlight" type="Node2D" parent="Visual"]
 visible = false

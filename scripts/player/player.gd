@@ -1,4 +1,5 @@
 extends CharacterBody2D
+const CharacterAnimation := preload("res://scripts/player/character_animation.gd")
 ## Ground-plane locomotion: collision is a foot footprint, independent of art.
 @export var walk_speed: float = 160.0
 @export var sprint_speed: float = 260.0
@@ -13,7 +14,7 @@ var flashlight_enabled: bool = false
 var facing: Vector2 = Vector2.RIGHT
 var noise_clock: float = 0.0
 var target_interactable: Node2D
-var animation_state: String = "idle_right"
+var animation_state: String = "idle"
 var animation_hold: float = 0.0
 @onready var visual: Node2D = $Visual
 @onready var sprite: AnimatedSprite2D = $Visual/AnimatedSprite2D
@@ -22,6 +23,7 @@ func _ready() -> void:
 	add_to_group("player")
 	motion_mode = CharacterBody2D.MOTION_MODE_FLOATING
 	EventBus.player_caught.connect(_caught)
+	play_animation("idle")
 
 func _physics_process(delta: float) -> void:
 	animation_hold = maxf(0.0, animation_hold - delta)
@@ -73,7 +75,7 @@ func set_flashlight(enabled: bool) -> void:
 	$Visual/Flashlight.visible = enabled
 	EventBus.flashlight_changed.emit(enabled)
 	EventBus.audio_requested.emit("flashlight")
-	play_action("flashlight", 0.25)
+	play_action("flashlight")
 
 func enter_hiding(spot: Node2D) -> void:
 	hidden_spot = spot
@@ -93,33 +95,26 @@ func leave_hiding() -> void:
 func _caught() -> void:
 	control_enabled = false
 	velocity = Vector2.ZERO
-	play_animation("caught")
+	visual.scale.y = 1.0
+	visual.modulate.a = 1.0
+	play_animation("death")
 
 func _update_animation(axis: Vector2, speed: float) -> void:
 	$Visual/Flashlight.rotation = facing.angle()
 	if animation_hold > 0.0:
 		return
-	var suffix := "left" if facing.x < 0 else "right"
-	var animation := "idle_" + suffix
-	if is_crouching:
-		animation = "crouch_walk" if axis.length() > 0.01 else "crouch_idle"
-	elif axis.length() > 0.01:
-		if absf(axis.y) > absf(axis.x):
-			animation = "walk_up" if axis.y < 0 else "walk_down"
-		else:
-			animation = ("sprint_" if speed == sprint_speed else "walk_") + suffix
+	var animation := "idle"
+	if axis.length() > 0.01:
+		animation = "run" if speed == sprint_speed else "walk"
 	play_animation(animation)
+	sprite.speed_scale = 0.6 if is_crouching else 1.0
 
-func play_action(animation: String, seconds: float = 0.3) -> void:
-	animation_hold = seconds
+func play_action(animation: String, seconds: float = 1.0) -> void:
+	animation_hold = maxf(seconds, 1.0)
 	play_animation(animation)
+	sprite.set_frame_and_progress(0, 0.0)
 
 func play_animation(animation: String) -> void:
 	animation_state = animation
-	if sprite.sprite_frames != null and sprite.sprite_frames.has_animation(animation):
-		sprite.play(animation)
-		sprite.visible = true
-		$Visual/PlaceholderVisual.visible = false
-	else:
-		sprite.visible = false
-		$Visual/PlaceholderVisual.visible = true
+	sprite.speed_scale = 1.0
+	CharacterAnimation.play(sprite, animation, facing)
