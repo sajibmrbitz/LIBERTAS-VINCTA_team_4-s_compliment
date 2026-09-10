@@ -1,0 +1,92 @@
+{
+  "version": 2,
+  "columns": 12,
+  "rows": 8,
+  "framesPerAnimation": 12,
+  "cellWidth": 256,
+  "cellHeight": 256,
+  "transparent": true,
+  "directions": [
+    "S",
+    "SW",
+    "W",
+    "NW",
+    "N",
+    "NE",
+    "E",
+    "SE"
+  ],
+  "anchor": [
+    128,
+    224
+  ],
+  "fps": 12,
+  "mirroredDirections": [
+    "NE",
+    "E",
+    "SE"
+  ],
+  "idle": "held pose repeated in all 12 cells",
+  "sheets": {
+    "Idle": {
+      "file": "idle.png",
+      "width": 3072,
+      "height": 2048,
+      "loop": true
+    },
+    "Walk": {
+      "file": "walk.png",
+      "width": 3072,
+      "height": 2048,
+      "loop": true
+    },
+    "Run": {
+      "file": "run.png",
+      "width": 3072,
+      "height": 2048,
+      "loop": true
+    },
+    "Interact": {
+      "file": "interact.png",
+      "width": 3072,
+      "height": 2048,
+      "loop": false
+    },
+    "Unlock/open door": {
+      "file": "unlock.png",
+      "width": 3072,
+      "height": 2048,
+      "loop": false
+    },
+    "Pick up key": {
+      "file": "pickup.png",
+      "width": 3072,
+      "height": 2048,
+      "loop": false
+    },
+    "Use flashlight": {
+      "file": "flashlight.png",
+      "width": 3072,
+      "height": 2048,
+      "loop": false
+    },
+    "Take damage": {
+      "file": "damage.png",
+      "width": 3072,
+      "height": 2048,
+      "loop": false
+    },
+    "Stagger": {
+      "file": "stagger.png",
+      "width": 3072,
+      "height": 2048,
+      "loop": false
+    },
+    "Death": {
+      "file": "death.png",
+      "width": 3072,
+      "height": 2048,
+      "loop": false
+    }
+  }
+}
