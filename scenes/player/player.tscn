@@ -1,0 +1,23 @@
+[gd_scene format=3 uid="uid://c374yl7rj3kup"]
+
+[ext_resource type="Script" uid="uid://bqjm0x2gcg3i8" path="res://scripts/player/player.gd" id="1_player"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_player"]
+resource_local_to_scene = true
+size = Vector2(28, 56)
+
+[node name="Player" type="CharacterBody2D" unique_id=324572291]
+script = ExtResource("1_player")
+
+[node name="PlaceholderVisual" type="Polygon2D" parent="." unique_id=1318177932]
+color = Color(0.65, 0.72, 0.7, 1)
+polygon = PackedVector2Array(-14, -56, 14, -56, 14, 0, -14, 0)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1106604111]
+position = Vector2(0, -28)
+shape = SubResource("RectangleShape2D_player")
+
+[node name="Camera2D" type="Camera2D" parent="." unique_id=1873846400]
+position = Vector2(0, -100)
+position_smoothing_enabled = true
+position_smoothing_speed = 6.0
