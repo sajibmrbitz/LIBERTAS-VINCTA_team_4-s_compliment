@@ -1,0 +1,29 @@
+[gd_scene load_steps=3 format=3]
+[ext_resource type="Script" path="res://scripts/ui/menu_button.gd" id="1"]
+[ext_resource type="Theme" path="res://themes/libertas_ui_theme.tres" id="2"]
+[node name="MenuButton" type="Button"]
+custom_minimum_size = Vector2(220, 38)
+mouse_default_cursor_shape = 2
+theme = ExtResource("2")
+script = ExtResource("1")
+[node name="Visual" type="Control" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+[node name="Caption" type="Label" parent="Visual"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 12.0
+mouse_filter = 2
+theme_type_variation = &"MenuText"
+vertical_alignment = 1
+[node name="Accent" type="ColorRect" parent="."]
+layout_mode = 0
+offset_top = 11.0
+offset_right = 2.0
+offset_bottom = 27.0
+mouse_filter = 2

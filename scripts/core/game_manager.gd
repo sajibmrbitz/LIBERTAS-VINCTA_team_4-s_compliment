@@ -1,6 +1,6 @@
 extends Node
-enum State { INTRO, PLAYING, PAUSED, READING, CAUGHT, ENDING }
-var state: State = State.INTRO
+enum State { INTRO, PLAYING, PAUSED, READING, CAUGHT, ENDING, MENU }
+var state: State = State.MENU
 var zone: String = "intro"
 var entry: String = "start"
 var checkpoint: Dictionary = {}
@@ -20,7 +20,22 @@ func new_game() -> void:
 	checkpoint.clear()
 	ending = ""
 	state = State.INTRO
-	get_tree().reload_current_scene()
+	return_state = State.PLAYING
+	var error := get_tree().change_scene_to_file("res://scenes/ui/loading_screen.tscn")
+	if error != OK:
+		push_error("Could not open loading screen (error %s)." % error)
+		go_home()
+
+func go_home() -> void:
+	get_tree().paused = false
+	FreedomLedger.reset()
+	checkpoint.clear()
+	zone = "intro"
+	entry = "start"
+	ending = ""
+	return_state = State.PLAYING
+	state = State.MENU
+	get_tree().change_scene_to_file("res://scenes/ui/front_end.tscn")
 
 func save_checkpoint(position: Vector2) -> void:
 	checkpoint = {"zone": zone, "position": position, "ledger": FreedomLedger.snapshot()}
@@ -31,7 +46,7 @@ func travel(destination: String, entrance: String = "start") -> void:
 	entry = entrance
 	state = State.PLAYING
 	# A room transition is also a safe checkpoint. Main supplies its spawn position.
-	get_tree().reload_current_scene()
+	get_tree().change_scene_to_file("res://scenes/main/main.tscn")
 
 func restart_checkpoint() -> void:
 	get_tree().paused = false
@@ -43,7 +58,7 @@ func restart_checkpoint() -> void:
 	entry = "checkpoint"
 	ending = ""
 	state = State.PLAYING
-	get_tree().reload_current_scene()
+	get_tree().change_scene_to_file("res://scenes/main/main.tscn")
 
 func caught() -> void:
 	if state != State.PLAYING:

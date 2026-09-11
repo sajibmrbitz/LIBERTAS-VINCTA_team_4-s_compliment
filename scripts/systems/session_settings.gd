@@ -1,6 +1,7 @@
 extends Node
 var volumes: Dictionary = {"Master": 0.8, "Music": 0.7, "Ambience": 0.8, "SFX": 0.8}
 var fullscreen: bool = false
+var subtitles_enabled: bool = true
 
 func _ready() -> void:
 	for bus in volumes:
@@ -16,3 +17,6 @@ func set_volume(bus: String, value: float) -> void:
 func set_fullscreen(enabled: bool) -> void:
 	fullscreen = enabled
 	DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_FULLSCREEN if enabled else DisplayServer.WINDOW_MODE_WINDOWED)
+
+func set_subtitles(enabled: bool) -> void:
+	subtitles_enabled = enabled

@@ -1,6 +1,7 @@
 extends CanvasLayer
 ## Minimal runtime UI with a replaceable Theme; gameplay never depends on UI art.
-@export var ui_theme: Theme
+@export var ui_theme: Theme = preload("res://themes/libertas_ui_theme.tres")
+var pause_menu: Control
 var root: Control
 var senses: Label
 var prompt: Label
@@ -52,18 +53,13 @@ func _ready() -> void:
 	modal.offset_right = 270
 	modal.offset_top = -250
 	modal.offset_bottom = 250
-	var style := StyleBoxFlat.new()
-	style.bg_color = Color(0.045, 0.055, 0.07, 0.98)
-	style.content_margin_left = 28
-	style.content_margin_right = 28
-	style.content_margin_top = 24
-	style.content_margin_bottom = 24
-	modal.add_theme_stylebox_override("panel", style)
 	root.add_child(modal)
 	modal_box = VBoxContainer.new()
 	modal_box.add_theme_constant_override("separation", 14)
 	modal.add_child(modal_box)
 	modal.hide()
+	pause_menu = preload("res://scenes/ui/pause_menu.tscn").instantiate()
+	root.add_child(pause_menu)
 	EventBus.subtitle_requested.connect(enqueue_subtitle)
 	EventBus.sense_restored.connect(transaction)
 	EventBus.player_caught.connect(func(): create_tween().tween_property(fade, "color:a", 1.0, 1.0))
@@ -77,6 +73,7 @@ func make_label(text: String, size: int = 18) -> Label:
 	return label
 
 func _process(delta: float) -> void:
+	subtitle.visible = SessionSettings.subtitles_enabled
 	senses.visible = GameManager.zone != "intro" and GameManager.state != GameManager.State.ENDING
 	senses.text = "  /  ".join(["Hearing " + status("hearing"), "Sight " + status("sight"), "Memory " + status("memory")])
 	var player = get_tree().get_first_node_in_group("player")
@@ -112,7 +109,7 @@ func _unhandled_input(event: InputEvent) -> void:
 		if GameManager.state == GameManager.State.READING:
 			close_modal()
 		elif GameManager.state == GameManager.State.PAUSED:
-			close_modal()
+			pause_menu.back()
 		elif GameManager.state in [GameManager.State.PLAYING, GameManager.State.INTRO]:
 			GameManager.pause_game()
 			show_pause()
@@ -131,40 +128,15 @@ func clear_modal(title: String) -> void:
 	modal.show()
 
 func button(text: String, callback: Callable) -> Button:
-	var control := Button.new()
-	control.text = text
+	var control = preload("res://scenes/ui/components/menu_button.tscn").instantiate()
+	control.caption = text
 	control.custom_minimum_size.y = 38
-	control.pressed.connect(func(): EventBus.audio_requested.emit("ui"); callback.call())
+	control.pressed.connect(callback)
 	modal_box.add_child(control)
 	return control
 
 func show_pause() -> void:
-	clear_modal("LIBERTAS VINCTA")
-	modal_mode = "pause"
-	button("Resume", close_modal).grab_focus()
-	button("Settings", show_settings)
-	button("Restart checkpoint", GameManager.restart_checkpoint)
-	button("New game", GameManager.new_game)
-	button("Quit", func(): get_tree().quit())
-
-func show_settings() -> void:
-	clear_modal("Settings")
-	modal_mode = "settings"
-	for bus in ["Master", "Music", "Ambience", "SFX"]:
-		modal_box.add_child(make_label(bus, 16))
-		var slider := HSlider.new()
-		slider.min_value = 0.0
-		slider.max_value = 1.0
-		slider.step = 0.01
-		slider.value = SessionSettings.volumes[bus]
-		slider.value_changed.connect(func(value): SessionSettings.set_volume(bus, value))
-		modal_box.add_child(slider)
-	var toggle := CheckButton.new()
-	toggle.text = "Fullscreen"
-	toggle.button_pressed = SessionSettings.fullscreen
-	toggle.toggled.connect(SessionSettings.set_fullscreen)
-	modal_box.add_child(toggle)
-	button("Back", show_pause)
+	pause_menu.open()
 
 func show_letter(title: String, text: String) -> void:
 	GameManager.read_letter()

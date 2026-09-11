@@ -1,0 +1,1317 @@
+LIBERTAS VINCTA
+CURRENT GAME FLOW AND LOGIC
+Team 4's Compliment
+Godot 4.7.2
+Repository baseline: 2fe7466 (first working version), plus uncommitted asset integration and front-end UI implementation.
+
+SOURCE AND STATUS CONVENTION
+This document describes the inspected scenes, scripts, resources and organized asset files.
+It is not a copy of the design brief. No Godot launch, parser check, automated test or
+post-implementation playtest was run for this integration, as requested by the developer.
+Image dimensions, alpha channels, source manifests and file metadata were inspected to
+choose asset regions before editing. Existing gameplay was read, not newly certified.
+
+[WORKING] = an existing implemented, connected code path; not a new runtime test claim.
+[PARTIAL] = implementation/presentation exists but has a stated limitation or awaits manual confirmation.
+[PLACEHOLDER] = deliberate temporary art, text or empty audio hook.
+[BROKEN] = a concrete source-evident defect, described explicitly.
+[NOT IMPLEMENTED] = no corresponding current feature.
+New sprite/audio wiring is [PARTIAL] until the developer imports and plays it in Godot.
+
+==================================================
+1. EXACT F5 GAME FLOW
+==================================================
+[WORKING] Code entry path:
+F5 -> project.godot run/main_scene = res://scenes/ui/front_end.tscn -> HOME.
+Autoloads initialize in this order: EventBus, FreedomLedger, GameManager, NoiseModel,
+SessionSettings. GameManager starts with zone="intro", entry="start", state=MENU.
+HOME offers Start Game, Story, Controls, Settings, Credits and desktop Quit.
+Start Game locks input, fades to black over 0.32 seconds, calls GameManager.new_game,
+clears the ledger/checkpoint/ending, sets state=INTRO, and opens scenes/ui/loading_screen.tscn.
+Loading shows a bottom LOADING... button and advances automatically after 5.0 seconds
+(including its final 0.32s black fade). Main loads normally behind opaque black; threaded
+requests/polling were removed after a reported stuck screen. Load errors offer Return Home.
+Main's existing Player, UI, Audio and Awakening children initialize.
+Main._ready loads res://scenes/levels/intro_floor.tscn under World.
+EstateRoom reads res://data/estate_layout.json and builds geometry, props and markers.
+Main places Player at PlayerSpawn (240,490), applies camera bounds, and starts Awakening.
+No enemy is created in the intro.
+
+After about 11.7 seconds of unpaused intro time, control becomes available.
+Walk to the flashlight (430,480) and tool kit (900,430); press E near each.
+Try intro_exit (1590,480): the first interaction only acknowledges the lock.
+With both pickups, another E performs the short lock beat and corridor focus.
+GameManager.travel("ground") reloads Main with the ground-floor instance.
+Main saves an entry checkpoint and creates The Deprived One in Entities.
+
+Main progression:
+Ground: piano_seal at (1800,435), three E completions of 0.9 seconds each.
+Then hearing_key at (2140,475): restores Hearing, saves checkpoint.
+upper_stairs at (6980,480) requires hearing -> upper, entry=start.
+Upper: vanity_seal (2150,440), requires hearing, three 1.1-second completions.
+Then sight_key (2370,480): restores Sight, saves checkpoint.
+basement_stairs (6980,480) requires sight -> basement, entry=start.
+Basement: ritual_seal (4090,430), requires sight, three 1.25-second completions.
+Then memory_key (4310,480): restores Memory, saves checkpoint.
+service_return (6890,480) requires memory -> ground, entry=end.
+Return left to front_door (180,475), press E with three keys -> Full Awakening.
+
+All other actual transitions:
+- Upper ground_stairs (180,480) -> ground, entry=end, no additional gate.
+- Basement upper_stairs (180,480) -> upper, entry=end, no additional gate.
+- Basement maintenance_exit (620,430) with exactly two keys -> Partial Mercy.
+- Ground custodian_seal (5900,430) with <=1 key and >=3 letters -> Vantree.
+- Caught -> 1.2-second sequence -> saved room/position/ledger -> Main reload.
+- Restart checkpoint -> saved snapshot, or New game when no checkpoint exists.
+- New game -> clear progression and checkpoint -> Loading -> intro Main.
+- Pause and letter reading suspend the scene tree; Resume/Close return to prior state.
+- Ending -> ending overlay; New game or Quit. No scene beyond an ending exists.
+
+All four active room groups and three ending triggers are connected in code.
+There is no return transition into the foyer after leaving it.
+No progression blocker was established by the source inspection after path repair,
+but this is not proof of a completed live run with the new assets.
+
+MANUAL F5 PROCEDURE (for the developer, not executed by the agent):
+1. Open project.godot in 4.7.2 and let the moved textures/WAVs import.
+2. F5; choose START GAME on HOME; wait for Els to rise. Move in all eight input directions.
+3. Compare walk, Shift sprint and Ctrl crouch; release movement and confirm footsteps stop.
+4. Collect both foyer items and try/open the door as described above.
+5. Complete the ground piano and Hearing Key. Compare sprint noise with crouch/carpet.
+6. Continue to Sight; compare flashlight/exposed movement with darkness and crouch.
+7. Enter/leave blue hiding props using E. Continue through the basement ritual for Memory.
+8. Use the service return/front door for Full Awakening. Use separate runs/checkpoints
+   for Partial Mercy before Memory and Vantree before taking more than one key.
+9. Confirm death, checkpoint restart, letters, Esc/settings and New game.
+These are manual instructions, not completed test results.
+
+==================================================
+2. MAIN SCENE TREE
+==================================================
+[WORKING] res://scenes/main/main.tscn; script res://scripts/main/main.gd.
+Important runtime hierarchy:
+Main (Node2D, Y sorting enabled)
+  World (Node2D, Y sorting enabled)
+    IntroFloor / GroundFloor / UpperFloor / BasementFloor
+      Backdrop (z=-10; walls/floor/seams/windows, Parallax2D)
+      Geometry (StaticBody2D boundary bodies with CollisionShape2D)
+      Props (Y-sorted furniture bodies and BaseInteractable instances)
+      Markers (PlayerSpawn, ReturnSpawn, EnemySpawn, per-prop points)
+      EnvironmentArt (only created if an environment_art PackedScene is assigned)
+  Entities (Node2D, Y sorting enabled)
+    Player (res://scenes/player/player.tscn)
+      CollisionShape2D
+      Visual
+        Shadow, PlaceholderVisual, AnimatedSprite2D
+        Flashlight
+          BeamPlaceholder
+          PointLight2D
+      Camera2D
+      FootstepAudio
+        Voice1 (AudioStreamPlayer, SFX)
+        Voice2 (AudioStreamPlayer, SFX)
+    DeprivedOne (res://scenes/enemy/deprived_one.tscn; not in intro)
+      CollisionShape2D
+      Visual / PlaceholderVisual / AnimatedSprite2D
+      DebugState
+  UI (CanvasLayer, res://scripts/ui/game_hud.gd; creates Controls at runtime)
+  Audio (res://scenes/systems/audio_director.tscn; builds named sound players)
+  Awakening (res://scenes/intro/awakening.tscn)
+
+==================================================
+3. INTRO - AWAKENING
+==================================================
+[WORKING] Control sequence: res://scripts/intro/awakening.gd.
+[PARTIAL] Presentation-only INTRO_PRONE holds death_w frame 11 (zero-based) from
+female_frames.tres: death.png row 2 / column 11, region (2816,512,256,256).
+Death and stagger source sheets were visually inspected. Stagger stays upright;
+death_w has a face-down collapse with arm/knee recovery positions suitable to reverse.
+No Visual rotation, collision change, death signal, death state or death sound.
+Shadow temporarily widens. The dropped flashlight gains a faint native Polygon2D beam
+pointing right, away from Els; it hides with the existing pickup when collected.
+Camera starts at its normal zoom multiplied by 1.10, then returns over 1.25s.
+No changes to the normal room camera algorithm or later corridor focus.
+
+Timeline (approximately, unpaused seconds; normal frame scheduling adds small drift):
+0.0: state INTRO, movement disabled, HUD fully black, prone frame held, rain hook.
+0.5: drip. 1.1: second drip and breathing. 1.2-2.6: fade reveals Cold Foyer.
+2.6: ELS "...Where am I?" (1.7s), then 0.2s gap; building_creak hook.
+4.5: ELS "Els Vantree... Hollowmere. The appraisal." (2.1s), then 0.2s gap.
+6.8: ELS "They offered too much. I signed without reading the addendum." (2.5s), gap 0.2s.
+9.5: ELS "After that... nothing. Six hours just gone." (2.2s); recovery begins.
+11.7: idle_w, speed scale 1, normal shadow/zoom, control enabled, state PLAYING.
+Existing HUD subtitle queue remains the only subtitle owner and respects Settings.
+
+use_reverse_collapse_for_wake=true plays death_w backwards at 0.8 speed (about 1.25s).
+There is no newly authored get-up art. Toggle the export off on Awakening to use a
+0.18s body fade out / idle switch / 0.18s fade in instead. Missing collapsed art warns
+and conceals the body until this recovery fallback; no rotated standing fallback.
+All waits, animation and camera/body tweens respect pause and die with their scene.
+
+[WORKING] Flashlight pickup: flag flashlight=true; light turns on.
+Actual queued dialogue: "Mine..." (1.8 s), "How did it get over there?" (2.6 s).
+[WORKING] Tool pickup: flag lockpick_tool=true; "At least I came prepared." (2.0 s).
+[WORKING] First door attempt sets intro_door_tried:
+"Locked." (1.4 s), "Of course." (1.4 s).
+Later missing tool: "I need my tools."
+Later missing flashlight: "I should take my flashlight."
+[WORKING] Unlock with both: movement disabled; lockpick hook; wait 1.2 s;
+door/building_creak hooks; door Visual alpha=0.25; camera focuses for 2.0 s;
+"Hello?" (1.8 s); wait 2.0 s; intro_complete=true; travel to ground.
+[PLACEHOLDER] Corridor reveal is dark floor geometry and a faded prop, not final doorway art.
+[NOT IMPLEMENTED] Separate title reveal/splash/chapter card.
+[PLACEHOLDER] All intro audio streams remain unassigned; footsteps are the only installed audio.
+
+==================================================
+4. PLAYER
+==================================================
+[WORKING] res://scenes/player/player.tscn; res://scripts/player/player.gd.
+CharacterBody2D, floating motion mode, collision layer=2, mask=1.
+Input.get_vector normalizes combined input; Y speed is multiplied by depth_ratio=0.55.
+Defaults: walk_speed=160, sprint_speed=260, crouch_speed=80, acceleration=1100.
+Crouch overrides sprint. No jumping or gravity; movement is on a bounded room plane.
+Animation follows input direction; real displacement gates footstep events.
+Interaction radius=76, nearest available interactable with clear mask-1 ray.
+F toggles light only after its pickup and outside hiding. E enters/leaves hiding.
+24x14 rectangular footprint centered at (0,-7), unchanged by sprite integration.
+Visual/camera/flashlight nodes remain children, separate from collision.
+
+[PARTIAL] Sprite integration repaired to res://assets/sprites/player/.
+res://scenes/player/female_frames.tres contains 80 named animations / 960 atlas cells.
+Ten actions x eight directions; 12 frames each at 12 FPS. Details in section 24.
+Player sprite scale remains (0.4,0.4), offset=(0,-96), centered=true.
+For 256x256 cells this anchors source (128,224) at the gameplay foot origin.
+Nearest texture filtering is retained. No world geometry or collider resizing.
+Initial animation/autoplay: idle_e. Root-level Y sorting remains unchanged.
+No runtime flip_h duplication: the supplied sheet already includes right-facing rows.
+
+Current gameplay mapping:
+stationary -> idle_<direction>;
+movement -> walk_<direction>;
+sprint -> run_<direction>;
+crouch -> existing idle/walk, 0.6 playback speed plus Visual Y scale=0.65.
+There is no supplied crouch animation.
+Generic interaction -> interact; key/tool/letter -> pickup;
+door/locked_door/puzzle -> unlock; flashlight toggle -> flashlight; caught -> death.
+damage and stagger are configured assets without current gameplay callers.
+play_action holds the visual for max(requested seconds,1.0), restarts the one-shot,
+and does not itself change interaction timing or movement permission.
+Direction changes preserve gait phase for the same action.
+Missing animation fallback: requested directional, requested plain, walk-directional
+for run, idle-directional, idle. If none exists, the existing polygon becomes visible.
+No fabricated frames or animation states were added.
+
+==================================================
+5. PLAYER INPUT CONTROLS
+==================================================
+[WORKING] Actual project.godot actions, deadzone=0.2:
+move_left: physical A (65), Left (4194321)
+move_right: physical D (68), Right (4194323)
+move_up: physical W (87), Up (4194320)
+move_down: physical S (83), Down (4194322)
+sprint: Shift (4194325)
+crouch: Ctrl (4194326)
+interact: E (69)
+flashlight: F (70)
+pause: Escape (4194305)
+Letter overlay closes with E, Esc or its button.
+No jump action, controller map or key-rebinding menu is configured.
+
+==================================================
+6. PLAYER FOOTSTEPS
+==================================================
+[PARTIAL] Newly wired; no playback test run.
+Folder: res://assets/audio/Footsteps/
+Seven WAV files, all explicitly named Antons_Footsteps_FS_Wood_Walk_01..07.wav.
+Only source category: WOOD. No UNCLASSIFIED files and no other material recordings.
+Each is stereo 44,100 Hz, 24-bit PCM; durations approximately 0.216-0.465 seconds.
+res://scripts/player/footstep_audio.gd is attached to Player/FootstepAudio.
+The Player scene explicitly assigns all seven AudioStreams to wood_samples.
+
+Movement's existing step timer calls both NoiseModel.emit_step and FootstepAudio.play_step.
+Crouch cadence=0.52 s; walk=0.42 s; sprint=0.27 s. No second gameplay timer was added.
+A step needs real velocity >10, control enabled, PLAYING state and no hiding.
+Audio tails stop when these conditions cease; nodes inherit scene pause.
+Two SFX voices alternate, allowing short tails to overlap during a faster gait.
+Volume defaults: crouch=-20 dB, walk=-10 dB, sprint=-4 dB, before bus mixing.
+Pitch varies uniformly from 0.975 to 1.025 by default.
+A random sample is selected excluding last_sample where alternatives exist.
+Repeat avoidance compares streams across surface fallbacks, not just local indices.
+No samples available -> silence, without changing gameplay noise.
+
+surface_samples is an optional Inspector Dictionary: surface name -> Array of AudioStream.
+Valid nonempty overrides are used first; unknown/empty/invalid banks fall back to wood_samples.
+WOOD, STONE, CARPET, WATER, GLASS and GENERIC therefore currently SOUND like wood.
+This is a presentation fallback, not a claim of six installed sound categories.
+The existing surface_at() system is retained.
+
+==================================================
+7. GAMEPLAY NOISE
+==================================================
+[WORKING] res://scripts/systems/noise_model.gd (NoiseModel autoload).
+EventBus.noise_created(world_position:Vector2, intensity:float, surface_type:String).
+Base movement intensity: crouch=0.06, walk=0.24, sprint=1.0.
+Surface multipliers: CARPET=.35, WOOD=1, STONE=.85, WATER=1.65, GLASS=2, GENERIC=1.
+Unknown surfaces use multiplier=1. The emitted intensity is base x multiplier.
+Puzzle completion steps emit intensity=.55, GENERIC directly.
+NoiseModel now handles ONLY hearing information; Player owns audible footsteps.
+Old audio_requested footstep forwarding was removed to avoid duplicate presentation.
+No AudioStreamPlayer, playing flag, pitch, sample choice or bus volume controls enemy hearing.
+EventBus listeners: enemy _hear; optional room noise-ring debug.
+Before Hearing the enemy ignores footstep noise. After Hearing, sprint reaches farther.
+
+==================================================
+8. FREEDOM LEDGER
+==================================================
+[WORKING] res://scripts/core/freedom_ledger.gd.
+SENSES=["hearing","sight","memory"].
+Stored variables: keys_collected:Array[String], letter_ids:Array[String], flags:Dictionary.
+Derived properties (not duplicated booleans):
+hearing_restored / sight_restored / memory_restored = membership in keys_collected;
+letters_found=letter_ids.size(); current_stage=keys_collected.size().
+restore_sense only accepts the next SENSES entry, once, and emits sense_restored.
+collect_letter adds a previously absent ID and emits letter_collected.
+Current flags written by interactions: flashlight, lockpick_tool, intro_door_tried,
+intro_complete, piano_seal, vanity_seal, ritual_seal.
+has_requirement uses sense membership for a sense name, otherwise a flag.
+snapshot returns copied keys, letters and a deep-copied flags dictionary.
+restore_snapshot resets and assigns those copies.
+reset clears keys, letters and flags. GameManager owns checkpoint and scene state.
+
+EventBus (res://scripts/core/event_bus.gd) exposes:
+sense_restored(sense), noise_created(world_position,intensity,surface_type),
+player_detected(source), player_hidden(hiding_spot_id), player_left_hiding(hiding_spot_id),
+player_caught, letter_collected(letter_id), interaction_started(interactable),
+interaction_finished(interactable), flashlight_changed(enabled), ending_triggered(ending_type),
+subtitle_requested(speaker,text,duration), audio_requested(cue), tension_changed(state).
+Sense/noise/hiding/caught/ending/subtitle/audio/tension signals have the consumers described
+in this document. Detection, letter-collected, interaction and flashlight-change signals
+also serve as extension hooks; enemy sight reads the player's flashlight boolean directly.
+
+
+==================================================
+9. DEGREE OF FREEDOM GAME MECHANIC
+==================================================
+[WORKING] Stage 0: DORMANT; cannot hear, see or catch through the normal proximity path.
+Light and movement noise are safe. The stage-0 enemy exists outside the foyer.
+[WORKING] Hearing: dormant becomes WANDER; audible-information events can become
+INVESTIGATE/SEARCH targets. Player loses careless sprint/noisy-floor safety.
+[WORKING] Sight: vision and CHASE enable; player loses safe exposure/flashlight use.
+[WORKING] Memory: adds observed hiding and route history, rechecking and extrapolation;
+player loses reliable reuse of an observed hiding/escape pattern.
+Memory is not machine learning and does not record every hiding location globally.
+[PARTIAL] Theme is mechanized, but perceptibility/balance with final art/audio requires
+a human pass. No tutorial popup or "+1 Degree of Freedom" text is implemented.
+
+==================================================
+10. KEYS / SENSE RESTORATION
+==================================================
+[WORKING] All use res://scenes/interactables/key_pickup.tscn / BaseInteractable.
+Hearing: ground_floor, hearing_key (2140,475), requires piano_seal.
+Sight: upper_floor, sight_key (2370,480), requires vanity_seal.
+Memory: basement_floor, memory_key (4310,480), requires ritual_seal.
+Each additionally obeys ledger order, disappears after collection, and cannot duplicate.
+Feedback: sense_restored -> HUD indicator, 0.16-alpha pulse fading over .65 s,
+key_sting hook, enemy capability read/update. Checkpoint saves player position and ledger.
+Actual dialogue:
+hearing: "Something heard that."
+sight: "It turned toward the light."
+memory: "It knows this place now."
+Each is queued for 2.8 s.
+Blocked seal: "The seal is still holding."
+Out-of-order restoration: "Another seal holds this one."
+[PLACEHOLDER] Gold rectangle key art; no key-sting stream assigned.
+
+==================================================
+11. THE DEPRIVED ONE / ENEMY
+==================================================
+[WORKING] res://scenes/enemy/deprived_one.tscn / res://scripts/enemy/deprived_one.gd.
+CharacterBody2D floating; layer=4, mask=1; unchanged 24x14 foot collider at (0,-7).
+[PARTIAL] res://scenes/enemy/zombie_frames.tres now references the organized zombie folder.
+Idle, Walk, Run and Attack1 each supply eight real directions and 20 frames.
+32 animation entries / 640 atlas cells. Resource rates: idle 12.0 FPS, walk 20.0 FPS, run 24.0 FPS, attack 20.0 FPS.
+Idle/walk/run loop; attack is one-shot. Initial idle_w.
+Scale stays .55. Offset changes to (0,-75): source anchor (128,203), based on inspected
+idle/contact-pose alpha bounds. This avoids inheriting the player's different y=224 anchor.
+One fixed pivot is used, never per-frame auto-cropping. Stride offsets remain in the art.
+No flip_h is needed: the pack supplies real directional sheets.
+AI logic is unchanged; a small visual wrapper supplies safe placeholder fallback.
+
+Actual FSM:
+DORMANT: default; zero velocity + idle. Hearing restoration -> WANDER.
+WANDER: walks between anchor +/-360, alternating Y=440/570; chooses next on arrival
+within 30 or after 10 s. Heard noise -> INVESTIGATE; sight -> CHASE.
+INVESTIGATE: target is heard/observed position. Arrival <35 or 9 s -> SEARCH.
+SEARCH: continues movement toward target; after 1.5 s with Memory/history may predict;
+otherwise after 4.5 s -> WANDER. Sight -> CHASE, new noise may investigate.
+CHASE: speed=220 (otherwise 100); targets visible player/last_seen.
+Loss of sight >1.4 s -> SEARCH. Hearing does not interrupt a chase.
+PREDICT_HUNT: travels to remembered spot/extrapolated route.
+Arrival <35 checks hiding, clears route history and -> SEARCH; after 8 s -> WANDER.
+Visible player can interrupt any active non-dormant behavior via CHASE.
+
+Actual visual mapping:
+DORMANT or no real movement -> idle.
+Moving WANDER/INVESTIGATE/SEARCH/PREDICT_HUNT -> walk.
+Moving CHASE -> run.
+player_caught signal -> attack, facing the player, velocity zero.
+No enemy health, death state, combat system or attack damage interval exists.
+Attack1 is presentation for the already-triggered caught sequence.
+
+==================================================
+12. HEARING AI
+==================================================
+[WORKING] Enemy _hear:
+Reject if no hearing_restored, already CHASE, or GameManager not PLAYING.
+Accept only if distance to event <= intensity * hearing_scale (default 740).
+While investigating for less than 1 s, ignore quieter follow-up noise.
+Record intensity, target=event position, change to INVESTIGATE.
+No acoustic wall occlusion; surface influences the event intensity, not an audio analyzer.
+Examples on wood: crouch reach 44.4, walk 177.6, sprint 740 pixels.
+Glass doubles those reaches; carpet multiplies by .35; water by 1.65; stone by .85.
+Ordinary player contact <26 with clear collision-mask-1 sight can catch after Hearing,
+even before vision restoration. Hidden players are exempt unless witnessed_hide matches.
+Hearing restoration is the first permitted sense transaction.
+
+==================================================
+13. SIGHT AI
+==================================================
+[WORKING] Only enabled by sight_restored; hidden player is never directly visible.
+Default range=390, full field_of_view=115 degrees.
+Range multiplies by .6 while player crouches, .55 in non-exposed room locations,
+and 1.75 while the flashlight is enabled. These modifiers multiply together.
+Beyond 50 pixels, facing dot normalized offset must meet cos(FOV/2).
+A ray from enemy+(0,-7) to player+(0,-7), mask=1, must be unobstructed.
+Walls/furniture block the ray. Player/enemy bodies are on other layers.
+On detection: last_seen=player position, lost_sight=0, observation_grace=.25,
+player_detected signal and CHASE; route samples are stored only with Memory.
+Ground is considered exposed. Upper exposure uses the three moonlight rectangles
+(x=2650/4300/5950, width=650, player y<545); other upper positions are dark.
+Basement is exposed for x>3900. Exposure is gameplay geometry, not sampled pixel light.
+[PARTIAL] The placeholder beam is translucent geometry and is not clipped by walls;
+detection itself still uses the blocking ray.
+
+==================================================
+14. MEMORY AI
+==================================================
+[WORKING] Only meaningful after memory_restored.
+While visibly detecting player: save one route sample per second, maximum four.
+On hiding signal: entrance is "observed" only with Sight, grace>0 and clear ray.
+Only then set witnessed_hide; with Memory also retain the spot ID, unique/recent,
+maximum three entries. Remote/unseen hiding signals are not globally recorded.
+SEARCH after 1.5 s prefers the oldest retained spot, removing that entry on selection.
+Otherwise extrapolate the last two observed positions by 240 pixels, clamp to room,
+and enter PREDICT_HUNT. No actual exit graph or strategic route planner is used.
+Arrival re-checks whether the player is hidden within 45 pixels; if so, caught.
+Route history clears after reaching a prediction. Hidden history is consumed gradually.
+All memory belongs to the enemy instance and clears on travel/checkpoint scene reload.
+[PARTIAL] Nearby re-check uses distance without an additional ray; see section 28.
+
+==================================================
+15. HIDING SYSTEM
+==================================================
+[WORKING] res://scenes/interactables/hiding_spot.tscn -> BaseInteractable kind="hiding".
+E stores hidden_spot, zeros velocity, switches flashlight off, sets Visual alpha=.18,
+and emits player_hidden(interaction_id). It does not teleport or resize collision.
+Hidden branch of Player physics permits only E to leave; footstep playback stops.
+Leaving clears hidden_spot, restores alpha=1, emits player_left_hiding.
+The enemy clears its matching witnessed_hide on leave.
+Unseen entry prevents sight/proximity capture; a directly observed entrance is unsafe.
+[PLACEHOLDER] Blue cabinet silhouettes are non-solid interaction props.
+Actual hiding IDs/positions are listed in section 17.
+
+==================================================
+16. INTERACTION SYSTEM
+==================================================
+[WORKING] res://scripts/interactables/base_interactable.gd.
+Exported fields: kind, interaction_id, title, text, sense, required_flag, destination,
+entrance, ending_type, puzzle_steps (3), action_seconds (.9). Temporary busy/progress.
+Player selects nearest available prop within 76 with clear mask-1 ray; E calls interact.
+Signals: interaction_started, interaction_finished. busy prevents overlapping calls.
+Reusable scene presets in res://scenes/interactables/:
+base_interactable, door, locked_door, key_pickup, letter_pickup, flashlight,
+lockpick_tool, hiding_spot, puzzle_interactable, exit_trigger (.tscn).
+All keep Visual/PlaceholderVisual and Visual/Sprite2D separate from logic.
+
+Door: requirement gate or deferred Main reload through GameManager.
+LockedDoor: foyer-only first-try/tool/flashlight/short-unlock behavior.
+Key: canonical next-sense restoration and checkpoint.
+Letter: unique ID, paused readable overlay.
+Flashlight/tool: one-shot ledger flags.
+Hiding: concealment described above.
+Puzzle: temporary control lock; timed E step; .55 noise; stores flag after three steps.
+Puzzle incomplete dialogue: "Click. N of 3."; complete: "The seal gives.";
+missing requirement: "Not yet."
+Exit: eligibility check, ending signal; otherwise authored denial text.
+No inventory combinations, generic held-E progress bar or separate Area2D proximity system.
+
+==================================================
+17. LEVELS / CURRENT MAP FLOW
+==================================================
+[WORKING] Layout source: res://data/estate_layout.json.
+Runtime generator: res://scripts/levels/estate_room.gd.
+Active scenes, in progression order:
+res://scenes/levels/intro_floor.tscn -- 1800 wide; Cold Foyer; no enemy; tools/door.
+res://scenes/levels/ground_floor.tscn -- 7200; Music Room, Dining Hall, Servant's Pantry.
+res://scenes/levels/upper_floor.tscn -- 7200; Portrait Gallery, Master Bedroom,
+Nursery / Linen Passage.
+res://scenes/levels/basement_floor.tscn -- 7200; Flooded Cellar, Wine Cellar,
+Ritual Chamber.
+Each shares PlayerSpawn=(240,490), ReturnSpawn=(width-330,490).
+EnemySpawn=(2640,560) ground, (2750,560) upper, (4320,560) basement.
+If enemy spawn is within 650 of player entry, Main shifts it 850 horizontally and
+snaps it to a navigable grid point. Current senses apply immediately on room load.
+All transitions/entry choices are in section 1.
+
+[PLACEHOLDER] Every room still uses generated wall/floor/furniture geometry.
+Intro has one broken table; other room groups have six blocking furniture footprints.
+Walkable depth is between back/front boundaries around y=354..634.
+Ground has glass and carpet lanes; upper has exposure/shadow lanes; basement has water.
+Room names subdivide long horizontal groups; there is no separate scene per named room.
+
+ACTUAL PROP MAP (ID | preset | position | behavior/requirements)
+INTRO:
+  flashlight | flashlight | (430,480) | no extra requirement
+  lockpick_tool | lockpick_tool | (900,430) | no extra requirement
+  intro_exit | locked_door | (1590,480) | {"destination": "ground"}
+GROUND:
+  front_door | exit_trigger | (180,475) | {"ending_type": "full_awakening", "text": "Three seals bind the front door."}
+  vantree_01 | letter_pickup | (600,430) | {"title": "Vantree — I", "text": "[Prototype letter]\\nThe Custodian keeps the ledger. The senses were severed for containment."}
+  piano_seal | puzzle_interactable | (1800,435) | {"title": "Piano seal", "puzzle_steps": 3}
+  hearing_key | key_pickup | (2140,475) | {"sense": "hearing", "required_flag": "piano_seal"}
+  ground_hide_01 | hiding_spot | (2420,420) | no extra requirement
+  vantree_02 | letter_pickup | (3650,430) | {"title": "Vantree — II", "text": "[Prototype letter]\\nJailer and prisoner share a threshold. Restoring a sense weakens a seal."}
+  ground_hide_02 | hiding_spot | (4160,575) | no extra requirement
+  vantree_03 | letter_pickup | (5480,430) | {"title": "Vantree — III", "text": "[Prototype letter]\\nThe Vantree record leaves a choice: keep the remaining seals, or finish the awakening."}
+  custodian_seal | exit_trigger | (5900,430) | {"ending_type": "vantree", "text": "The Vantree record is incomplete, or too many seals are broken."}
+  upper_stairs | door | (6980,480) | {"destination": "upper", "required_flag": "hearing", "text": "The hearing seal binds these stairs."}
+UPPER:
+  ground_stairs | door | (180,480) | {"destination": "ground", "entrance": "end"}
+  upper_hide_01 | hiding_spot | (1700,420) | no extra requirement
+  vanity_seal | puzzle_interactable | (2150,440) | {"required_flag": "hearing", "puzzle_steps": 3, "action_seconds": 1.1}
+  sight_key | key_pickup | (2370,480) | {"sense": "sight", "required_flag": "vanity_seal"}
+  upper_hide_02 | hiding_spot | (3520,575) | no extra requirement
+  vantree_04 | letter_pickup | (4420,430) | {"title": "Vantree — IV", "text": "[Prototype letter]\\nLight was useful while it could not see. The old shutters leave a strip of shadow."}
+  linen_hide | hiding_spot | (5770,420) | no extra requirement
+  basement_stairs | door | (6980,480) | {"destination": "basement", "required_flag": "sight", "text": "The sight seal binds this passage."}
+BASEMENT:
+  upper_stairs | door | (180,480) | {"destination": "upper", "entrance": "end"}
+  maintenance_exit | exit_trigger | (620,430) | {"ending_type": "partial_mercy", "text": "The flood passage opens only while two senses are restored."}
+  basement_hide_01 | hiding_spot | (1860,420) | no extra requirement
+  vantree_05 | letter_pickup | (2840,430) | {"title": "Vantree — V", "text": "[Prototype letter]\\nThe final seal holds memory. A place of refuge can become a place it remembers."}
+  basement_hide_02 | hiding_spot | (3650,575) | no extra requirement
+  ritual_seal | puzzle_interactable | (4090,430) | {"required_flag": "sight", "puzzle_steps": 3, "action_seconds": 1.25}
+  memory_key | key_pickup | (4310,480) | {"sense": "memory", "required_flag": "ritual_seal"}
+  basement_hide_03 | hiding_spot | (5050,420) | no extra requirement
+  service_return | door | (6890,480) | {"destination": "ground", "entrance": "end", "required_flag": "memory", "text": "The final seal binds this return passage."}
+
+[PLACEHOLDER] res://scenes/levels/hearing_test_level.tscn remains a legacy side-view
+corridor with marker placeholders. It is not loaded by Main and is not compatible as
+a representative test of the updated room-plane game. No gameplay transition leads there.
+
+==================================================
+18. CAMERA
+==================================================
+[WORKING] res://scripts/player/room_camera.gd, Player/Camera2D.
+top_level=true; built-in position_smoothing disabled in favor of custom exponential lerp.
+X target=player.x; Y target=430+(player.y-480)*.25.
+Responses: horizontal 9, vertical 4; frame-delta exponential weights.
+Main sets left=0, right=room width, top=0, bottom=800 and snaps on room entry.
+Viewport=1280x720, canvas_items stretch, expand aspect.
+cinematic_focus(point,seconds) temporarily substitutes target; used for foyer doorway.
+No shake, Camera3D or full vertical-platform following.
+
+==================================================
+19. UI / HUD
+==================================================
+[WORKING] res://scripts/ui/game_hud.gd on Main/UI; Controls generated at runtime.
+Sense text at (28,22): Hearing/Sight/Memory, each sealed/restored from ledger.
+Hidden in intro and ending; no minimap/quest tracker.
+Subtle [E] prompt follows player's canvas position +(−14,−98) for a nearby target or hiding.
+Subtitles: optional speaker, queued lines, duration countdown, 22px centered bottom text.
+Queue pauses with tree pause. Manual subtitle skip/advance is not implemented.
+Letters: 540x500-style centered panel, 20px wrapped text, pause danger, E/Esc/Close.
+Esc opens pause in INTRO/PLAYING; closes reading/pause and restores return_state.
+Pause buttons: RESUME, SETTINGS, CONTROLS, RESTART, MAIN MENU.
+Settings and Controls reuse the same page scenes as the front-end.
+Settings: Master/Music/SFX/Ambience sliders, real Fullscreen, Subtitles, Back.
+Subtitles visibility follows SessionSettings.subtitles_enabled; queue timing is unchanged.
+Pause secondary-page Esc returns to pause choices; Esc there resumes the prior state.
+Main Menu discards the runtime session, unpauses and loads HOME.
+Main/UI.ui_theme defaults to themes/libertas_ui_theme.tres.
+[PARTIAL] Native front-end and pause presentation implemented; human playtest pending.
+[PLACEHOLDER] System serif/body fonts, procedural background, silent UI audio hooks.
+[NOT IMPLEMENTED] Controls remapping, persistent settings/save, separate title reveal.
+
+==================================================
+20. AUDIO ARCHITECTURE
+==================================================
+[WORKING] res://default_bus_layout.tres: Master, Music, Ambience, SFX, each child sends
+to Master. No new or duplicate buses added. SessionSettings defaults: Master .8,
+Music .7, Ambience .8, SFX .8, fullscreen false, subtitles enabled. Sliders convert linear values to dB
+and mute at zero. These preferences last for the current process only.
+
+[PARTIAL] Installed audio: seven wood footsteps on Player/FootstepAudio/Voice1 and Voice2.
+[PLACEHOLDER] res://scripts/systems/audio_director.gd exports empty AudioStream slots:
+rain, drip, breathing, building_creak, house_ambience,
+wood_footsteps, stone_footsteps, water_footsteps (legacy single-cue slots),
+key_sting, monster_breathing, monster_search, door, lockpick, flashlight, ui,
+calm_music, searching_music, chase_music.
+Main/Audio assigns none of these. Named AudioStreamPlayers are created in _ready.
+Ambience cues go to Ambience, other cues to SFX; three tension layers go to Music.
+Rain/house ambience and music players reconnect finished to play for looping.
+play_cue checks stream != null and stays silent when empty.
+Tension mapping: CHASE -> CHASE; INVESTIGATE/SEARCH/PREDICT_HUNT -> SEARCHING;
+other states -> CALM. A 1.2-second parallel tween fades active layer to -8 dB,
+others to -60 dB. Key restoration requests key_sting.
+FootstepAudio is now the movement sound owner; the legacy single footstep slots
+are not called by NoiseModel and do not duplicate the new randomized banks.
+
+==================================================
+21. CHECKPOINT / DEATH / RESTART
+==================================================
+[WORKING] GameManager owns state, zone, entry, checkpoint, ending and return_state.
+Enum: INTRO, PLAYING, PAUSED, READING, CAUGHT, ENDING, MENU.
+save_checkpoint stores zone, player world position and ledger snapshot.
+Called by Main for every non-intro room entry and by each successful sense pickup.
+No disk save. Letters/tool flags acquired after the latest snapshot are lost on death
+unless another checkpoint is taken. Unfinished puzzle step count is room-local.
+caught only acts in PLAYING: state=CAUGHT; creature sound hook; wait 1.2; restart.
+Player disables control, zeros velocity, restores visible opacity/scale, plays death.
+Enemy zeros velocity and plays Attack1. UI fades to black over 1.0 s.
+restart_checkpoint restores ledger/zone/position and reloads Main; if none, new_game.
+New game clears ledger, checkpoint, ending, zone/entry and starts Awakening.
+Enemy route/hide memory is reconstructed fresh; flashlight on/off is temporary and
+starts off on non-intro room entry even if possession is retained.
+
+==================================================
+22. ENDING LOGIC
+==================================================
+[WORKING] FreedomLedger.eligible + BaseInteractable exit + GameManager.finish.
+GameManager accepts endings only in PLAYING and with the eligibility condition.
+No ending scene files; GameHUD.show_ending creates the result panel and dark treatment.
+New game/Quit remain available. Gameplay updates stop through state gates.
+
+full_awakening: keys=3; ground front_door.
+Title: "FULL AWAKENING"
+Text:
+"The front door opens.
+Behind Els, nothing remains deprived.
+
+She steps out. The house listens."
+
+partial_mercy: keys=2 exactly; basement maintenance_exit.
+Title: "PARTIAL MERCY"
+Text:
+"Cold water gives way to open air.
+Two seals broken. One still holding.
+
+Els leaves the last key behind."
+
+vantree: keys<=1 and letters>=3; ground custodian_seal.
+Title: "VANTREE"
+Text:
+"Els closes the ledger.
+The Vantree seal holds.
+
+For now, she chooses to remain its custodian."
+
+[PARTIAL] Branches are fully wired short text outcomes; no final ending cinematics/audio.
+
+==================================================
+23. ASSET INTEGRATION STATUS
+==================================================
+INTEGRATED [PARTIAL until manual import/play confirmation]
+Player: 10 finalized sheets -> existing female_frames.tres -> AnimatedSprite2D.
+Enemy: 32 of 208 sheets -> existing zombie_frames.tres -> AnimatedSprite2D.
+Footsteps: all seven WAVs -> Player's two SFX voices.
+Moved PNG import sidecars retain their UIDs/options, with repaired source/cache paths.
+No source PNG/WAV was renamed, regenerated or changed at the pixel/sample level.
+
+AVAILABLE BUT NOT USED BY GAMEPLAY
+Player source/ contains ten raw 1536x1024 generation images, not production grids.
+Player damage/stagger are configured in SpriteFrames but have no damage/stagger system.
+Enemy's other 176 sheets are not referenced by the current SpriteFrames:
+alternate half-angle views and Attack2/3/4, Death1/2, Hit1/2, Lookup and Roar.
+Asset build/verification helper files remain supplied source material, not run by game.
+
+MISSING / PLACEHOLDER
+Doors, exits, tables, cabinets, puzzle props, pickups, environment dressing/room art.
+Authored player crouch/get-up animation; final flashlight beam/shadows.
+Non-wood material recordings; all non-footstep audio/music; final UI icons/theme.
+Letters and ending presentation/copy remain prototypes.
+
+==================================================
+24. PLAYER ASSET MAP
+==================================================
+Exact folder: res://assets/sprites/player/
+All ten root PNGs are 3072x2048 RGBA with transparent pixels.
+Manifest: 12 columns x 8 rows, 256x256 cells, source anchor=(128,224), 12 FPS.
+Frame order left-to-right; rows S, SW, W, NW, N, NE, E, SE.
+Animation suffixes in that order: _s,_sw,_w,_nw,_n,_ne,_e,_se.
+80 animation entries total, with 12 frames per entry.
+Idle contains twelve copies of the held pose; it is not twelve distinct breathing poses.
+The supplied death export already holds its last pose in cell 12; no new pose was invented.
+
+idle.png -> idle (stationary); 12 frames/direction, 8 directions, 12 FPS; loops.
+walk.png -> walk (movement; slowed for crouch); 12 frames/direction, 8 directions, 12 FPS; loops.
+run.png -> run (sprint); 12 frames/direction, 8 directions, 12 FPS; loops.
+interact.png -> interact (generic interaction); 12 frames/direction, 8 directions, 12 FPS; one-shot.
+unlock.png -> unlock (door/puzzle interaction); 12 frames/direction, 8 directions, 12 FPS; one-shot.
+pickup.png -> pickup (key/tool/letter); 12 frames/direction, 8 directions, 12 FPS; one-shot.
+flashlight.png -> flashlight (toggle/pickup/hiding switch-off); 12 frames/direction, 8 directions, 12 FPS; one-shot.
+damage.png -> damage (configured, no gameplay caller); 12 frames/direction, 8 directions, 12 FPS; one-shot.
+stagger.png -> stagger (configured, no gameplay caller); 12 frames/direction, 8 directions, 12 FPS; one-shot.
+death.png -> death (caught); 12 frames/direction, 8 directions, 12 FPS; one-shot.
+
+Raw sources (not used by SpriteFrames):
+  source/damage.png | 1536x1024 RGB | raw damage generation source; production grid not assumed.
+  source/death.png | 1536x1024 RGB | raw death generation source; production grid not assumed.
+  source/flashlight.png | 1536x1024 RGB | raw flashlight generation source; production grid not assumed.
+  source/idle.png | 1536x1024 RGB | raw idle generation source; production grid not assumed.
+  source/interact.png | 1536x1024 RGB | raw interact generation source; production grid not assumed.
+  source/pickup.png | 1536x1024 RGB | raw pickup generation source; production grid not assumed.
+  source/run.png | 1536x1024 RGB | raw run generation source; production grid not assumed.
+  source/stagger.png | 1536x1024 RGB | raw stagger generation source; production grid not assumed.
+  source/unlock.png | 1536x1024 RGBA | raw unlock generation source; production grid not assumed.
+  source/walk.png | 1536x1024 RGB | raw walk generation source; production grid not assumed.
+
+Root helper files:
+README.md: source layout/provenance and old external-preview instructions.
+manifest.json: production layout, anchor, action files and loop flags.
+prompts.json: supplied image-generation provenance.
+build.ps1: supplied source-to-sheet builder, not run for this task.
+verify-assets.ps1 / verify-preview.cjs: supplied verification helpers, not run.
+Raw source PNGs are listed in the map; do not assign them as 12x8 game textures.
+Nine raw source files are RGB; source/unlock.png is RGBA. They are not equivalent to
+the processed transparent root sheets.
+Every PNG has an existing copied .png.import sidecar whose moved paths were repaired.
+
+==================================================
+25. ENEMY ASSET MAP
+==================================================
+Exact root: res://assets/sprites/zombie/
+Exact sheet folder: res://assets/sprites/zombie/Skin2_x256_Spritesheets/x256_Spritesheets/
+208 PNGs: 13 action directories x 16 directions. All RGBA with transparent pixels.
+All cells are 256x256; temporal frames run row-major within each direction's sheet.
+Inspected alpha occupies every listed cell; source grid sizes differ by action.
+Do not treat a whole row as a separate direction: direction is in the filename.
+Current game uses eight supplied views:
+_s=0, _sw=315, _w=270, _nw=225, _n=180, _ne=135, _e=090, _se=045.
+Other angle filenames are available but not used by the eight-direction controller.
+"attack" maps to actual Attack1. No renamed copies or invented frames.
+
+ALL DISCOVERED FILES (relative to exact sheet folder):
+Attack1 | 1024x1280 | 4 columns x 5 rows | 20 temporal frames per direction
+  Attack1/Attack1 Body 0.png | USED by attack
+  Attack1/Attack1 Body 022.png | AVAILABLE, NOT REFERENCED
+  Attack1/Attack1 Body 045.png | USED by attack
+  Attack1/Attack1 Body 067.png | AVAILABLE, NOT REFERENCED
+  Attack1/Attack1 Body 090.png | USED by attack
+  Attack1/Attack1 Body 112.png | AVAILABLE, NOT REFERENCED
+  Attack1/Attack1 Body 135.png | USED by attack
+  Attack1/Attack1 Body 157.png | AVAILABLE, NOT REFERENCED
+  Attack1/Attack1 Body 180.png | USED by attack
+  Attack1/Attack1 Body 202.png | AVAILABLE, NOT REFERENCED
+  Attack1/Attack1 Body 225.png | USED by attack
+  Attack1/Attack1 Body 247.png | AVAILABLE, NOT REFERENCED
+  Attack1/Attack1 Body 270.png | USED by attack
+  Attack1/Attack1 Body 292.png | AVAILABLE, NOT REFERENCED
+  Attack1/Attack1 Body 315.png | USED by attack
+  Attack1/Attack1 Body 337.png | AVAILABLE, NOT REFERENCED
+Attack2 | 1536x1024 | 6 columns x 4 rows | 24 temporal frames per direction
+  Attack2/Attack2 Body 0.png | AVAILABLE, NOT REFERENCED
+  Attack2/Attack2 Body 022.png | AVAILABLE, NOT REFERENCED
+  Attack2/Attack2 Body 045.png | AVAILABLE, NOT REFERENCED
+  Attack2/Attack2 Body 067.png | AVAILABLE, NOT REFERENCED
+  Attack2/Attack2 Body 090.png | AVAILABLE, NOT REFERENCED
+  Attack2/Attack2 Body 112.png | AVAILABLE, NOT REFERENCED
+  Attack2/Attack2 Body 135.png | AVAILABLE, NOT REFERENCED
+  Attack2/Attack2 Body 157.png | AVAILABLE, NOT REFERENCED
+  Attack2/Attack2 Body 180.png | AVAILABLE, NOT REFERENCED
+  Attack2/Attack2 Body 202.png | AVAILABLE, NOT REFERENCED
+  Attack2/Attack2 Body 225.png | AVAILABLE, NOT REFERENCED
+  Attack2/Attack2 Body 247.png | AVAILABLE, NOT REFERENCED
+  Attack2/Attack2 Body 270.png | AVAILABLE, NOT REFERENCED
+  Attack2/Attack2 Body 292.png | AVAILABLE, NOT REFERENCED
+  Attack2/Attack2 Body 315.png | AVAILABLE, NOT REFERENCED
+  Attack2/Attack2 Body 337.png | AVAILABLE, NOT REFERENCED
+Attack3 | 1536x1024 | 6 columns x 4 rows | 24 temporal frames per direction
+  Attack3/Attack3 Body 0.png | AVAILABLE, NOT REFERENCED
+  Attack3/Attack3 Body 022.png | AVAILABLE, NOT REFERENCED
+  Attack3/Attack3 Body 045.png | AVAILABLE, NOT REFERENCED
+  Attack3/Attack3 Body 067.png | AVAILABLE, NOT REFERENCED
+  Attack3/Attack3 Body 090.png | AVAILABLE, NOT REFERENCED
+  Attack3/Attack3 Body 112.png | AVAILABLE, NOT REFERENCED
+  Attack3/Attack3 Body 135.png | AVAILABLE, NOT REFERENCED
+  Attack3/Attack3 Body 157.png | AVAILABLE, NOT REFERENCED
+  Attack3/Attack3 Body 180.png | AVAILABLE, NOT REFERENCED
+  Attack3/Attack3 Body 202.png | AVAILABLE, NOT REFERENCED
+  Attack3/Attack3 Body 225.png | AVAILABLE, NOT REFERENCED
+  Attack3/Attack3 Body 247.png | AVAILABLE, NOT REFERENCED
+  Attack3/Attack3 Body 270.png | AVAILABLE, NOT REFERENCED
+  Attack3/Attack3 Body 292.png | AVAILABLE, NOT REFERENCED
+  Attack3/Attack3 Body 315.png | AVAILABLE, NOT REFERENCED
+  Attack3/Attack3 Body 337.png | AVAILABLE, NOT REFERENCED
+Attack4 | 1536x1280 | 6 columns x 5 rows | 30 temporal frames per direction
+  Attack4/Attack4 Body 0.png | AVAILABLE, NOT REFERENCED
+  Attack4/Attack4 Body 022.png | AVAILABLE, NOT REFERENCED
+  Attack4/Attack4 Body 045.png | AVAILABLE, NOT REFERENCED
+  Attack4/Attack4 Body 067.png | AVAILABLE, NOT REFERENCED
+  Attack4/Attack4 Body 090.png | AVAILABLE, NOT REFERENCED
+  Attack4/Attack4 Body 112.png | AVAILABLE, NOT REFERENCED
+  Attack4/Attack4 Body 135.png | AVAILABLE, NOT REFERENCED
+  Attack4/Attack4 Body 157.png | AVAILABLE, NOT REFERENCED
+  Attack4/Attack4 Body 180.png | AVAILABLE, NOT REFERENCED
+  Attack4/Attack4 Body 202.png | AVAILABLE, NOT REFERENCED
+  Attack4/Attack4 Body 225.png | AVAILABLE, NOT REFERENCED
+  Attack4/Attack4 Body 247.png | AVAILABLE, NOT REFERENCED
+  Attack4/Attack4 Body 270.png | AVAILABLE, NOT REFERENCED
+  Attack4/Attack4 Body 292.png | AVAILABLE, NOT REFERENCED
+  Attack4/Attack4 Body 315.png | AVAILABLE, NOT REFERENCED
+  Attack4/Attack4 Body 337.png | AVAILABLE, NOT REFERENCED
+Death1 | 1536x1024 | 6 columns x 4 rows | 24 temporal frames per direction
+  Death1/Death1 Body 0.png | AVAILABLE, NOT REFERENCED
+  Death1/Death1 Body 022.png | AVAILABLE, NOT REFERENCED
+  Death1/Death1 Body 045.png | AVAILABLE, NOT REFERENCED
+  Death1/Death1 Body 067.png | AVAILABLE, NOT REFERENCED
+  Death1/Death1 Body 090.png | AVAILABLE, NOT REFERENCED
+  Death1/Death1 Body 112.png | AVAILABLE, NOT REFERENCED
+  Death1/Death1 Body 135.png | AVAILABLE, NOT REFERENCED
+  Death1/Death1 Body 157.png | AVAILABLE, NOT REFERENCED
+  Death1/Death1 Body 180.png | AVAILABLE, NOT REFERENCED
+  Death1/Death1 Body 202.png | AVAILABLE, NOT REFERENCED
+  Death1/Death1 Body 225.png | AVAILABLE, NOT REFERENCED
+  Death1/Death1 Body 247.png | AVAILABLE, NOT REFERENCED
+  Death1/Death1 Body 270.png | AVAILABLE, NOT REFERENCED
+  Death1/Death1 Body 292.png | AVAILABLE, NOT REFERENCED
+  Death1/Death1 Body 315.png | AVAILABLE, NOT REFERENCED
+  Death1/Death1 Body 337.png | AVAILABLE, NOT REFERENCED
+Death2 | 1536x1024 | 6 columns x 4 rows | 24 temporal frames per direction
+  Death2/Death2 Body 0.png | AVAILABLE, NOT REFERENCED
+  Death2/Death2 Body 022.png | AVAILABLE, NOT REFERENCED
+  Death2/Death2 Body 045.png | AVAILABLE, NOT REFERENCED
+  Death2/Death2 Body 067.png | AVAILABLE, NOT REFERENCED
+  Death2/Death2 Body 090.png | AVAILABLE, NOT REFERENCED
+  Death2/Death2 Body 112.png | AVAILABLE, NOT REFERENCED
+  Death2/Death2 Body 135.png | AVAILABLE, NOT REFERENCED
+  Death2/Death2 Body 157.png | AVAILABLE, NOT REFERENCED
+  Death2/Death2 Body 180.png | AVAILABLE, NOT REFERENCED
+  Death2/Death2 Body 202.png | AVAILABLE, NOT REFERENCED
+  Death2/Death2 Body 225.png | AVAILABLE, NOT REFERENCED
+  Death2/Death2 Body 247.png | AVAILABLE, NOT REFERENCED
+  Death2/Death2 Body 270.png | AVAILABLE, NOT REFERENCED
+  Death2/Death2 Body 292.png | AVAILABLE, NOT REFERENCED
+  Death2/Death2 Body 315.png | AVAILABLE, NOT REFERENCED
+  Death2/Death2 Body 337.png | AVAILABLE, NOT REFERENCED
+Hit1 | 1024x1024 | 4 columns x 4 rows | 16 temporal frames per direction
+  Hit1/Hit1 Body 0.png | AVAILABLE, NOT REFERENCED
+  Hit1/Hit1 Body 022.png | AVAILABLE, NOT REFERENCED
+  Hit1/Hit1 Body 045.png | AVAILABLE, NOT REFERENCED
+  Hit1/Hit1 Body 067.png | AVAILABLE, NOT REFERENCED
+  Hit1/Hit1 Body 090.png | AVAILABLE, NOT REFERENCED
+  Hit1/Hit1 Body 112.png | AVAILABLE, NOT REFERENCED
+  Hit1/Hit1 Body 135.png | AVAILABLE, NOT REFERENCED
+  Hit1/Hit1 Body 157.png | AVAILABLE, NOT REFERENCED
+  Hit1/Hit1 Body 180.png | AVAILABLE, NOT REFERENCED
+  Hit1/Hit1 Body 202.png | AVAILABLE, NOT REFERENCED
+  Hit1/Hit1 Body 225.png | AVAILABLE, NOT REFERENCED
+  Hit1/Hit1 Body 247.png | AVAILABLE, NOT REFERENCED
+  Hit1/Hit1 Body 270.png | AVAILABLE, NOT REFERENCED
+  Hit1/Hit1 Body 292.png | AVAILABLE, NOT REFERENCED
+  Hit1/Hit1 Body 315.png | AVAILABLE, NOT REFERENCED
+  Hit1/Hit1 Body 337.png | AVAILABLE, NOT REFERENCED
+Hit2 | 1024x1024 | 4 columns x 4 rows | 16 temporal frames per direction
+  Hit2/Hit2 Body 0.png | AVAILABLE, NOT REFERENCED
+  Hit2/Hit2 Body 022.png | AVAILABLE, NOT REFERENCED
+  Hit2/Hit2 Body 045.png | AVAILABLE, NOT REFERENCED
+  Hit2/Hit2 Body 067.png | AVAILABLE, NOT REFERENCED
+  Hit2/Hit2 Body 090.png | AVAILABLE, NOT REFERENCED
+  Hit2/Hit2 Body 112.png | AVAILABLE, NOT REFERENCED
+  Hit2/Hit2 Body 135.png | AVAILABLE, NOT REFERENCED
+  Hit2/Hit2 Body 157.png | AVAILABLE, NOT REFERENCED
+  Hit2/Hit2 Body 180.png | AVAILABLE, NOT REFERENCED
+  Hit2/Hit2 Body 202.png | AVAILABLE, NOT REFERENCED
+  Hit2/Hit2 Body 225.png | AVAILABLE, NOT REFERENCED
+  Hit2/Hit2 Body 247.png | AVAILABLE, NOT REFERENCED
+  Hit2/Hit2 Body 270.png | AVAILABLE, NOT REFERENCED
+  Hit2/Hit2 Body 292.png | AVAILABLE, NOT REFERENCED
+  Hit2/Hit2 Body 315.png | AVAILABLE, NOT REFERENCED
+  Hit2/Hit2 Body 337.png | AVAILABLE, NOT REFERENCED
+Idle | 1024x1280 | 4 columns x 5 rows | 20 temporal frames per direction
+  Idle/Idle Body 0.png | USED by idle
+  Idle/Idle Body 022.png | AVAILABLE, NOT REFERENCED
+  Idle/Idle Body 045.png | USED by idle
+  Idle/Idle Body 067.png | AVAILABLE, NOT REFERENCED
+  Idle/Idle Body 090.png | USED by idle
+  Idle/Idle Body 112.png | AVAILABLE, NOT REFERENCED
+  Idle/Idle Body 135.png | USED by idle
+  Idle/Idle Body 157.png | AVAILABLE, NOT REFERENCED
+  Idle/Idle Body 180.png | USED by idle
+  Idle/Idle Body 202.png | AVAILABLE, NOT REFERENCED
+  Idle/Idle Body 225.png | USED by idle
+  Idle/Idle Body 247.png | AVAILABLE, NOT REFERENCED
+  Idle/Idle Body 270.png | USED by idle
+  Idle/Idle Body 292.png | AVAILABLE, NOT REFERENCED
+  Idle/Idle Body 315.png | USED by idle
+  Idle/Idle Body 337.png | AVAILABLE, NOT REFERENCED
+Lookup | 1536x1280 | 6 columns x 5 rows | 30 temporal frames per direction
+  Lookup/Lookup Body 0.png | AVAILABLE, NOT REFERENCED
+  Lookup/Lookup Body 022.png | AVAILABLE, NOT REFERENCED
+  Lookup/Lookup Body 045.png | AVAILABLE, NOT REFERENCED
+  Lookup/Lookup Body 067.png | AVAILABLE, NOT REFERENCED
+  Lookup/Lookup Body 090.png | AVAILABLE, NOT REFERENCED
+  Lookup/Lookup Body 112.png | AVAILABLE, NOT REFERENCED
+  Lookup/Lookup Body 135.png | AVAILABLE, NOT REFERENCED
+  Lookup/Lookup Body 157.png | AVAILABLE, NOT REFERENCED
+  Lookup/Lookup Body 180.png | AVAILABLE, NOT REFERENCED
+  Lookup/Lookup Body 202.png | AVAILABLE, NOT REFERENCED
+  Lookup/Lookup Body 225.png | AVAILABLE, NOT REFERENCED
+  Lookup/Lookup Body 247.png | AVAILABLE, NOT REFERENCED
+  Lookup/Lookup Body 270.png | AVAILABLE, NOT REFERENCED
+  Lookup/Lookup Body 292.png | AVAILABLE, NOT REFERENCED
+  Lookup/Lookup Body 315.png | AVAILABLE, NOT REFERENCED
+  Lookup/Lookup Body 337.png | AVAILABLE, NOT REFERENCED
+Roar | 1536x1024 | 6 columns x 4 rows | 24 temporal frames per direction
+  Roar/Roar Body 0.png | AVAILABLE, NOT REFERENCED
+  Roar/Roar Body 022.png | AVAILABLE, NOT REFERENCED
+  Roar/Roar Body 045.png | AVAILABLE, NOT REFERENCED
+  Roar/Roar Body 067.png | AVAILABLE, NOT REFERENCED
+  Roar/Roar Body 090.png | AVAILABLE, NOT REFERENCED
+  Roar/Roar Body 112.png | AVAILABLE, NOT REFERENCED
+  Roar/Roar Body 135.png | AVAILABLE, NOT REFERENCED
+  Roar/Roar Body 157.png | AVAILABLE, NOT REFERENCED
+  Roar/Roar Body 180.png | AVAILABLE, NOT REFERENCED
+  Roar/Roar Body 202.png | AVAILABLE, NOT REFERENCED
+  Roar/Roar Body 225.png | AVAILABLE, NOT REFERENCED
+  Roar/Roar Body 247.png | AVAILABLE, NOT REFERENCED
+  Roar/Roar Body 270.png | AVAILABLE, NOT REFERENCED
+  Roar/Roar Body 292.png | AVAILABLE, NOT REFERENCED
+  Roar/Roar Body 315.png | AVAILABLE, NOT REFERENCED
+  Roar/Roar Body 337.png | AVAILABLE, NOT REFERENCED
+Run | 1024x1280 | 4 columns x 5 rows | 20 temporal frames per direction
+  Run/Run Body 0.png | USED by run
+  Run/Run Body 022.png | AVAILABLE, NOT REFERENCED
+  Run/Run Body 045.png | USED by run
+  Run/Run Body 067.png | AVAILABLE, NOT REFERENCED
+  Run/Run Body 090.png | USED by run
+  Run/Run Body 112.png | AVAILABLE, NOT REFERENCED
+  Run/Run Body 135.png | USED by run
+  Run/Run Body 157.png | AVAILABLE, NOT REFERENCED
+  Run/Run Body 180.png | USED by run
+  Run/Run Body 202.png | AVAILABLE, NOT REFERENCED
+  Run/Run Body 225.png | USED by run
+  Run/Run Body 247.png | AVAILABLE, NOT REFERENCED
+  Run/Run Body 270.png | USED by run
+  Run/Run Body 292.png | AVAILABLE, NOT REFERENCED
+  Run/Run Body 315.png | USED by run
+  Run/Run Body 337.png | AVAILABLE, NOT REFERENCED
+Walk | 1024x1280 | 4 columns x 5 rows | 20 temporal frames per direction
+  Walk/Walk Body 0.png | USED by walk
+  Walk/Walk Body 022.png | AVAILABLE, NOT REFERENCED
+  Walk/Walk Body 045.png | USED by walk
+  Walk/Walk Body 067.png | AVAILABLE, NOT REFERENCED
+  Walk/Walk Body 090.png | USED by walk
+  Walk/Walk Body 112.png | AVAILABLE, NOT REFERENCED
+  Walk/Walk Body 135.png | USED by walk
+  Walk/Walk Body 157.png | AVAILABLE, NOT REFERENCED
+  Walk/Walk Body 180.png | USED by walk
+  Walk/Walk Body 202.png | AVAILABLE, NOT REFERENCED
+  Walk/Walk Body 225.png | USED by walk
+  Walk/Walk Body 247.png | AVAILABLE, NOT REFERENCED
+  Walk/Walk Body 270.png | USED by walk
+  Walk/Walk Body 292.png | AVAILABLE, NOT REFERENCED
+  Walk/Walk Body 315.png | USED by walk
+  Walk/Walk Body 337.png | AVAILABLE, NOT REFERENCED
+
+==================================================
+26. FOOTSTEP ASSET MAP
+==================================================
+Exact folder: res://assets/audio/Footsteps/
+WOOD / WALK source recordings (all integrated):
+  Antons_Footsteps_FS_Wood_Walk_01.wav | WOOD | walk recording, reused across movement gaits | 0.430 s | 44100 Hz, 24-bit, 2 channels
+  Antons_Footsteps_FS_Wood_Walk_02.wav | WOOD | walk recording, reused across movement gaits | 0.465 s | 44100 Hz, 24-bit, 2 channels
+  Antons_Footsteps_FS_Wood_Walk_03.wav | WOOD | walk recording, reused across movement gaits | 0.373 s | 44100 Hz, 24-bit, 2 channels
+  Antons_Footsteps_FS_Wood_Walk_04.wav | WOOD | walk recording, reused across movement gaits | 0.375 s | 44100 Hz, 24-bit, 2 channels
+  Antons_Footsteps_FS_Wood_Walk_05.wav | WOOD | walk recording, reused across movement gaits | 0.275 s | 44100 Hz, 24-bit, 2 channels
+  Antons_Footsteps_FS_Wood_Walk_06.wav | WOOD | walk recording, reused across movement gaits | 0.340 s | 44100 Hz, 24-bit, 2 channels
+  Antons_Footsteps_FS_Wood_Walk_07.wav | WOOD | walk recording, reused across movement gaits | 0.216 s | 44100 Hz, 24-bit, 2 channels
+Total: 7 audio files.
+UNCLASSIFIED: none.
+No stone, carpet, water, metal, concrete, dirt, grass or generic recordings were found.
+Other gameplay surfaces deliberately fall back to these wood recordings; their
+NoiseModel multipliers remain distinct.
+
+==================================================
+27. PLACEHOLDER REPLACEMENT GUIDE
+==================================================
+[PLACEHOLDER] Room backgrounds/floors/windows:
+Assign a PackedScene to each active floor root's environment_art export.
+Disable show_placeholder_environment after art is placed. Use existing room coordinates.
+Collision and navigation remain in EstateRoom; no sense/progression rewrite needed.
+
+[PLACEHOLDER] Furniture:
+Generated under active floor/Props/Furniture1..6 (intro BrokenTable).
+Future room-art scene supplies furniture artwork aligned to current foot rectangles.
+Hide generated placeholders with show_placeholder_environment, preserve footprints.
+If changing collision footprints, update their matching navigation blockers too.
+
+[PLACEHOLDER] Doors/exit/puzzles/hiding props:
+res://scenes/interactables/{door,locked_door,exit_trigger,puzzle_interactable,hiding_spot}.tscn
+Assign Texture2D to Visual/Sprite2D.texture; align scale/offset around root foot origin.
+BaseInteractable hides its PlaceholderVisual when a texture is present.
+Keep root kind, IDs, gates and Visual node names. No interaction rewrite expected.
+
+[PLACEHOLDER] Flashlight/tool/key/letter pickups:
+Same assignment at Visual/Sprite2D in flashlight, lockpick_tool, key_pickup, letter_pickup.
+Coordinates/IDs are in data/estate_layout.json; keep collection independent of textures.
+
+[PLACEHOLDER] Player crouch/get-up:
+Add genuinely authored directional animations to female_frames.tres if later supplied;
+change only presentation mapping/intro visual tween. Retain movement/control gates.
+No true crouch or get-up frames are in the current ten sheets.
+
+[PLACEHOLDER] Flashlight:
+Player/Visual/Flashlight/PointLight2D.texture accepts final light texture.
+Replace/hide BeamPlaceholder as needed. Detection uses logical state, not this texture.
+
+[PLACEHOLDER] UI:
+Assign Theme to Main/UI.ui_theme. Sense icons would need a small UI-only change;
+current labels already read the ledger. Do not change canonical progression.
+
+[PLACEHOLDER] Audio:
+Assign non-footstep AudioStreams on scenes/systems/audio_director.tscn.
+For real material footsteps, add a surface -> Array[AudioStream] override on
+Player/FootstepAudio.surface_samples. Keep NoiseModel independent.
+Footstep source/volume/pitch changes require no enemy AI rewrite.
+
+==================================================
+28. CURRENT KNOWN BUGS / RISKS
+==================================================
+[BROKEN, repaired in this integration] SpriteFrames referenced deleted ifat/female and
+zombie root paths after the user's asset relocation. References now use assets/sprites.
+Copied .import source/cache paths were likewise stale and have been updated.
+Godot must import the moved assets during the developer's next editor session.
+
+[BROKEN, repaired in this integration] CharacterAnimation.play previously requested
+missing animations without guards. It now returns a safe result and visual fallback.
+Repeated one-shot actions also explicitly resume playback before resetting their frame.
+
+[PARTIAL] Footstep import/playback, exact sprite scale and animation appearance are
+not runtime-confirmed in this task. No tests were run by instruction.
+[PARTIAL] Enemy pivot=(128,203) is inferred from image alpha/contact distribution;
+stride feet vary by pose. Manual art alignment may still benefit from tuning.
+[PLACEHOLDER] Crouch is a visual squash/slowed gait, not authored crouch motion.
+[PLACEHOLDER] All non-wood floors currently share wood sound samples.
+[BROKEN] Letter JSON text contains literal backslash-n sequences; HUD assigns it directly,
+so a literal "\n" can be displayed instead of the intended line break. Not changed here.
+[PARTIAL] Memory re-check within 45 uses proximity without a new wall ray.
+[PARTIAL] Global AI memory clears across room transitions/checkpoints, so learned routes
+do not persist across the estate. This is existing behavior.
+[PARTIAL] Game export uses all_resources: unused sprite/source images may increase export size.
+No export pruning or asset deletion was performed.
+[PARTIAL] Supplied asset license/creator information is incomplete; credits need team review.
+[PARTIAL] User's moved assets are local changes; no staging/commit/push was performed here.
+No collision, camera, sensing threshold, gate or ending change was made as an asset workaround.
+
+==================================================
+29. WHAT IS COMPLETE
+==================================================
+[WORKING] Existing normalized room-plane movement, collision/camera, interactions,
+ledger/order, three sense capabilities, enemy FSM/navigation, hiding, four room groups,
+puzzle seals/letters, short endings, pause/settings, runtime checkpoints and death path.
+[PARTIAL] Organized player/enemy references, safe animation fallback and footstep
+presentation integration are implemented and ready for the developer's manual run.
+The full asset filename inventory and current source-derived progression are recorded here.
+"Complete" does not certify final art/audio, balancing, export or unperformed runtime tests.
+
+==================================================
+30. WHAT REMAINS
+==================================================
+CRITICAL BEFORE SUBMISSION
+- Developer imports the moved assets and manually completes the routes in section 1.
+- Confirm direction/origin/collision readability, audible cadence and no idle/hiding steps.
+- Confirm sprint/noisy surfaces are noticeably riskier after Hearing despite audio fallback.
+- Review asset licensing/credits and fix the source-evident letter newline formatting.
+- Package the intended asset set and manually verify Windows/Web exports.
+
+POLISH
+- Measure first-run duration; balance sensing, room traversal and puzzle pressure.
+- Refine crouch/get-up presentation and enemy foot pivot if the manual run calls for it.
+- Review hiding re-check wall behavior and transition-local memory tradeoffs.
+
+ASSET-ONLY WORK
+- Final room/prop/pickup textures; real material-specific footstep banks.
+- Ambience, key/creature/interaction sounds and tension music.
+- Final light texture, UI Theme/icons, approved letter/ending copy.
+
+==================================================
+31. NEXT 5 RECOMMENDED TASKS
+==================================================
+1. Developer's F5 asset/progression playthrough, without debug teleporting.
+2. Manual Hearing/Sight/Memory balance pass with the new presentation.
+3. Fix letter newline formatting and address any concrete issues from that playthrough.
+4. Replace room/prop/audio placeholders through the existing assignment hooks.
+5. Finalize credits and trim/export the intended Windows/Web release resources.
+
+Optional ASSET_INTEGRATION_STATUS.txt was not created: this file already records the
+asset status, exact mapping and replacement instructions without another duplicate report.
+
+THIS INTEGRATION'S FILE CHANGES
+Created:
+- res://scripts/player/footstep_audio.gd
+- res://docs/CURRENT_GAME_FLOW_AND_LOGIC.txt
+
+Modified:
+- res://scenes/player/female_frames.tres
+- res://scenes/enemy/zombie_frames.tres
+- res://scenes/player/player.tscn
+- res://scenes/enemy/deprived_one.tscn
+- res://scripts/player/character_animation.gd
+- res://scripts/player/player.gd
+- res://scripts/enemy/deprived_one.gd
+- res://scripts/systems/noise_model.gd
+- res://ASSET_CREDITS.md
+- 228 existing PNG import sidecars under assets/sprites:
+  20 player sidecars (10 processed, 10 raw source), 208 zombie sidecars.
+  Only source/cache references were repaired; UIDs/import options retained.
+The relocated assets and deletions of their old paths were already present at inspection.
+
+No gameplay tests, asset-pack verification scripts, Godot parser checks, commits or pushes
+were run for this integration. Suggested commit for the developer after manual approval:
+feat: integrate organized character sprites and randomized footsteps
+
+
+==================================================
+32. FRONT-END UI FLOW
+==================================================
+[PARTIAL] Implemented from source inspection; no Godot run, parser check, automated
+or manual test was performed by the agent. Human testing comes first.
+
+STARTUP AND LIFECYCLE
+F5 -> scenes/ui/front_end.tscn -> HOME -> START GAME -> 0.32s black fade ->
+GameManager.new_game -> scenes/ui/loading_screen.tscn -> prepared scenes/main/main.tscn -> Awakening -> play.
+GameManager is the only runtime state owner. new_game resets the ledger, checkpoint,
+ending, zone, entry and return_state. go_home clears the session and unpauses.
+travel/restart now explicitly load Main, rather than relying on current_scene being Main.
+No Continue button: checkpoints and settings are process-local, not disk saves.
+Main's World/Entities/Player/UI/Audio/Awakening hierarchy remains unchanged.
+
+SCENE / SCRIPT PATHS (all res://)
+Front-end: scenes/ui/front_end.tscn / scripts/ui/front_end.gd
+Home: scenes/ui/main_menu.tscn / scripts/ui/main_menu.gd
+Story: scenes/ui/story_page.tscn / scripts/ui/story_page.gd
+Controls: scenes/ui/controls_page.tscn / scripts/ui/controls_page.gd
+Settings: scenes/ui/settings_page.tscn / scripts/ui/settings_page.gd
+Credits: scenes/ui/credits_page.tscn / scripts/ui/credits_page.gd
+Pause: scenes/ui/pause_menu.tscn / scripts/ui/pause_menu.gd
+Shared page layout: scripts/ui/menu_page.gd
+Shared navigation/transitions: scripts/ui/menu_navigation.gd
+Shared background: scenes/ui/components/menu_background.tscn
+Button: scenes/ui/components/menu_button.tscn / scripts/ui/menu_button.gd
+Theme: themes/libertas_ui_theme.tres
+Optional menu sound hooks: scripts/ui/ui_audio.gd
+
+RUNTIME HIERARCHY
+FrontEnd
+  BackgroundRoot (instanced shared background)
+    BaseColor, BackgroundTexture, DarkGradientOverlay, Vignette
+    OptionalNoise, OptionalAtmosphere, WardLine, WardCross
+    PageContent
+      MainMenu, StoryPage, ControlsPage, SettingsPage, CreditsPage
+  UIAudio
+  TransitionOverlay (created by shared navigator)
+Pages create native containers and controls on ready; scene roots expose their scripts
+and shared theme. Secondary pages use PageLayout / title / divider / ContentScroll /
+Content / Back. Scrolling keeps Back outside the scroll region.
+Main/UI creates PauseMenu under its HUD root above gameplay visuals.
+PauseMenu contains DimGameplay, PageContent (pause choices, Settings, Controls),
+UIAudio and TransitionOverlay. Gameplay remains visible beneath translucent dimming.
+
+PAGES
+Home: title at 9% left / 19% top, tagline below, navigation at 9% / 43%, 10px gaps;
+team credit at bottom left. START GAME initially focused. Quit omitted on web.
+Story: revised appraisal/addendum/six-hour-gap canon, estate/time metadata, brass divider,
+left-weighted 602px logical body, separate dim-brass motif, static ward and optional art
+slot. No ending/enemy-stage/Jailer revelations. Scroll fallback; persistent Back.
+Controls: live InputMap bindings. Current MOVE A / Left / D / Right;
+ROOM DEPTH W / Up / S / Down; SPRINT Shift; CROUCH Ctrl; INTERACT E;
+FLASHLIGHT F; PAUSE Escape. Formatting/key names follow Godot's key names.
+Settings: existing Master, Music, SFX, Ambience sliders update buses immediately;
+zero mutes. Fullscreen calls DisplayServer. Subtitles changes HUD visibility while
+preserving queue/timing. First focus is Master. Changes survive scene changes only.
+Brightness/text sizing omitted because no safe existing implementation exists.
+Credits: team roles supplied by the developer, engine, supplied asset records,
+AI-assisted implementation/player-art disclosure. Long credits scroll.
+AI_DISCLOSURE.md was absent; copy reflects this development session and the actual
+ASSET_CREDITS.md player-art provenance, not an invented document or license.
+Zombie/footstep creator and license details remain unknown in supplied records.
+Pause: Resume; Settings; Controls; Restart checkpoint (new intro if none); Main Menu.
+Main Menu immediately discards runtime progress after its fade; no Continue/save.
+
+NAVIGATION AND FEEDBACK
+All major buttons use MenuButton: 0.15s sine easing, 8px outward translation,
+1.02 focus/hover scale, fading thin accent, muted-to-primary text, 0.985 press scale.
+Arrow/Tab navigation loops through home/pause choices. Secondary pages focus Back;
+Settings focuses Master. Hidden pages are hidden and processing-disabled.
+Page crossfade lasts 0.20s. Transition overlay and input handling block clicks/keys;
+focus releases before transition and restores only after it finishes.
+Home secondary Back/Esc -> HOME; pause secondary Back/Esc -> pause choices;
+Esc from pause choices -> resume. Letter reading still uses E/Esc to close.
+UIAudio has empty ui_hover/ui_confirm/ui_back AudioStream slots on SFX.
+Empty hooks are intentionally silent. No additional audio buses or final art.
+
+FINAL ART REPLACEMENT
+Assign a Texture2D to BackgroundTexture in components/menu_background.tscn.
+OptionalNoise and OptionalAtmosphere accept textures; adjust their modulation gently.
+Remove/disable WardLine/WardCross when final art supplies the motif.
+Assign logo_texture on main_menu.tscn's root to replace its live title label.
+Replace Serif/Body font subresources in libertas_ui_theme.tres centrally; PageTitle
+uses the Spaced FontVariation. SystemFont placeholders fall back when unavailable.
+Assign UIAudio's three streams in front_end.tscn and pause_menu.tscn.
+Still visual-only work: final estate background, logo, licensed final typography,
+ornamental details and optional menu sounds. No assets are required to open menus.
+
+MANUAL TEST PROCEDURE (NOT EXECUTED)
+1. Open project.godot in Godot 4.7.2. F5 must show HOME before any gameplay/intro.
+2. Hover buttons, then use Up/Down/Tab/Shift-Tab and Enter/Space; check identical focus
+   feedback, cycling, and no input through a transition or hidden page.
+3. Open Story, Controls, Credits. Read/scroll as needed; Back and Esc return HOME
+   with START GAME focused. Compare Controls to Project Settings > Input Map.
+4. Open Settings. Adjust each bus and confirm Audio bus volume changes; zero mutes.
+   Only installed audio can be heard (currently footsteps); empty buses remain silent.
+   Toggle Fullscreen and Subtitles. Back then reopen; values should persist.
+5. Start Game: observe fade, Loading, black handoff and revised Awakening. Move, sprint/crouch, interact,
+   hear footsteps, pick up items and continue existing level progression.
+6. Esc during intro and play: world pauses. Settings/Controls reuse the same content.
+   Esc from either returns pause choices; Resume/Esc resumes without restarting intro.
+   Disable subtitles, resume and trigger dialogue; text stays hidden. Re-enable it.
+7. Restart after a checkpoint: existing ledger/position restoration; before a checkpoint:
+   fresh Awakening. Main Menu returns HOME unpaused; Start begins a fresh ledger/intro.
+8. Read a letter and close with E/Esc; verify sense pickups, death/checkpoint and ending
+   flow still work. These underlying systems were preserved, not runtime-certified.
+9. Repeat menu layout at 1280x720, 1600x900 and 1920x1080. Verify readable text,
+   reachable Back, no clipping, and scrollable Credits. Desktop Quit exits the game.
+
+FRONT-END CHANGE MANIFEST
+Created: scenes/ui/{front_end,main_menu,story_page,controls_page,settings_page,
+credits_page,pause_menu}.tscn; scenes/ui/components/{menu_button,menu_background}.tscn;
+scripts/ui/{front_end,main_menu,story_page,controls_page,settings_page,credits_page,
+pause_menu,menu_page,menu_navigation,menu_button,ui_audio}.gd;
+themes/libertas_ui_theme.tres.
+Modified: project.godot; scripts/core/game_manager.gd;
+scripts/systems/session_settings.gd; scripts/ui/game_hud.gd; ASSET_CREDITS.md; this document.
+No tests run. No commit or push performed.
+Suggested commit: feat(ui): add gothic front-end and shared pause navigation
+
+
+==================================================
+33. NARRATIVE / CINEMATIC POLISH PASS
+==================================================
+Implementation is awaiting developer runtime approval. Source and original art were
+inspected; no engine launch, parser execution, tests, commit or push performed.
+Canon: res://docs/STORY_CANON.md (team-only spoilers; not loaded into player UI).
+
+Created:
+- scenes/ui/loading_screen.tscn
+- scripts/ui/loading_screen.gd
+- scripts/ui/ward_seal.gd (shared native ward for Loading and Story)
+- docs/STORY_CANON.md
+Modified:
+- scripts/core/game_manager.gd (existing reset routes new runs through Loading)
+- scripts/main/main.gd (foyer preload dependency for real threaded preparation)
+- scripts/intro/awakening.gd (prone/recovery, pacing, camera, dropped beam)
+- scripts/ui/story_page.gd and scenes/ui/story_page.tscn
+- themes/libertas_ui_theme.tres (StoryBody / NarrativeAccent)
+- docs/CURRENT_GAME_FLOW_AND_LOGIC.txt
+
+LoadingScreen now exports target_scene, display_seconds (5.0), and optional ambience.
+The previous threaded loading implementation below was superseded by section 34. Native near-black
+background, title, estate/time, three ward marks and low-amplitude opacity pulse.
+No numerical percentage, progress bar or spinner. The existing Home fade remains 0.32s.
+Only completed threaded requests are retrieved, then exactly one change_scene_to_packed
+loads Main. Its INTRO_ROOM preload makes the dynamically selected foyer a dependency.
+Instantiation/room construction still happen on the main thread; resource preparation
+cannot guarantee zero frame hitch on all hardware. Loading failure is logged with path/
+error and displays RETURN HOME (Esc also works), never an indefinite failed poll.
+The 1.0s minimum excludes the final 0.32s fade. There is no extra title cutscene.
+
+Exact public Story copy:
+Els Vantree, a locksmith hired for a private appraisal at Hollowmere Estate, wakes on the
+foyer floor with no memory of entering.
+
+She remembers the offer — far too generous to refuse.
+She remembers signing the contract without reading the addendum.
+
+The next six hours are gone.
+
+Somewhere inside Hollowmere, three sealed keys wait behind locks older than the estate itself.
+
+Every lock Els opens gives her a way forward.
+
+Not every freedom she recovers belongs to her.
+
+Separate closing motif:
+Freedom is never destroyed.
+It only changes hands.
+
+Story remains scenes/ui/story_page.tscn / scripts/ui/story_page.gd. PageLayout uses
+7%-96% vertical anchors, 8px gaps and shared 18px StoryBody styling. Body is approximately
+602 logical pixels at the 1280x720 base viewport; stretch handles 1600x900/1920x1080.
+ContentScroll remains a safety fallback for font/platform metrics; Back remains outside.
+Set atmosphere_texture on StoryPage to add a portrait/estate/ward image later.
+
+SOURCE CONSISTENCY / SCOPE
+Player scene, SpriteFrames, locomotion, collision, animation helper, footsteps, camera
+script, Enemy FSM, NoiseModel, FreedomLedger, puzzle/key order, checkpoint restoration,
+ending eligibility, item/door logic, HUD subtitle queue, pause and settings are unchanged.
+Only new-run scene routing and intro-floor resource preparation touch gameplay entry.
+The rotated-idle pose is removed; recovery explicitly restores facing/idle, playback
+speed, body opacity, shadow and camera zoom. Missing/failed loading has a way home.
+Existing item and door dialogue is preserved verbatim. No final audio/art required.
+
+MANUAL APPROVAL PROCEDURE (NOT RUN BY AGENT)
+A. F5 -> Home -> Start. Check button/fade, estate/2:47 loading screen and subtle ward.
+   It stays at least about one second, then fades black. No standing/gameplay flash
+   should precede the collapsed reveal. Repeat with cached resources.
+B. Confirm face-down Els without rotated Visual. Hold movement/E/F while waking:
+   no movement/pickup until recovery completes. Check reverse recovery, idle_w and
+   normal camera framing. Pause/resume midway to confirm sequence stays synchronized.
+   Optionally disable use_reverse_collapse_for_wake on Awakening to inspect dissolve.
+C. With subtitles enabled, verify the four opening lines in the exact section-3 order,
+   one at a time, with brief gaps. Control returns at about 11.7 unpaused seconds.
+D. Collect flashlight (Mine... / How did it get over there?), collect tools (At least
+   I came prepared.), first door attempt (Locked. / Of course.), unlock and Hello?.
+   Check requirements, pickup beam disappearance and transition to Ground still work.
+E. Home -> Story. Check exact text, estate/time, separated closing motif, optional-art
+   space, keyboard Back/Esc and readability at 1280x720, 1600x900, 1920x1080.
+F. Pause -> Main Menu -> Start again after acquiring progress. Confirm fresh intro,
+   empty keys/letters and reset pickup/door flags. Checkpoint Restart after a saved
+   checkpoint must still restore the existing snapshot without using the new-run reset.
+G. Optional failure check in the editor: run LoadingScreen with a deliberately invalid
+   target_scene on a temporary local instance; confirm useful error and Return Home.
+   Restore the valid target afterward. No such test was performed by the agent.
+
+Limitations: reverse collapse is reused art, not an authored get-up; final environment/
+sconce/window art and ambient streams remain placeholders. System-font metrics and
+motion must be assessed in Godot. Loading includes resource preparation but cannot
+move Godot scene instantiation/room construction off the main thread.
+Suggested commit: feat(narrative): add cinematic loading and canonical Awakening
+
+
+==================================================
+34. LOADING SCREEN STALL FIX / FIVE-SECOND PRESENTATION
+==================================================
+Supersedes earlier descriptions of threaded loading and the one-second minimum.
+User reported the ward screen never advanced. The threaded request/poll/get flow has
+been removed. No runtime root-cause claim: this change removes that waiting path.
+LoadingScreen shows a disabled bottom LOADING... button (status, no click required).
+After its first rendered frame, it holds for 4.68 seconds, fades black over 0.32 seconds,
+then loads Main with ResourceLoader.load and changes scene once. The existing clean
+reset, Awakening and gameplay progression remain unchanged. Errors expose Return Home.
+Normal resource loading/instantiation can add hardware-dependent time behind black;
+the presentation itself is five seconds, not a guarantee of total disk-load duration.
+Changed: scripts/ui/loading_screen.gd, scenes/ui/loading_screen.tscn,
+scripts/main/main.gd (comment only), docs/CURRENT_GAME_FLOW_AND_LOGIC.txt.
+No tests, engine run, commit or push performed. Manual: F5 -> Start -> bottom LOADING...
+-> five-second presentation -> black -> existing prone Awakening -> gameplay.

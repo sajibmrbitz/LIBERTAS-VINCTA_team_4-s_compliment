@@ -1,8 +1,16 @@
-[gd_scene load_steps=7 format=3 uid="uid://c374yl7rj3kup"]
+[gd_scene load_steps=15 format=3 uid="uid://c374yl7rj3kup"]
 
 [ext_resource type="Script" path="res://scripts/player/player.gd" id="1"]
 [ext_resource type="Script" path="res://scripts/player/room_camera.gd" id="2"]
 [ext_resource type="SpriteFrames" path="res://scenes/player/female_frames.tres" id="3"]
+[ext_resource type="Script" path="res://scripts/player/footstep_audio.gd" id="4_footsteps"]
+[ext_resource type="AudioStream" path="res://assets/audio/Footsteps/Antons_Footsteps_FS_Wood_Walk_01.wav" id="step_1"]
+[ext_resource type="AudioStream" path="res://assets/audio/Footsteps/Antons_Footsteps_FS_Wood_Walk_02.wav" id="step_2"]
+[ext_resource type="AudioStream" path="res://assets/audio/Footsteps/Antons_Footsteps_FS_Wood_Walk_03.wav" id="step_3"]
+[ext_resource type="AudioStream" path="res://assets/audio/Footsteps/Antons_Footsteps_FS_Wood_Walk_04.wav" id="step_4"]
+[ext_resource type="AudioStream" path="res://assets/audio/Footsteps/Antons_Footsteps_FS_Wood_Walk_05.wav" id="step_5"]
+[ext_resource type="AudioStream" path="res://assets/audio/Footsteps/Antons_Footsteps_FS_Wood_Walk_06.wav" id="step_6"]
+[ext_resource type="AudioStream" path="res://assets/audio/Footsteps/Antons_Footsteps_FS_Wood_Walk_07.wav" id="step_7"]
 
 [sub_resource type="RectangleShape2D" id="feet"]
 size = Vector2(24, 14)
@@ -62,5 +70,16 @@ texture_scale = 1.7
 energy = 0.65
 
 [node name="Camera2D" type="Camera2D" parent="."]
+
 position = Vector2(0, -70)
 script = ExtResource("2")
+
+[node name="FootstepAudio" type="Node" parent="."]
+script = ExtResource("4_footsteps")
+wood_samples = Array[AudioStream]([ExtResource("step_1"), ExtResource("step_2"), ExtResource("step_3"), ExtResource("step_4"), ExtResource("step_5"), ExtResource("step_6"), ExtResource("step_7")])
+
+[node name="Voice1" type="AudioStreamPlayer" parent="FootstepAudio"]
+bus = &"SFX"
+
+[node name="Voice2" type="AudioStreamPlayer" parent="FootstepAudio"]
+bus = &"SFX"

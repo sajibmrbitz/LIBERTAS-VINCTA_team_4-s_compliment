@@ -1,0 +1,114 @@
+[gd_resource type="Theme" load_steps=15 format=3]
+[sub_resource type="SystemFont" id="Serif"]
+font_names = PackedStringArray("Georgia", "Times New Roman")
+[sub_resource type="SystemFont" id="Body"]
+font_names = PackedStringArray("Segoe UI", "Arial")
+[sub_resource type="FontVariation" id="Spaced"]
+base_font = SubResource("Serif")
+spacing_glyph = 2
+[sub_resource type="StyleBoxEmpty" id="Empty"]
+[sub_resource type="StyleBoxFlat" id="Track"]
+bg_color = Color(0.169, 0.165, 0.161, 1)
+content_margin_top = 2.0
+content_margin_bottom = 2.0
+[sub_resource type="StyleBoxFlat" id="Fill"]
+bg_color = Color(0.639, 0.537, 0.333, 1)
+content_margin_top = 2.0
+content_margin_bottom = 2.0
+[sub_resource type="StyleBoxFlat" id="Focus"]
+bg_color = Color(0, 0, 0, 0)
+border_width_bottom = 1
+border_color = Color(0.639, 0.537, 0.333, 1)
+[sub_resource type="Gradient" id="Brass"]
+colors = PackedColorArray(0.639, 0.537, 0.333, 1, 0.639, 0.537, 0.333, 1)
+[sub_resource type="GradientTexture2D" id="Handle"]
+gradient = SubResource("Brass")
+width = 8
+height = 14
+[sub_resource type="Gradient" id="Light"]
+colors = PackedColorArray(0.867, 0.839, 0.78, 1, 0.867, 0.839, 0.78, 1)
+[sub_resource type="GradientTexture2D" id="HandleHover"]
+gradient = SubResource("Light")
+width = 8
+height = 14
+[sub_resource type="StyleBoxFlat" id="Panel"]
+bg_color = Color(0.078, 0.082, 0.102, 0.98)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.169, 0.165, 0.161, 1)
+content_margin_left = 28.0
+content_margin_right = 28.0
+content_margin_top = 24.0
+content_margin_bottom = 24.0
+[sub_resource type="Gradient" id="ToggleOffGradient"]
+colors = PackedColorArray(0.169, 0.165, 0.161, 1, 0.169, 0.165, 0.161, 1)
+[sub_resource type="GradientTexture2D" id="ToggleOff"]
+gradient = SubResource("ToggleOffGradient")
+width = 8
+height = 14
+[resource]
+default_font = SubResource("Body")
+default_font_size = 18
+Label/colors/font_color = Color(0.867, 0.839, 0.78, 1)
+GameTitle/base_type = &"Label"
+GameTitle/fonts/font = SubResource("Serif")
+GameTitle/font_sizes/font_size = 64
+PageTitle/base_type = &"Label"
+PageTitle/fonts/font = SubResource("Spaced")
+PageTitle/font_sizes/font_size = 36
+MenuText/base_type = &"Label"
+MenuText/fonts/font = SubResource("Serif")
+MenuText/font_sizes/font_size = 24
+Secondary/base_type = &"Label"
+Secondary/colors/font_color = Color(0.506, 0.486, 0.447, 1)
+Small/base_type = &"Label"
+Small/font_sizes/font_size = 14
+Small/colors/font_color = Color(0.506, 0.486, 0.447, 1)
+Button/fonts/font = SubResource("Serif")
+Button/font_sizes/font_size = 24
+Button/colors/font_color = Color(0.506, 0.486, 0.447, 1)
+Button/colors/font_hover_color = Color(0.867, 0.839, 0.78, 1)
+Button/colors/font_focus_color = Color(0.867, 0.839, 0.78, 1)
+Button/styles/normal = SubResource("Empty")
+Button/styles/hover = SubResource("Empty")
+Button/styles/pressed = SubResource("Empty")
+Button/styles/disabled = SubResource("Empty")
+Button/styles/focus = SubResource("Empty")
+CheckButton/font_sizes/font_size = 18
+CheckButton/styles/focus = SubResource("Focus")
+HSlider/styles/slider = SubResource("Track")
+HSlider/styles/grabber_area = SubResource("Fill")
+HSlider/styles/grabber_area_highlight = SubResource("Fill")
+HSlider/icons/grabber = SubResource("Handle")
+HSlider/icons/grabber_highlight = SubResource("HandleHover")
+HSlider/icons/grabber_disabled = SubResource("Handle")
+VScrollBar/styles/scroll = SubResource("Track")
+VScrollBar/styles/grabber = SubResource("Fill")
+VScrollBar/styles/grabber_highlight = SubResource("Fill")
+VScrollBar/styles/grabber_pressed = SubResource("Fill")
+VBoxContainer/constants/separation = 12
+HBoxContainer/constants/separation = 24
+GridContainer/constants/h_separation = 32
+GridContainer/constants/v_separation = 18
+HSeparator/styles/separator = SubResource("Track")
+
+MenuText/colors/font_color = Color(1, 1, 1, 1)
+PanelContainer/styles/panel = SubResource("Panel")
+Panel/styles/panel = SubResource("Panel")
+CheckButton/colors/font_color = Color(0.867, 0.839, 0.78, 1)
+CheckButton/colors/font_hover_color = Color(0.639, 0.537, 0.333, 1)
+CheckButton/colors/font_focus_color = Color(0.639, 0.537, 0.333, 1)
+CheckButton/icons/checked = SubResource("Handle")
+CheckButton/icons/unchecked = SubResource("ToggleOff")
+CheckButton/styles/normal = SubResource("Empty")
+CheckButton/styles/hover = SubResource("Empty")
+CheckButton/styles/pressed = SubResource("Empty")
+
+NarrativeAccent/base_type = &"Label"
+NarrativeAccent/colors/font_color = Color(0.639, 0.537, 0.333, 1)
+NarrativeAccent/font_sizes/font_size = 18
+StoryBody/base_type = &"Label"
+StoryBody/font_sizes/font_size = 18
+StoryBody/constants/line_spacing = 2

@@ -54,6 +54,8 @@ func _physics_process(delta: float) -> void:
 		var room = get_tree().get_first_node_in_group("room")
 		var surface: String = room.surface_at(global_position) if room != null else "GENERIC"
 		NoiseModel.emit_step(global_position, intensity, surface)
+		var gait := "crouch" if is_crouching else ("sprint" if speed == sprint_speed else "walk")
+		$FootstepAudio.play_step(surface, gait)
 	_find_interactable()
 	if Input.is_action_just_pressed("interact") and is_instance_valid(target_interactable):
 		target_interactable.interact(self)
@@ -112,9 +114,13 @@ func _update_animation(axis: Vector2, speed: float) -> void:
 func play_action(animation: String, seconds: float = 1.0) -> void:
 	animation_hold = maxf(seconds, 1.0)
 	play_animation(animation)
-	sprite.set_frame_and_progress(0, 0.0)
+	if sprite.visible:
+		sprite.play()
+		sprite.set_frame_and_progress(0, 0.0)
 
 func play_animation(animation: String) -> void:
 	animation_state = animation
 	sprite.speed_scale = 1.0
-	CharacterAnimation.play(sprite, animation, facing)
+	var has_art := CharacterAnimation.play(sprite, animation, facing)
+	sprite.visible = has_art
+	$Visual/PlaceholderVisual.visible = not has_art

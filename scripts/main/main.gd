@@ -1,9 +1,11 @@
 extends Node2D
+# Keep the foyer resource with Main; other rooms retain their existing flow.
+const INTRO_ROOM := preload("res://scenes/levels/intro_floor.tscn")
 const ENEMY := preload("res://scenes/enemy/deprived_one.tscn")
 var room: Node2D
 
 func _ready() -> void:
-	var packed: PackedScene = load("res://scenes/levels/" + GameManager.zone + "_floor.tscn")
+	var packed: PackedScene = INTRO_ROOM if GameManager.zone == "intro" else load("res://scenes/levels/" + GameManager.zone + "_floor.tscn")
 	room = packed.instantiate()
 	$World.add_child(room)
 	var player := $Entities/Player

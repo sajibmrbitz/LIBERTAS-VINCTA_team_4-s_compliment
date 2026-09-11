@@ -42,7 +42,7 @@ func _ready() -> void:
 	EventBus.player_left_hiding.connect(_left_hiding)
 	EventBus.sense_restored.connect(_restored)
 	EventBus.player_caught.connect(_attack)
-	CharacterAnimation.play(sprite, "idle", facing)
+	_play_visual("idle")
 	if FreedomLedger.hearing_restored:
 		change_state(State.WANDER)
 	_observe_debug()
@@ -83,7 +83,7 @@ func _physics_process(delta: float) -> void:
 	match state:
 		State.DORMANT:
 			velocity = Vector2.ZERO
-			CharacterAnimation.play(sprite, "idle", facing)
+			_play_visual("idle")
 			return
 		State.WANDER:
 			if global_position.distance_to(target) < 30.0 or state_clock > 10.0:
@@ -154,13 +154,18 @@ func _move(delta: float) -> void:
 	var animation := "idle"
 	if global_position.distance_to(before) > 0.01:
 		animation = "run" if state == State.CHASE else "walk"
-	CharacterAnimation.play(sprite, animation, facing)
+	_play_visual(animation)
+
+func _play_visual(animation: String) -> void:
+	var has_art := CharacterAnimation.play(sprite, animation, facing)
+	sprite.visible = has_art
+	$Visual/PlaceholderVisual.visible = not has_art
 
 func _attack() -> void:
 	velocity = Vector2.ZERO
 	if is_instance_valid(player):
 		facing = global_position.direction_to(player.global_position)
-	CharacterAnimation.play(sprite, "attack", facing)
+	_play_visual("attack")
 
 func _hear(point: Vector2, intensity: float, _surface: String) -> void:
 	if not FreedomLedger.hearing_restored or state == State.CHASE or GameManager.state != GameManager.State.PLAYING:

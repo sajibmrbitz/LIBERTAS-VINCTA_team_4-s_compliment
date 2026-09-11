@@ -18,7 +18,7 @@ color = Color(0.36, 0.16, 0.18, 1)
 polygon = PackedVector2Array(-18, 0, -23, -59, -9, -85, 9, -85, 23, -59, 18, 0)
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="Visual"]
 scale = Vector2(0.55, 0.55)
-offset = Vector2(0, -96)
+offset = Vector2(0, -75)
 sprite_frames = ExtResource("2")
 animation = &"idle_w"
 autoplay = "idle_w"
