@@ -42,8 +42,14 @@ func _ready() -> void:
 		$Entities.add_child(enemy)
 		if arrival_door != null:
 			_finish_arrival.call_deferred(player, arrival_door)
+		elif FreedomLedger.flags.get("loop_wake", false):
+			_finish_loop_wake.call_deferred(player)
 
 func _passage_for_entry() -> BaseInteractable:
+	if GameManager.entry not in ["start", "end", "checkpoint"]:
+		for child in room.props.get_children():
+			if child is BaseInteractable and child.interaction_id == GameManager.entry:
+				return child
 	var edge_x: float = float(room.room_width) if GameManager.entry == "end" else 0.0
 	var nearest: BaseInteractable
 	var distance := INF
@@ -62,5 +68,15 @@ func _finish_arrival(player: CharacterBody2D, door: BaseInteractable) -> void:
 	else:
 		player.global_position = door.global_position + Vector2(0, 56)
 		player.control_enabled = true
+	GameManager.state = GameManager.State.PLAYING
+	GameManager.save_checkpoint(player.global_position)
+
+func _finish_loop_wake(player: CharacterBody2D) -> void:
+	FreedomLedger.flags["loop_wake"] = false
+	player.control_enabled = false
+	player.play_animation("death")
+	await get_tree().create_timer(0.75, false).timeout
+	player.play_animation("idle")
+	player.control_enabled = true
 	GameManager.state = GameManager.State.PLAYING
 	GameManager.save_checkpoint(player.global_position)

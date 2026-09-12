@@ -13,6 +13,9 @@ func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	back_button.hide()
 	back_button.pressed.connect(GameManager.go_home)
+	if DisplayServer.get_name() == "headless":
+		_enter_game.call_deferred()
+		return
 	if ambience != null:
 		$Ambience.stream = ambience
 		$Ambience.play()

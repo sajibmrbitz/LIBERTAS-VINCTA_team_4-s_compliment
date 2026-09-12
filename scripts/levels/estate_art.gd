@@ -41,9 +41,10 @@ func build_backdrop(room: Node2D) -> void:
 	for section in zone.surfaces:
 		var start := float(section[0])
 		var width := float(section[1]) - start
-		_tile_band(art, str(section[2]), Rect2(start, 110, width, 244), Vector2(300, 244), Color(zone.wall_tint))
+		var wall_top := 0.0 if room.zone_id in ["roots", "echoes", "nexus"] else 110.0
+		_tile_band(art, str(section[2]), Rect2(start, wall_top, width, 354.0 - wall_top), Vector2(300, 244), Color(zone.wall_tint))
 		_tile_band(art, str(section[3]), Rect2(start, 354, width, 280), Vector2(240, 140), Color(zone.floor_tint))
-		_rect(art, Rect2(start, 110, 8, 244), Color("#343c37"))
+		_rect(art, Rect2(start, wall_top, 8, 354.0 - wall_top), Color("#343c37"))
 	if zone.get("carpet", false):
 		_rect(art, Rect2(0, 354, room.room_width, 280), Color(0.21, 0.14, 0.19, 0.67))
 		for y in [368, 620]:
@@ -52,18 +53,18 @@ func build_backdrop(room: Node2D) -> void:
 	_rect(art, Rect2(0, 634, room.room_width, 16), Color("#252c28"))
 	_rect(art, Rect2(0, 110, 12, 540), Color("#343c37"))
 	_rect(art, Rect2(room.room_width - 12, 110, 12, 540), Color("#343c37"))
-	var section_width: float = room.room_width / float(room.layout.names.size())
-	for i in room.layout.names.size():
+	for i in room.layout.rooms.size():
+		var room_spec: Dictionary = room.layout.rooms[i]
 		var label := Label.new()
-		label.text = room.layout.names[i]
-		label.position = Vector2(float(i) * section_width + 80, 128)
+		label.text = str(room_spec.id) + "  " + str(room_spec.name)
+		label.position = Vector2(float(room_spec.start) + 48, 128)
 		label.add_theme_font_size_override("font_size", 16)
 		label.add_theme_color_override("font_shadow_color", Color("#171d19"))
 		label.add_theme_constant_override("shadow_offset_y", 1)
 		label.modulate = Color("#a6aaa0")
 		label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		art.add_child(label)
-	if room.zone_id != "basement":
+	if room.zone_id in ["intro", "ground", "upper"]:
 		for x in range(500, int(room.room_width), 960):
 			var clear_of_passages := true
 			for prop in room.layout.props:
@@ -76,7 +77,9 @@ func dress(room: Node2D) -> void:
 	var zone: Dictionary = data.zones[room.zone_id]
 	var tint := Color(zone.prop_tint)
 	for node_name in zone.furniture:
-		var body: Node2D = room.props.get_node(NodePath(node_name))
+		var body: Node2D = room.props.get_node_or_null(NodePath(node_name))
+		if body == null:
+			continue
 		body.get_node("PlaceholderVisual").hide()
 		body.get_node("RaisedFacePlaceholder").hide()
 		var visual := Node2D.new()
@@ -87,7 +90,9 @@ func dress(room: Node2D) -> void:
 		if str(zone.furniture[node_name].asset) == "bench":
 			visual.rotation_degrees = float(data.bench_rotation_degrees)
 	for id in zone.get("interactables", {}):
-		var prop: Node2D = room.props.get_node(NodePath(str(id).to_pascal_case()))
+		var prop: Node2D = room.props.get_node_or_null(NodePath(str(id).to_pascal_case()))
+		if prop == null:
+			continue
 		var spec: Dictionary = zone.interactables[id]
 		var visual: Node2D = prop.get_node("Visual")
 		visual.get_node("PlaceholderVisual").hide()
@@ -106,10 +111,12 @@ func dress(room: Node2D) -> void:
 			room._wall(str(id).to_pascal_case() + "Footprint", Rect2(prop.position - Vector2(size.x * 0.5, size.y + 8), size))
 	for child in room.props.get_children():
 		if child is BaseInteractable:
-			if child.kind in ["key", "letter", "flashlight", "tool"]:
+			if child.kind in ["key", "letter", "flashlight", "tool", "item"]:
 				_dress_pickup(child)
-			elif child.kind in ["door", "locked_door"] or (child.kind == "exit" and child.interaction_id != "custodian_seal"):
+			elif child.kind in ["door", "locked_door", "exit"]:
 				_dress_passage(child, zone.passage_labels.get(child.interaction_id, "Passage"))
+			elif child.get_node("Visual/Sprite2D").texture == null:
+				_dress_generic_interactable(child, tint)
 	var decoration_index := 0
 	for entry in zone.decorations:
 		var prop := Node2D.new()
@@ -133,18 +140,33 @@ func dress(room: Node2D) -> void:
 func _dress_pickup(prop: BaseInteractable) -> void:
 	var visual: Node2D = prop.get_node("Visual")
 	var sprite: Sprite2D = visual.get_node("Sprite2D")
-	var asset: String = {"key": "key", "letter": "letter", "flashlight": "flashlight_pickup", "tool": "tool_pouch"}[prop.kind]
-	var width: float = 32.0 if prop.kind == "flashlight" else (42.0 if prop.kind in ["key", "tool"] else 34.0)
+	var item_assets := {"battery": "battery_pickup", "bottle": "bottle_pickup", "clock": "clock_pickup", "lockpick": "lockpick_pickup"}
+	var asset: String = item_assets.get(prop.item_id, "tool_pouch") if prop.kind == "item" else {"key": "key", "letter": "letter", "flashlight": "flashlight_pickup", "tool": "tool_pouch"}[prop.kind]
+	var width: float = 30.0 if prop.kind == "item" else (32.0 if prop.kind == "flashlight" else (42.0 if prop.kind in ["key", "tool"] else 34.0))
 	_set_sprite(sprite, asset, width, Vector2.ZERO, Color.WHITE)
 	visual.get_node("PlaceholderVisual").hide()
 	visual.z_index = 0
-	prop.display_name = prop.sense.capitalize() + " Key" if prop.kind == "key" else {"letter": "Letter", "flashlight": "Flashlight", "tool": "Tool Kit"}.get(prop.kind, "Key")
+	if prop.display_name.is_empty():
+		prop.display_name = prop.sense.capitalize() + " Key" if prop.kind == "key" else {"letter": "Letter", "flashlight": "Flashlight", "tool": "Tool Kit", "item": prop.item_id.capitalize()}.get(prop.kind, "Item")
 	var marker := Node2D.new()
 	marker.name = "PickupMarker"
 	marker.set_script(PickupMarker)
 	marker.is_key = prop.kind == "key"
 	visual.add_child(marker)
 	visual.move_child(marker, 0)
+
+func _dress_generic_interactable(prop: BaseInteractable, tint: Color) -> void:
+	var visual: Node2D = prop.get_node("Visual")
+	var sprite: Sprite2D = visual.get_node("Sprite2D")
+	var mapping := {
+		"hiding": ["screen", 112.0], "puzzle": ["sideboard", 125.0],
+		"recharge": ["side_table", 72.0], "vent": ["serving_hatch", 62.0],
+		"lore": ["book", 48.0], "forge": ["sigil_forge", 120.0],
+		"anchor": ["nexus_anchor", 120.0]
+	}
+	var spec: Array = mapping.get(prop.kind, ["book", 42.0])
+	visual.get_node("PlaceholderVisual").hide()
+	_furnish(visual, {"asset": spec[0], "width": spec[1]}, tint, sprite)
 
 func _dress_passage(prop: BaseInteractable, caption: String) -> void:
 	var visual: Node2D = prop.get_node("Visual")

@@ -17,6 +17,16 @@
     "tool_pouch": {"file": "res://assets/environment/props/estate_essentials/estate_essentials.png", "region": [103, 578, 331, 330], "trim": true},
     "estate_door": {"file": "res://assets/environment/props/estate_essentials/estate_essentials.png", "region": [617, 480, 299, 490], "trim": true},
     "stair_door": {"file": "res://assets/environment/props/estate_essentials/estate_essentials.png", "region": [1128, 480, 302, 490], "trim": true},
+    "cat_rubble": {"file": "res://assets/environment/props/cathedral/cathedral_props.png", "region": [24, 39, 460, 440], "trim": true},
+    "sarcophagus": {"file": "res://assets/environment/props/cathedral/cathedral_props.png", "region": [520, 160, 490, 300], "trim": true},
+    "blood_altar": {"file": "res://assets/environment/props/cathedral/cathedral_props.png", "region": [1085, 122, 420, 350], "trim": true},
+    "sigil_forge": {"file": "res://assets/environment/props/cathedral/cathedral_props.png", "region": [73, 554, 375, 387], "trim": true},
+    "nexus_anchor": {"file": "res://assets/environment/props/cathedral/cathedral_props.png", "region": [574, 473, 373, 500], "trim": true},
+    "ritual_stone": {"file": "res://assets/environment/props/cathedral/cathedral_props.png", "region": [1030, 551, 467, 402], "trim": true},
+    "battery_pickup": {"file": "res://assets/environment/props/cathedral/survival_pickups.png", "region": [0, 0, 627, 627], "trim": true},
+    "bottle_pickup": {"file": "res://assets/environment/props/cathedral/survival_pickups.png", "region": [627, 0, 627, 627], "trim": true},
+    "clock_pickup": {"file": "res://assets/environment/props/cathedral/survival_pickups.png", "region": [0, 627, 627, 627], "trim": true},
+    "lockpick_pickup": {"file": "res://assets/environment/props/cathedral/survival_pickups.png", "region": [627, 627, 627, 627], "trim": true},
     "wood_floor": {"file": "Architecture/fooddrink_architecture_floor_wood_restaurant_01.png", "region": [20, 22, 232, 164]},
     "tile_floor": {"file": "Architecture/fooddrink_architecture_floor_tile_cafe_pattern_01.png", "region": [22, 23, 231, 165]},
     "dark_floor": {"file": "Architecture/fooddrink_architecture_floor_dark_bar_01.png", "region": [22, 23, 231, 163]},
@@ -46,6 +56,7 @@
     "vase": {"file": "CafeProps/fooddrink_cafe_props_vase_single_flower_01.png"},
     "creamer": {"file": "CafeProps/fooddrink_cafe_props_sugar_creamer_pair_01.png"},
     "water_set": {"file": "CafeProps/fooddrink_cafe_props_water_bottle_glasses_set_01.png"},
+    "string_lights": {"file": "CafeProps/fooddrink_cafe_props_string_lights_warm_segment_01.png"},
     "book": {"file": "RestaurantProps/fooddrink_restaurant_props_menu_book_blank_01.png"},
     "mirror_frame": {"file": "RestaurantProps/fooddrink_restaurant_props_qr_stand_blank_frame_01.png"},
     "serving_cart": {"file": "RestaurantProps/fooddrink_restaurant_props_drink_cart_wheeled_01.png"},
@@ -83,12 +94,15 @@
         "Furniture6": {"asset": "sideboard", "width": 158, "position": [6120, 426], "footprint": [98, 32], "details": [["dish_tub", 4, -96, 42]]}
       },
       "interactables": {
+        "the_note": {"asset": "book", "width": 46, "scale": 0.8},
+        "grandfather_clock": {"asset": "clock_pickup", "width": 76, "scale": 0.75},
+        "dining_table_hide": {"asset": "family_table", "width": 176, "scale": 0.72},
         "piano_seal": {"asset": "piano", "width": 186, "scale": 0.75, "footprint": [108, 32]},
-        "ground_hide_01": {"asset": "screen", "width": 116, "scale": 0.8},
-        "ground_hide_02": {"asset": "screen", "width": 116, "scale": 0.8, "flip": true},
-        "custodian_seal": {"asset": "side_table", "width": 64, "details": [["book", 0, -44, 34]], "footprint": [40, 20]}
+        "pantry_wardrobe": {"asset": "screen", "width": 116, "scale": 0.8},
+        "coat_rack_hide": {"asset": "coat_stand", "width": 72, "scale": 0.78}
       },
       "decorations": [
+        ["string_lights", 1100, 278, 190], ["pans", 2460, 305, 62], ["stock_pot", 2590, 305, 48],
         ["coat_stand", 350, 392, 43], ["bookshelf", 780, 392, 91],
         ["side_table", 1190, 392, 68, [["book", 0, -43, 29]]],
         ["dining_chair", 1420, 392, 50], ["side_table", 1640, 392, 54, [["candle", 0, -39, 22]]],
@@ -119,9 +133,8 @@
         "Furniture6": {"asset": "sideboard", "width": 158, "position": [6040, 422], "footprint": [98, 32], "details": [["creamer", 0, -95, 31]]}
       },
       "interactables": {
-        "upper_hide_01": {"asset": "screen", "width": 116, "scale": 0.8},
-        "upper_hide_02": {"asset": "screen", "width": 116, "scale": 0.8, "flip": true},
-        "linen_hide": {"asset": "screen", "width": 116, "scale": 0.8},
+        "upper_hide_01": {"asset": "settee", "width": 176, "scale": 0.76},
+        "upper_hide_02": {"asset": "bottle_crate", "width": 92, "scale": 0.8},
         "vanity_seal": {"asset": "sideboard", "width": 138, "scale": 0.72, "footprint": [80, 28], "details": [["mirror_frame", 0, -80, 55], ["vase", 43, -92, 16]]}
       },
       "decorations": [
@@ -151,10 +164,7 @@
         "Furniture6": {"asset": "sideboard", "width": 158, "position": [6220, 439], "footprint": [98, 32], "details": [["candle", -35, -84, 22], ["candle", 35, -105, 22]]}
       },
       "interactables": {
-        "basement_hide_01": {"asset": "screen", "width": 116, "scale": 0.8},
-        "basement_hide_02": {"asset": "screen", "width": 116, "scale": 0.8, "flip": true},
-        "basement_hide_03": {"asset": "screen", "width": 116, "scale": 0.8},
-        "ritual_seal": {"asset": "lectern", "width": 91, "scale": 0.75, "footprint": [52, 24], "details": [["book", 0, -94, 44], ["candle", -64, -6, 25], ["candle", 65, -6, 25]]}
+        "ritual_seal": {"asset": "ritual_stone", "width": 150, "scale": 0.75, "footprint": [88, 28]}
       },
       "decorations": [
         ["bottle_crate", 360, 392, 53], ["stock_pot", 790, 392, 41],
@@ -163,11 +173,61 @@
         ["wine_shelf", 2500, 392, 104], ["wine_rack", 2710, 392, 77],
         ["wine_shelf", 3200, 392, 104], ["wine_shelf", 3390, 392, 104],
         ["bottle_crate", 3530, 392, 53], ["wine_rack", 3840, 392, 77],
+        ["sarcophagus", 3460, 392, 125], ["sarcophagus", 4050, 392, 125],
         ["wine_shelf", 4490, 392, 104], ["bottle_crate", 4680, 392, 53],
         ["side_table", 5280, 392, 54, [["candle", 0, -39, 23]]], ["side_table", 5560, 392, 54, [["candle", 0, -39, 23]]],
         ["lectern", 5710, 392, 73, [["book", 0, -75, 35]]],
         ["side_table", 6180, 392, 54, [["candle", 0, -39, 23]]], ["screen", 6450, 392, 99], ["side_table", 6680, 392, 54, [["candle", 0, -39, 23]]],
         ["wine_rack", 6770, 392, 65], ["bench", 7040, 392, 90], ["side_table", 7150, 392, 54, [["candle", 0, -39, 23]]]
+      ]
+    },
+    "roots": {
+      "wall_tint": "#485c58", "floor_tint": "#536765", "prop_tint": "#a6afaa",
+      "passage_labels": {"echo_threshold": "Chamber of Echoes"},
+      "surfaces": [[0, 2000, "brick_wall", "dark_floor"], [2000, 4000, "brick_wall", "dark_floor"], [4000, 6000, "brick_wall", "dark_floor"]],
+      "furniture": {},
+      "interactables": {
+        "vantree_altar": {"asset": "blood_altar", "width": 150, "scale": 0.78, "footprint": [96, 34]},
+        "crypt_alcove_01": {"asset": "sarcophagus", "width": 130, "scale": 0.72},
+        "crypt_alcove_02": {"asset": "sarcophagus", "width": 130, "scale": 0.72, "flip": true},
+        "crypt_alcove_03": {"asset": "sarcophagus", "width": 130, "scale": 0.72},
+        "crypt_alcove_04": {"asset": "sarcophagus", "width": 130, "scale": 0.72, "flip": true}
+      },
+      "decorations": [
+        ["cat_rubble", 2240, 405, 185], ["cat_rubble", 2710, 575, 155],
+        ["sarcophagus", 4250, 405, 135], ["sarcophagus", 4860, 405, 135],
+        ["candle", 3380, 392, 24], ["candle", 3730, 392, 24]
+      ]
+    },
+    "echoes": {
+      "wall_tint": "#425b5c", "floor_tint": "#4d6365", "prop_tint": "#aab4b1",
+      "passage_labels": {"roots_return": "Cathedral Roots", "nexus_descent": "Ley-Nexus"},
+      "surfaces": [[0, 2200, "brick_wall", "dark_floor"], [2200, 4400, "brick_wall", "dark_floor"], [4400, 5500, "brick_wall", "dark_floor"]],
+      "furniture": {},
+      "interactables": {
+        "mechanic_intro": {"asset": "ritual_stone", "width": 105, "scale": 0.72},
+        "sigil_forge": {"asset": "sigil_forge", "width": 125, "scale": 0.76, "footprint": [76, 30]},
+        "first_voice": {"asset": "sarcophagus", "width": 115, "scale": 0.7}
+      },
+      "decorations": [
+        ["ritual_stone", 620, 575, 125], ["cat_rubble", 3480, 405, 155],
+        ["cat_rubble", 4210, 575, 140], ["sarcophagus", 2580, 405, 125],
+        ["candle", 1450, 392, 24], ["candle", 1910, 392, 24]
+      ]
+    },
+    "nexus": {
+      "wall_tint": "#385354", "floor_tint": "#455f60", "prop_tint": "#b0bbb7",
+      "passage_labels": {},
+      "surfaces": [[0, 1800, "brick_wall", "dark_floor"]],
+      "furniture": {},
+      "interactables": {
+        "nexus_gate": {"asset": "ritual_stone", "width": 90, "scale": 0.66},
+        "LN-A": {"asset": "nexus_anchor", "width": 125, "scale": 0.78},
+        "LN-B": {"asset": "nexus_anchor", "width": 125, "scale": 0.78},
+        "LN-C": {"asset": "nexus_anchor", "width": 125, "scale": 0.78}
+      },
+      "decorations": [
+        ["ritual_stone", 900, 405, 300], ["cat_rubble", 250, 405, 120], ["cat_rubble", 1550, 405, 120]
       ]
     }
   }

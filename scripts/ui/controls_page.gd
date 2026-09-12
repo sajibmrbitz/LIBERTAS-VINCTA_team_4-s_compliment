@@ -9,7 +9,9 @@ func _ready() -> void:
 		"MOVE": ["move_left", "move_right"],
 		"ROOM DEPTH": ["move_up", "move_down"],
 		"SPRINT": ["sprint"], "CROUCH": ["crouch"],
-		"INTERACT": ["interact"], "FLASHLIGHT": ["flashlight"], "PAUSE": ["pause"]
+		"INTERACT / CHANNEL": ["interact"], "FLASHLIGHT": ["flashlight"],
+		"HOLD BREATH": ["hold_breath"], "GADGET": ["gadget"],
+		"SIGIL": ["ability"], "STUN RITE": ["stun"], "PAUSE": ["pause"]
 	}
 	for action in rows:
 		var heading := make_label(action, "Small")
@@ -18,7 +20,6 @@ func _ready() -> void:
 		var binding := make_label(bindings_for(rows[action]))
 		binding.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		grid.add_child(binding)
-	content.add_child(make_label("Hold Sprint or Crouch while moving. Interact also leaves a hiding place. Flashlight requires its pickup.", "Small"))
 
 func bindings_for(actions: Array) -> String:
 	var names: PackedStringArray = []

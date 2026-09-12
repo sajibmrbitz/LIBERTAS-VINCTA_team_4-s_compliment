@@ -37,6 +37,8 @@ func _ready() -> void:
 	navigation.anchor_top = 0.43
 	navigation.add_theme_constant_override("separation", 10)
 	var choices := {"START GAME": "start", "STORY": "story", "CONTROLS": "controls", "SETTINGS": "settings", "CREDITS": "credits", "QUIT": "quit"}
+	if not pause_context and GameManager.has_save():
+		choices = {"CONTINUE": "continue", "START GAME": "start", "STORY": "story", "CONTROLS": "controls", "SETTINGS": "settings", "CREDITS": "credits", "QUIT": "quit"}
 	if pause_context:
 		choices = {"RESUME": "resume", "SETTINGS": "settings", "CONTROLS": "controls", "RESTART": "restart", "MAIN MENU": "home"}
 	for caption in choices:

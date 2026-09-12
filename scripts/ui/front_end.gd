@@ -19,6 +19,7 @@ func _ready() -> void:
 func select(destination: String) -> void:
 	match destination:
 		"start": leave_to(GameManager.new_game)
+		"continue": leave_to(GameManager.continue_game)
 		"quit":
 			if not OS.has_feature("web"):
 				leave_to(get_tree().quit)

@@ -1,7 +1,7 @@
 extends Node2D
 ## Layout data supplies replaceable props; collision/navigation are independent of art.
 const EstateArt := preload("res://scripts/levels/estate_art.gd")
-@export_enum("intro", "ground", "upper", "basement") var zone_id: String = "ground"
+@export_enum("intro", "ground", "upper", "basement", "roots", "echoes", "nexus") var zone_id: String = "ground"
 @export var debug_noise: bool = false
 @export var environment_art: PackedScene
 @export var show_placeholder_environment: bool = true
@@ -15,6 +15,8 @@ var geometry: Node2D
 var props: Node2D
 var markers: Node2D
 var estate_art: RefCounted
+var current_room_id: String = ""
+var ambient_false_noise_clock: float = 14.0
 
 func _ready() -> void:
 	add_to_group("room")
@@ -92,12 +94,13 @@ func _build_backdrop() -> void:
 		return
 	_polygon($Backdrop, "WallPlaceholder", Rect2(-200, -100, room_width + 400, 460), Color("#171d25"))
 	_polygon($Backdrop, "FloorPlaceholder", Rect2(0, 354, room_width, 280), Color("#30353a"))
-	var section_width := room_width / float(layout.names.size())
-	for i in layout.names.size():
-		var x := float(i) * section_width
+	for i in layout.rooms.size():
+		var room_spec: Dictionary = layout.rooms[i]
+		var x := float(room_spec.start)
+		var section_width := float(room_spec.end) - x
 		_polygon($Backdrop, "WallPanel" + str(i), Rect2(x + 40, 120, section_width - 80, 200), Color("#222933"))
 		var label := Label.new()
-		label.text = layout.names[i]
+		label.text = str(room_spec.id) + "  " + str(room_spec.name)
 		label.position = Vector2(x + 100, 265)
 		label.add_theme_font_size_override("font_size", 23)
 		label.modulate = Color(0.6, 0.63, 0.66, 0.8)
@@ -127,6 +130,13 @@ func _build_surface_markings() -> void:
 		_polygon($Backdrop, "LinenShadowLane", Rect2(2700, 550, 3600, 74), Color("#22282e"))
 	elif zone_id == "basement":
 		_polygon($Backdrop, "Water", Rect2(900, 355, 2500, 190), Color(0.18, 0.32, 0.38, 0.8))
+	elif zone_id == "roots":
+		_polygon($Backdrop, "FloodedNave", Rect2(1000, 355, 1000, 190), Color(0.14, 0.30, 0.34, 0.72))
+		_polygon($Backdrop, "RootShadow", Rect2(2000, 355, 1000, 279), Color(0.09, 0.12, 0.12, 0.34))
+	elif zone_id == "echoes":
+		_polygon($Backdrop, "ChoirDrop", Rect2(3300, 355, 1100, 150), Color(0.08, 0.14, 0.16, 0.45))
+	elif zone_id == "nexus":
+		_polygon($Backdrop, "NexusRing", Rect2(260, 365, 1280, 250), Color(0.12, 0.24, 0.25, 0.32))
 	elif zone_id == "intro":
 		_polygon($Backdrop, "Moonlight", Rect2(180, 355, 390, 190), Color(0.5, 0.58, 0.68, 0.22))
 		if not _uses_imported_art():
@@ -206,32 +216,101 @@ func patrol_anchor() -> float:
 		return 4900.0
 	return float(layout.enemy)
 
+func patrol_target(stage: int, index: int) -> Vector2:
+	var candidates: Array = layout.rooms.duplicate()
+	if zone_id == "ground" and stage == 0:
+		candidates = candidates.slice(0, 5)
+	elif zone_id == "upper" and stage == 1:
+		candidates = candidates.filter(func(spec): return str(spec.id) in ["UF-01", "UF-02", "UF-04", "UF-06"])
+	elif zone_id == "roots" and int(FreedomLedger.part2_seed.get("monster_stage", 0)) == 0 and not FreedomLedger.part2_seed.get("touch_mutation", false):
+		candidates = candidates.filter(func(spec): return str(spec.id) == "CR-03")
+	if candidates.is_empty():
+		return Vector2(float(layout.enemy), 500.0)
+	var spec: Dictionary = candidates[index % candidates.size()]
+	return clamp_point(Vector2((float(spec.start) + float(spec.end)) * 0.5, 430.0 if index % 2 == 0 else 575.0))
+
+func vibration_transmission_at(point: Vector2) -> float:
+	if surface_at(point) == "RUBBLE":
+		return 160.0
+	if zone_id == "echoes" and point.x >= 3300.0 and point.x < 4400.0 and point.y < 470.0:
+		return 96.0
+	return 480.0
+
 func surface_at(point: Vector2) -> String:
-	if zone_id == "ground" and point.x > 2380 and point.x < 3580:
-		return "CARPET" if point.y > 545 else "GLASS"
-	if zone_id == "basement" and point.x > 900 and point.x < 3400 and point.y < 545:
-		return "WATER"
+	for region in layout.get("surface_regions", []):
+		if point.x >= float(region[0]) and point.x < float(region[1]):
+			return str(region[2])
 	return layout.surface
 
 func is_exposed(point: Vector2) -> bool:
-	if zone_id == "upper":
-		for x in [2650, 4300, 5950]:
-			if point.x > x and point.x < x + 650 and point.y < 545:
-				return true
-		return false
-	return zone_id == "ground" or (zone_id == "basement" and point.x > 3900)
+	for region in layout.get("light_regions", []):
+		if point.x >= float(region[0]) and point.x < float(region[1]):
+			return true
+	return false
+
+func known_exit_positions() -> Array[Vector2]:
+	var result: Array[Vector2] = []
+	for child in props.get_children():
+		if child is BaseInteractable and child.kind in ["door", "exit", "vent"]:
+			result.append(child.global_position)
+	return result
 
 func _noise(point: Vector2, intensity: float, _surface: String) -> void:
 	if debug_noise:
-		noise_rings.append({"point": point, "radius": intensity * 740.0, "life": 0.6})
+		noise_rings.append({"point": point, "radius": intensity if intensity > 10.0 else intensity * 740.0, "life": 0.6})
 
 func _process(delta: float) -> void:
-	if not debug_noise:
+	_update_room_tracking()
+	_update_ambient_hazards(delta)
+	if debug_noise:
+		for ring in noise_rings:
+			ring.life -= delta
+		noise_rings = noise_rings.filter(func(ring): return ring.life > 0)
+		queue_redraw()
+
+func _update_ambient_hazards(delta: float) -> void:
+	if zone_id != "ground" or GameManager.state != GameManager.State.PLAYING or not FreedomLedger.hearing_restored:
 		return
-	for ring in noise_rings:
-		ring.life -= delta
-	noise_rings = noise_rings.filter(func(ring): return ring.life > 0)
-	queue_redraw()
+	ambient_false_noise_clock -= delta
+	if ambient_false_noise_clock <= 0.0:
+		ambient_false_noise_clock = randf_range(12.0, 20.0)
+		EventBus.noise_created.emit(Vector2(1100.0, 300.0), 260.0, "GENERIC")
+
+func _update_room_tracking() -> void:
+	var player = get_tree().get_first_node_in_group("player")
+	if player == null:
+		return
+	for room_spec in layout.rooms:
+		if player.global_position.x >= float(room_spec.start) and player.global_position.x < float(room_spec.end):
+			var next_id := str(room_spec.id)
+			if next_id != current_room_id:
+				current_room_id = next_id
+				_enter_room(next_id)
+			return
+
+func _enter_room(id: String) -> void:
+	FreedomLedger.flags["visited_" + id] = true
+	EventBus.room_entered.emit(id)
+	match id:
+		"GF-03": EventBus.tension_changed.emit("SEARCHING")
+		"GF-04":
+			var player = get_tree().get_first_node_in_group("player")
+			if player != null and not player.is_crouching:
+				EventBus.noise_created.emit(Vector2(2520.0, 410.0), 420.0, "GENERIC")
+		"UF-02": FreedomLedger.flags["vision_vfx_primed"] = true
+		"BS-05": FreedomLedger.flags["ritual_chamber_seen"] = true
+		"CE-01":
+			if not FreedomLedger.flags.get("mechanic_intro_seen", false):
+				FreedomLedger.flags["mechanic_intro_seen"] = true
+				if FreedomLedger.part2_seed.get("hybrid_magic", false):
+					FreedomLedger.flags["part2_ability_unlocked"] = true
+				var line := "Stay above the broken floor; feel movement through the stone." if FreedomLedger.part2_seed.get("touch_mutation", false) else "The forge can turn blood into twelve seconds of silence."
+				EventBus.subtitle_requested.emit("ELS", line, 4.0)
+		"CE-03":
+			if FreedomLedger.part2_seed.get("blood_magic", false) and not FreedomLedger.flags.get("entity_spoke", false):
+				FreedomLedger.flags["entity_spoke"] = true
+				EventBus.subtitle_requested.emit("THE DEPRIVED", "Els. You have brought your name home.", 4.0)
+		"LN-CENTER": FreedomLedger.flags["finale_started"] = true
 
 func _draw() -> void:
 	if debug_noise:

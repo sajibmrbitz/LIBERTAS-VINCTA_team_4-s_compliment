@@ -2,65 +2,80 @@
 
 **Team:** 4's Compliment
 
-**GameJam theme:** DEGREE OF FREEDOM
+**Theme:** Degree of Freedom
 
-**Engine:** Godot 4.7.2 stable
+**Engine:** Godot 4.7 stable
 
-A compact psychological survival horror / stealth exploration game set in Hollowmere Estate. The project uses Godot 2D to compose a three-quarter elevated side view: upright characters, visible floor depth, horizontal exploration and restrained depth movement. No jumping, gravity-based platforming, 3D, combat or inventory combinations.
+LIBERTAS VINCTA is a 2D psychological survival-horror game set in Hollowmere Estate and the Sunken Cathedral beneath it. Els Vantree restores senses to the Deprived One by taking sealed keys. Every restored sense changes its behavior, and taking all three keys creates a false escape that loops the house instead of winning.
 
-The game is playable from Awakening through three short ending branches. The female main character and zombie enemy use the supplied sprite sheets. All four floors now use selected estate furniture, wall and floor textures from the supplied 2D props pack, with the grand piano at the Music Room seal. Generated pickup and door/stair sprites replace their rectangles; furniture scale, exit coverage and piano key visibility are corrected throughout. Benches face slightly toward the camera, Els visibly carries the flashlight, and doors animate open, traversal and arrival closing. Letter copy, some audio slots and specialized room artwork remain prototypes.
-
-Room dressing is configured in `data/estate_art.json`; see [environment asset placement](docs/ENVIRONMENT_ASSETS.md) for the selected assets, remaining gaps and verification commands.
+The game contains the complete Part I estate route, the Part II Cathedral Roots, Chamber of Echoes, and Ley-Nexus, six successful endings across both parts, and the three-key Loop failure state.
 
 ## Run
 
-1. Import `project.godot` in Godot **4.7.2**.
-2. Allow scripts/resources to import, then press **F5** to run Main.
-3. Wait through the short Awakening sequence.
-4. Approach the flashlight and tool kit, then press E. Try the door once; press E again with both items to open it.
-5. Explore the Music Room, Dining Hall and Pantry, then use the stairs to the upper floor and basement.
+1. Import `project.godot` in Godot 4.7 stable.
+2. Wait for PNG and audio imports to finish.
+3. Press F5.
 
-Use F5, not F6 on an individual generated room: Main supplies actors, UI, audio and progression.
+Use F5 rather than running an individual floor scene. `Main` supplies Els, the Deprived One, HUD, audio director, checkpoints, and transition presentation.
 
 ## Controls
 
 | Action | Input |
 | --- | --- |
-| Horizontal movement | A / D or Left / Right |
-| Room depth | W / S or Up / Down |
-| Sprint | Hold Shift |
-| Crouch / quiet movement | Hold Ctrl |
-| Interact / enter or leave hiding | E |
-| Flashlight after pickup | F |
-| Pause / resume | Esc |
-| Close letter | E, Esc or Close button |
+| Move | WASD or arrow keys |
+| Sprint | Shift |
+| Crouch | Ctrl |
+| Interact, leave hiding, channel | E |
+| Flashlight | F |
+| Hold breath | B |
+| Use gadget | Q |
+| Blood or partial sigil | R |
+| Stun Rite | T |
+| Pause | Esc |
 
-## Degree of Freedom
+The flashlight has 90 seconds of charge and drains three times faster while sprinting. Recharge stations take 12 stationary seconds. Breath can be held for 6 seconds and has a 15-second cooldown. Batteries, bottles, clocks, and lockpicks are persistent checkpoint inventory.
 
-Freedom is exchanged, not simply gained:
+## Part I
 
-- **Deprived:** noise and light are safe; the monster is dormant.
-- **Hearing:** the first key enables investigation of footsteps and puzzle noise. Sprinting and debris/water become dangerous; crouching and carpet remain quieter.
-- **Sight:** the second key enables deterministic range, field-of-view and occlusion checks. Darkness and crouching reduce visibility; flashlight use increases risk.
-- **Memory:** the final key enables bounded records of observed hiding entrances and recent visible movement. Repeated hiding and routes become less reliable.
+The room graph uses the literal IDs `GF-01` through `GF-10`, `UF-01` through `UF-07`, and `BS-01` through `BS-09`. Hearing, Sight, and Memory activate successively stronger enemy behavior.
 
-Three short E interactions release each puzzle seal. Collect its nearby gold key separately. No final animation or audio is required for these mechanics.
+| Keys | Exit | Result |
+| --- | --- | --- |
+| 0 | Front door, after testing it once, with zero detections | Untouched |
+| 1 | `BS-09` Ritual Conduit with at least 4 of 7 estate letters | Vantree |
+| 2 | `BS-04` Flood Tunnel | Partial Mercy |
+| 3 | Front door | Loop; keys and entity reset, no Part II seed |
 
-## Endings
+The second completed Loop unlocks `vantree_memory_fragment_A`. The valid Part I endings produce distinct Part II seeds. Vantree gives the monster Touch, Els Blood Magic, and an 80% HP cap. Partial Mercy preserves two monster senses and gives Els partial sigils. Untouched preserves a full gadget kit and leaves all monster senses dormant.
 
-- **Full Awakening:** restore all three senses and interact with the front door near the ground-floor start. The basement service passage returns to the ground-floor far end.
-- **Partial Mercy:** restore exactly Hearing and Sight, then use the maintenance exit near the basement entrance before taking Memory.
-- **Vantree:** collect the three ground-floor letters with at most one restored sense, then use the custodian seal near the Pantry.
+## Part II
 
-Death fades into the latest runtime checkpoint. Checkpoints are taken on room entry and sense collection. Restart checkpoint and New game are separate pause-menu actions.
+Part II spans six Cathedral Roots rooms (`CR`), five Chamber of Echoes rooms (`CE`), and the single-screen Ley-Nexus (`LN-CENTER`). It includes letters VIII through XIII, flooded and rubble surfaces, four crypt hiding alcoves, the name-carving reveal, branch mechanics, and a three-use skill gate.
 
-## Development and release
+At the Nexus, all three anchors are visible together. Holding E for 20 uninterrupted seconds chooses an ending; detection or damage resets the channel:
 
-- [Implementation report](docs/IMPLEMENTATION_REPORT.md)
-- [Asset integration contract](docs/ASSET_INTEGRATION.md)
-- [Testing procedure and manual QA](docs/QA.md)
-- [Known limitations](KNOWN_ISSUES.md)
-- [Asset credits](ASSET_CREDITS.md)
-- [AI disclosure](AI_DISCLOSURE.md)
+- `LN-A`: Severance
+- `LN-B`: Custodian's Rest
+- `LN-C`: Vessel
 
-Windows Desktop and single-threaded Web export presets are supplied. Install matching Godot 4.7.2 export templates before exporting. The layout JSON is explicitly included. Exports and caches are ignored by Git. No export binaries are included. Character assets are under `ifat/female` and `zombie`.
+## Architecture
+
+- `data/estate_layout.json`: room IDs, floor regions, surfaces, props, exits, requirements, items, and anchor choices.
+- `data/estate_art.json`: atlas slices, imported furniture dressing, cathedral props, scale, tint, and collision footprints.
+- `scripts/core/freedom_ledger.gd`: save schema, inventory, endings, loops, Part II seeds, HP, charge, and progression.
+- `scripts/enemy/deprived_one.gd`: the nine-state sensory AI.
+- `scripts/interactables/base_interactable.gd`: pickups, puzzles, hiding, doors, vents, recharging, forge, exits, and anchors.
+
+## Verification
+
+The maintained Godot tests cover layout/art, systems, and the canonical route:
+
+```powershell
+godot --headless --path . tests/verify_estate_assets.tscn
+godot --headless --path . tests/verify_game_systems.tscn
+godot --headless --path . tests/verify_game_route.tscn
+```
+
+Current results: 662 asset/layout checks, 48 systems checks, and 92 route checks, all with zero failures. The route test covers Awakening, Vantree Part I, Part II, the Echo skill gate, Severance, and the false-exit Loop reset.
+
+See [QA](docs/QA.md), [asset credits](ASSET_CREDITS.md), and [AI disclosure](AI_DISCLOSURE.md).

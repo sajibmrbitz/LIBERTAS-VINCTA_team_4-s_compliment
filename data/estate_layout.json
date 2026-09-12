@@ -1,313 +1,186 @@
 {
   "intro": {
     "width": 1800,
-    "names": [
-      "Cold Foyer"
-    ],
+    "names": ["Cold Foyer"],
+    "rooms": [{"id": "GF-00", "name": "Cold Foyer", "start": 0, "end": 1800}],
     "surface": "STONE",
     "enemy": 0,
     "props": [
-      [
-        "flashlight",
-        "flashlight",
-        430,
-        480
-      ],
-      [
-        "lockpick_tool",
-        "lockpick_tool",
-        900,
-        430
-      ],
-      [
-        "locked_door",
-        "intro_exit",
-        1590,
-        362,
-        {
-          "destination": "ground"
-        }
-      ]
+      ["flashlight", "flashlight", 430, 480],
+      ["lockpick_tool", "lockpick_tool", 900, 430],
+      ["locked_door", "intro_exit", 1590, 362, {"destination": "ground"}]
     ]
   },
   "ground": {
     "width": 7200,
-    "names": [
-      "Music Room",
-      "Dining Hall",
-      "Servant's Pantry"
+    "names": ["Grand Foyer", "Dining Hall", "Music Room", "Servant's Pantry", "Side Corridor", "Reading Nook", "Coat Room", "Trophy Hall", "Upper Stairwell", "Cellar Stairs"],
+    "rooms": [
+      {"id": "GF-01", "name": "Grand Foyer", "start": 0, "end": 720},
+      {"id": "GF-02", "name": "Dining Hall", "start": 720, "end": 1440},
+      {"id": "GF-03", "name": "Music Room", "start": 1440, "end": 2160},
+      {"id": "GF-04", "name": "Servant's Pantry", "start": 2160, "end": 2880},
+      {"id": "GF-05", "name": "Side Corridor", "start": 2880, "end": 3600},
+      {"id": "GF-06", "name": "Reading Nook", "start": 3600, "end": 4320},
+      {"id": "GF-07", "name": "Coat Room", "start": 4320, "end": 5040},
+      {"id": "GF-08", "name": "Trophy Hall", "start": 5040, "end": 5760},
+      {"id": "GF-09", "name": "Upper Stairwell", "start": 5760, "end": 6480},
+      {"id": "GF-10", "name": "Cellar Stairs", "start": 6480, "end": 7200}
     ],
     "surface": "WOOD",
-    "enemy": 2640,
+    "surface_regions": [[0, 720, "CARPET"], [720, 1440, "CARPET"], [5040, 5760, "CREAK"]],
+    "light_regions": [[0, 2160], [5040, 5760]],
+    "enemy": 920,
     "props": [
-      [
-        "exit_trigger",
-        "front_door",
-        180,
-        362,
-        {
-          "ending_type": "full_awakening",
-          "text": "Three seals bind the front door."
-        }
-      ],
-      [
-        "letter_pickup",
-        "vantree_01",
-        600,
-        430,
-        {
-          "title": "Vantree — I",
-          "text": "[Prototype letter]\\nThe Custodian keeps the ledger. The senses were severed for containment."
-        }
-      ],
-      [
-        "puzzle_interactable",
-        "piano_seal",
-        1800,
-        435,
-        {
-          "title": "Piano seal",
-          "puzzle_steps": 3
-        }
-      ],
-      [
-        "key_pickup",
-        "hearing_key",
-        1960,
-        525,
-        {
-          "sense": "hearing",
-          "required_flag": "piano_seal"
-        }
-      ],
-      [
-        "hiding_spot",
-        "ground_hide_01",
-        2420,
-        420
-      ],
-      [
-        "letter_pickup",
-        "vantree_02",
-        3650,
-        430,
-        {
-          "title": "Vantree — II",
-          "text": "[Prototype letter]\\nJailer and prisoner share a threshold. Restoring a sense weakens a seal."
-        }
-      ],
-      [
-        "hiding_spot",
-        "ground_hide_02",
-        4160,
-        575
-      ],
-      [
-        "letter_pickup",
-        "vantree_03",
-        5480,
-        430,
-        {
-          "title": "Vantree — III",
-          "text": "[Prototype letter]\\nThe Vantree record leaves a choice: keep the remaining seals, or finish the awakening."
-        }
-      ],
-      [
-        "exit_trigger",
-        "custodian_seal",
-        5900,
-        430,
-        {
-          "ending_type": "vantree",
-          "text": "The Vantree record is incomplete, or too many seals are broken."
-        }
-      ],
-      [
-        "door",
-        "upper_stairs",
-        6980,
-        362,
-        {
-          "destination": "upper",
-          "required_flag": "hearing",
-          "text": "The hearing seal binds these stairs."
-        }
-      ]
+      ["exit_trigger", "front_door", 180, 362, {"ending_type": "front_door", "text": "The lock will not answer this arrangement."}],
+      ["lore", "the_note", 430, 485, {"display_name": "The Note", "text": "Three wards. Three stolen senses. Freedom is counted by what remains sealed."}],
+      ["lore", "grandfather_clock", 620, 430, {"display_name": "Sabotage Clock", "noise_radius": 576.0, "text": "The clock begins striking the wrong hour."}],
+      ["hiding_spot", "dining_table_hide", 1050, 565, {"display_name": "Hide under table", "hiding_priority": "low"}],
+      ["item_pickup", "ground_battery", 1280, 470, {"display_name": "Flashlight Battery", "item_id": "battery"}],
+      ["puzzle_interactable", "piano_seal", 1780, 438, {"display_name": "Unlock Piano", "puzzle_steps": 3, "action_seconds": 1.1}],
+      ["key_pickup", "hearing_key", 1960, 478, {"sense": "hearing", "required_flag": "piano_seal"}],
+      ["letter_pickup", "vantree_01", 2070, 455, {"title": "Vantree - I", "text": "The first ward took hearing. Silence made the prisoner gentle, or seemed to."}],
+      ["hiding_spot", "pantry_wardrobe", 2380, 430, {"display_name": "Hide in wardrobe", "hiding_priority": "medium"}],
+      ["item_pickup", "pantry_bottles", 2710, 474, {"display_name": "Glass Bottles x2", "item_id": "bottle", "item_amount": 2}],
+      ["item_pickup", "side_clock", 3070, 470, {"display_name": "Wind-Up Clock", "item_id": "clock"}],
+      ["lore", "scratched_nameplate", 3420, 420, {"display_name": "Scratched Nameplate", "text": "A family name has been cut away more carefully than the portrait above it."}],
+      ["letter_pickup", "vantree_02", 3850, 460, {"title": "Vantree - II", "text": "A custodian keeps a door. A jailer decides who is permitted to need one."}],
+      ["recharge_station", "ground_recharge", 4170, 430],
+      ["hiding_spot", "coat_rack_hide", 4520, 430, {"display_name": "Hide among coats", "hiding_priority": "low"}],
+      ["item_pickup", "coat_lockpick", 4870, 470, {"display_name": "Lockpick", "item_id": "lockpick"}],
+      ["vent", "ground_vent", 5480, 405, {"destination": "upper", "entrance": "upper_vent"}],
+      ["door", "upper_stairs", 6140, 362, {"destination": "upper", "entrance": "upper_stairs", "required_flag": "hearing", "text": "The hearing seal binds these stairs."}],
+      ["door", "basement_stairs", 6980, 362, {"destination": "basement", "entrance": "ground_stairs", "required_flag": "hearing", "text": "The cellar lock answers only to the first key."}]
     ]
   },
   "upper": {
-    "width": 7200,
-    "names": [
-      "Portrait Gallery",
-      "Master Bedroom",
-      "Nursery / Linen Passage"
+    "width": 7000,
+    "names": ["Portrait Gallery", "Master Bedroom", "Nursery", "Linen Hall", "Bathroom", "Stairwell Down", "Vent Junction A"],
+    "rooms": [
+      {"id": "UF-01", "name": "Portrait Gallery", "start": 0, "end": 1000},
+      {"id": "UF-02", "name": "Master Bedroom", "start": 1000, "end": 2000},
+      {"id": "UF-03", "name": "Nursery", "start": 2000, "end": 3000},
+      {"id": "UF-04", "name": "Linen Hall", "start": 3000, "end": 4000},
+      {"id": "UF-05", "name": "Bathroom", "start": 4000, "end": 5000},
+      {"id": "UF-06", "name": "Stairwell Down", "start": 5000, "end": 6000},
+      {"id": "UF-07", "name": "Vent Junction A", "start": 6000, "end": 7000}
     ],
     "surface": "CARPET",
-    "enemy": 2750,
+    "light_regions": [[0, 1000], [2200, 2850], [4100, 4700]],
+    "enemy": 700,
     "props": [
-      [
-        "door",
-        "ground_stairs",
-        180,
-        362,
-        {
-          "destination": "ground",
-          "entrance": "end"
-        }
-      ],
-      [
-        "hiding_spot",
-        "upper_hide_01",
-        1700,
-        420
-      ],
-      [
-        "puzzle_interactable",
-        "vanity_seal",
-        2150,
-        440,
-        {
-          "required_flag": "hearing",
-          "puzzle_steps": 3,
-          "action_seconds": 1.1
-        }
-      ],
-      [
-        "key_pickup",
-        "sight_key",
-        2370,
-        480,
-        {
-          "sense": "sight",
-          "required_flag": "vanity_seal"
-        }
-      ],
-      [
-        "hiding_spot",
-        "upper_hide_02",
-        3520,
-        575
-      ],
-      [
-        "letter_pickup",
-        "vantree_04",
-        4420,
-        430,
-        {
-          "title": "Vantree — IV",
-          "text": "[Prototype letter]\\nLight was useful while it could not see. The old shutters leave a strip of shadow."
-        }
-      ],
-      [
-        "hiding_spot",
-        "linen_hide",
-        5770,
-        420
-      ],
-      [
-        "door",
-        "basement_stairs",
-        6980,
-        362,
-        {
-          "destination": "basement",
-          "required_flag": "sight",
-          "text": "The sight seal binds this passage."
-        }
-      ]
+      ["letter_pickup", "vantree_03", 700, 455, {"title": "Vantree - III", "text": "It watched the portraits before it watched us. We covered every painted eye."}],
+      ["hiding_spot", "upper_hide_01", 1420, 570, {"display_name": "Hide under bed", "hiding_priority": "high"}],
+      ["puzzle_interactable", "vanity_seal", 1740, 440, {"display_name": "Unlock Vanity", "required_flag": "hearing", "puzzle_steps": 3, "action_seconds": 1.1}],
+      ["key_pickup", "sight_key", 1910, 480, {"sense": "sight", "required_flag": "vanity_seal"}],
+      ["hiding_spot", "upper_hide_02", 2390, 570, {"display_name": "Hide in toybox", "hiding_priority": "medium"}],
+      ["letter_pickup", "vantree_04", 2780, 450, {"title": "Vantree - IV", "text": "The Custodian was a kinder word. Jailer was the honest one."}],
+      ["vent", "upper_vent", 3240, 410, {"destination": "ground", "entrance": "ground_vent"}],
+      ["item_pickup", "upper_battery", 3770, 470, {"display_name": "Flashlight Battery", "item_id": "battery"}],
+      ["recharge_station", "upper_recharge", 4380, 430],
+      ["item_pickup", "bathroom_bottle", 4820, 470, {"display_name": "Glass Bottle", "item_id": "bottle"}],
+      ["door", "upper_stairs", 5560, 362, {"destination": "ground", "entrance": "upper_stairs"}],
+      ["vent", "vent_to_ground", 6300, 410, {"destination": "ground", "entrance": "ground_vent"}],
+      ["vent", "vent_to_basement", 6750, 410, {"destination": "basement", "entrance": "basement_vent"}]
     ]
   },
   "basement": {
     "width": 7200,
-    "names": [
-      "Flooded Cellar",
-      "Wine Cellar",
-      "Ritual Chamber"
+    "names": ["Cellar Stairs", "Flooded Cellar", "Wine Cellar", "Ossuary Nook", "Ritual Chamber", "Root Cellar", "Ritual Conduit"],
+    "rooms": [
+      {"id": "BS-01", "name": "Cellar Stairs", "start": 0, "end": 800},
+      {"id": "BS-04", "name": "Flooded Cellar", "start": 800, "end": 2000},
+      {"id": "BS-02", "name": "Wine Cellar", "start": 2000, "end": 3200},
+      {"id": "BS-03", "name": "Ossuary Nook", "start": 3200, "end": 4300},
+      {"id": "BS-05", "name": "Ritual Chamber", "start": 4300, "end": 5400},
+      {"id": "BS-06", "name": "Root Cellar", "start": 5400, "end": 6400},
+      {"id": "BS-09", "name": "Ritual Conduit", "start": 6400, "end": 7200}
     ],
     "surface": "STONE",
-    "enemy": 4320,
+    "surface_regions": [[800, 2000, "WATER"]],
+    "light_regions": [[4300, 5400]],
+    "enemy": 2900,
     "props": [
-      [
-        "door",
-        "upper_stairs",
-        180,
-        362,
-        {
-          "destination": "upper",
-          "entrance": "end"
-        }
-      ],
-      [
-        "exit_trigger",
-        "maintenance_exit",
-        620,
-        362,
-        {
-          "ending_type": "partial_mercy",
-          "text": "The flood passage opens only while two senses are restored."
-        }
-      ],
-      [
-        "hiding_spot",
-        "basement_hide_01",
-        1860,
-        420
-      ],
-      [
-        "letter_pickup",
-        "vantree_05",
-        2840,
-        430,
-        {
-          "title": "Vantree — V",
-          "text": "[Prototype letter]\\nThe final seal holds memory. A place of refuge can become a place it remembers."
-        }
-      ],
-      [
-        "hiding_spot",
-        "basement_hide_02",
-        3650,
-        575
-      ],
-      [
-        "puzzle_interactable",
-        "ritual_seal",
-        4090,
-        430,
-        {
-          "required_flag": "sight",
-          "puzzle_steps": 3,
-          "action_seconds": 1.25
-        }
-      ],
-      [
-        "key_pickup",
-        "memory_key",
-        4310,
-        480,
-        {
-          "sense": "memory",
-          "required_flag": "ritual_seal"
-        }
-      ],
-      [
-        "hiding_spot",
-        "basement_hide_03",
-        5050,
-        420
-      ],
-      [
-        "door",
-        "service_return",
-        6890,
-        362,
-        {
-          "destination": "ground",
-          "entrance": "end",
-          "required_flag": "memory",
-          "text": "The final seal binds this return passage."
-        }
-      ]
+      ["door", "ground_stairs", 180, 362, {"destination": "ground", "entrance": "basement_stairs"}],
+      ["exit_trigger", "maintenance_exit", 1500, 362, {"ending_type": "partial_mercy", "text": "The flood passage opens only while two senses are restored."}],
+      ["vent", "basement_vent", 2740, 410, {"destination": "upper", "entrance": "vent_to_basement"}],
+      ["letter_pickup", "vantree_05", 3460, 450, {"title": "Vantree - V", "text": "Memory made refuge into evidence. Every hiding place became a confession."}],
+      ["letter_pickup", "vantree_06", 3780, 470, {"title": "Vantree - VI", "text": "Below the house, the roots carry an older sentence into older stone."}],
+      ["letter_pickup", "vantree_07", 4120, 450, {"title": "Vantree - VII", "text": "Leave one ward closed. Freedom is not the same thing as completion."}],
+      ["puzzle_interactable", "ritual_seal", 4720, 435, {"display_name": "Break the Cracked Seal", "required_flag": "sight", "puzzle_steps": 1, "action_seconds": 1.25}],
+      ["key_pickup", "memory_key", 5000, 480, {"sense": "memory", "required_flag": "ritual_seal"}],
+      ["item_pickup", "root_bottles", 5650, 475, {"display_name": "Glass Bottles x2", "item_id": "bottle", "item_amount": 2}],
+      ["item_pickup", "root_clock", 6050, 475, {"display_name": "Wind-Up Clock", "item_id": "clock"}],
+      ["recharge_station", "basement_recharge", 6240, 430],
+      ["exit_trigger", "ritual_conduit", 6900, 362, {"ending_type": "vantree", "text": "It isn't ready for you yet."}]
+    ]
+  },
+  "roots": {
+    "width": 6000,
+    "names": ["Entry Descent", "Flooded Nave", "Collapsed Cloister", "Altar Approach", "Crypt Row", "Echo Threshold"],
+    "rooms": [
+      {"id": "CR-01", "name": "Entry Descent", "start": 0, "end": 1000},
+      {"id": "CR-02", "name": "Flooded Nave", "start": 1000, "end": 2000},
+      {"id": "CR-03", "name": "Collapsed Cloister", "start": 2000, "end": 3000},
+      {"id": "CR-04", "name": "Altar Approach", "start": 3000, "end": 4000},
+      {"id": "CR-05", "name": "Crypt Row", "start": 4000, "end": 5200},
+      {"id": "CR-06", "name": "Echo Threshold", "start": 5200, "end": 6000}
+    ],
+    "surface": "STONE",
+    "surface_regions": [[1000, 2000, "WATER"], [2000, 3000, "RUBBLE"]],
+    "light_regions": [[3000, 4000]],
+    "enemy": 2550,
+    "props": [
+      ["letter_pickup", "vantree_08", 1550, 465, {"title": "Vantree - VIII", "text": "The roots predate the house. We did not build a prison. We inherited one."}],
+      ["item_pickup", "roots_battery", 1880, 485, {"display_name": "Flashlight Battery", "item_id": "battery"}],
+      ["lore", "vantree_altar", 3550, 430, {"display_name": "Read the Names", "speaker": "", "text": "Custodian. Jailer. Vantree. Els Vantree - the final carving bears a date centuries old."}],
+      ["letter_pickup", "vantree_09", 4170, 450, {"title": "Vantree - IX", "text": "Each keeper arrived believing the name belonged to somebody else."}],
+      ["letter_pickup", "vantree_10", 4470, 470, {"title": "Vantree - X", "text": "The ward moved from hand to hand, and every hand called that movement freedom."}],
+      ["letter_pickup", "vantree_11", 4770, 450, {"title": "Vantree - XI", "text": "The empty hand was never counted. That omission became the ritual."}],
+      ["hiding_spot", "crypt_alcove_01", 4110, 585, {"display_name": "Hide in alcove", "hiding_priority": "low"}],
+      ["hiding_spot", "crypt_alcove_02", 4400, 585, {"display_name": "Hide in alcove", "hiding_priority": "low"}],
+      ["hiding_spot", "crypt_alcove_03", 4690, 585, {"display_name": "Hide in alcove", "hiding_priority": "medium"}],
+      ["hiding_spot", "crypt_alcove_04", 4980, 585, {"display_name": "Hide in alcove", "hiding_priority": "medium"}],
+      ["item_pickup", "roots_bottles", 5050, 470, {"display_name": "Glass Bottles x2", "item_id": "bottle", "item_amount": 2}],
+      ["door", "echo_threshold", 5800, 362, {"destination": "echoes", "entrance": "roots_return"}]
+    ]
+  },
+  "echoes": {
+    "width": 5500,
+    "names": ["Resonance Hall", "Sigil Forge", "Vault of Whispers", "Sunken Choir", "Nexus Descent"],
+    "rooms": [
+      {"id": "CE-01", "name": "Resonance Hall", "start": 0, "end": 1100},
+      {"id": "CE-02", "name": "Sigil Forge", "start": 1100, "end": 2200},
+      {"id": "CE-03", "name": "Vault of Whispers", "start": 2200, "end": 3300},
+      {"id": "CE-04", "name": "Sunken Choir", "start": 3300, "end": 4400},
+      {"id": "CE-05", "name": "Nexus Descent", "start": 4400, "end": 5500}
+    ],
+    "surface": "STONE",
+    "surface_regions": [[3300, 4400, "RUBBLE"]],
+    "light_regions": [[0, 1100], [2200, 3300]],
+    "enemy": 2900,
+    "props": [
+      ["door", "roots_return", 180, 362, {"destination": "roots", "entrance": "echo_threshold"}],
+      ["lore", "mechanic_intro", 650, 445, {"display_name": "Resonance", "speaker": "", "text": "The floor carries every movement. Three clean uses will open the descent."}],
+      ["forge", "sigil_forge", 1680, 440, {"required_flag": "branch_vantree"}],
+      ["letter_pickup", "vantree_12", 2480, 450, {"title": "Vantree - XII", "text": "The prisoner learned our voices by listening to the shape of our fear."}],
+      ["letter_pickup", "vantree_13", 3020, 470, {"title": "Vantree - XIII", "text": "When it finally spoke, it used the voice of the next keeper."}],
+      ["lore", "first_voice", 3200, 430, {"display_name": "Listen", "speaker": "THE DEPRIVED", "required_flag": "branch_vantree", "text": "Els. You have brought your name home."}],
+      ["item_pickup", "echo_clock", 4050, 475, {"display_name": "Wind-Up Clock x3", "item_id": "clock", "item_amount": 3}],
+      ["door", "nexus_descent", 5320, 362, {"destination": "nexus", "entrance": "nexus_gate", "required_flag": "part2_mechanic_3", "text": "The descent waits for three successful resonances."}]
+    ]
+  },
+  "nexus": {
+    "width": 1800,
+    "names": ["Convergence"],
+    "rooms": [{"id": "LN-CENTER", "name": "Convergence", "start": 0, "end": 1800}],
+    "surface": "STONE",
+    "light_regions": [[0, 1800]],
+    "enemy": 900,
+    "props": [
+      ["lore", "nexus_gate", 180, 430, {"display_name": "Sealed Threshold", "speaker": "", "text": "The way back has closed."}],
+      ["anchor", "LN-A", 520, 500, {"display_name": "Destroy - Hold E", "ending_type": "severance", "channel_seconds": 20.0}],
+      ["anchor", "LN-B", 900, 500, {"display_name": "Seal Els - Hold E", "ending_type": "custodian_rest", "channel_seconds": 20.0}],
+      ["anchor", "LN-C", 1280, 500, {"display_name": "Bind New Vessel - Hold E", "ending_type": "vessel", "channel_seconds": 20.0}]
     ]
   }
 }

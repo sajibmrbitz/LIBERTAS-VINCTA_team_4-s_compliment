@@ -1,0 +1,12 @@
+[gd_scene load_steps=2 format=3]
+[ext_resource type="Script" path="res://scripts/interactables/base_interactable.gd" id="1"]
+[node name="Forge" type="Node2D"]
+script = ExtResource("1")
+kind = "forge"
+display_name = "Sigil Forge"
+[node name="Visual" type="Node2D" parent="."]
+[node name="PlaceholderVisual" type="Polygon2D" parent="Visual"]
+color = Color(0.36, 0.18, 0.19, 1)
+polygon = PackedVector2Array(-38, 0, -38, -75, 38, -75, 38, 0)
+[node name="Sprite2D" type="Sprite2D" parent="Visual"]
+position = Vector2(0, -38)
