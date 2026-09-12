@@ -24,7 +24,7 @@ Walking through the front door, the events after signing/arriving, and approxima
 
 The Cold Foyer, 2:47 AM: rain outside, dark/boarded windows, a dying wall sconce, cold floor and small house sounds breaking the silence. Els wakes collapsed, face toward the floor. Her flashlight lies several feet away, its beam pointed away from her. She cannot explain its position.
 
-Current environment is greybox: existing foyer geometry, a dropped-beam placeholder and empty rain/drip/breathing/creak hooks support the scene. Final boards/sconce/estate artwork remains presentation work.
+Current environment combines imported tiled floors, paneling, framed windows and furniture with the existing foyer geometry and dropped-beam placeholder. Final boarded-window and wall-sconce art remains presentation work. Audio hooks retain their current assignments.
 
 ## 6. The Ledger / Conservation of Freedom
 

@@ -23,7 +23,7 @@
         "locked_door",
         "intro_exit",
         1590,
-        480,
+        362,
         {
           "destination": "ground"
         }
@@ -44,7 +44,7 @@
         "exit_trigger",
         "front_door",
         180,
-        475,
+        362,
         {
           "ending_type": "full_awakening",
           "text": "Three seals bind the front door."
@@ -73,8 +73,8 @@
       [
         "key_pickup",
         "hearing_key",
-        2140,
-        475,
+        1960,
+        525,
         {
           "sense": "hearing",
           "required_flag": "piano_seal"
@@ -126,7 +126,7 @@
         "door",
         "upper_stairs",
         6980,
-        480,
+        362,
         {
           "destination": "upper",
           "required_flag": "hearing",
@@ -149,7 +149,7 @@
         "door",
         "ground_stairs",
         180,
-        480,
+        362,
         {
           "destination": "ground",
           "entrance": "end"
@@ -208,7 +208,7 @@
         "door",
         "basement_stairs",
         6980,
-        480,
+        362,
         {
           "destination": "basement",
           "required_flag": "sight",
@@ -231,7 +231,7 @@
         "door",
         "upper_stairs",
         180,
-        480,
+        362,
         {
           "destination": "upper",
           "entrance": "end"
@@ -241,7 +241,7 @@
         "exit_trigger",
         "maintenance_exit",
         620,
-        430,
+        362,
         {
           "ending_type": "partial_mercy",
           "text": "The flood passage opens only while two senses are restored."
@@ -300,7 +300,7 @@
         "door",
         "service_return",
         6890,
-        480,
+        362,
         {
           "destination": "ground",
           "entrance": "end",

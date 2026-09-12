@@ -6,6 +6,7 @@ var entry: String = "start"
 var checkpoint: Dictionary = {}
 var ending: String = ""
 var return_state: State = State.PLAYING
+var arrival_pending: bool = false
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
@@ -19,6 +20,7 @@ func new_game() -> void:
 	entry = "start"
 	checkpoint.clear()
 	ending = ""
+	arrival_pending = false
 	state = State.INTRO
 	return_state = State.PLAYING
 	var error := get_tree().change_scene_to_file("res://scenes/ui/loading_screen.tscn")
@@ -33,6 +35,7 @@ func go_home() -> void:
 	zone = "intro"
 	entry = "start"
 	ending = ""
+	arrival_pending = false
 	return_state = State.PLAYING
 	state = State.MENU
 	get_tree().change_scene_to_file("res://scenes/ui/front_end.tscn")
@@ -44,6 +47,7 @@ func travel(destination: String, entrance: String = "start") -> void:
 	get_tree().paused = false
 	zone = destination
 	entry = entrance
+	arrival_pending = true
 	state = State.PLAYING
 	# A room transition is also a safe checkpoint. Main supplies its spawn position.
 	get_tree().change_scene_to_file("res://scenes/main/main.tscn")
@@ -56,6 +60,7 @@ func restart_checkpoint() -> void:
 	FreedomLedger.restore_snapshot(checkpoint.ledger)
 	zone = checkpoint.zone
 	entry = "checkpoint"
+	arrival_pending = false
 	ending = ""
 	state = State.PLAYING
 	get_tree().change_scene_to_file("res://scenes/main/main.tscn")

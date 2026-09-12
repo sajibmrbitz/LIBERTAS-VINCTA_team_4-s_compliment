@@ -92,7 +92,7 @@ func _add_dropped_flashlight_beam() -> void:
 			var beam := Polygon2D.new()
 			beam.name = "DroppedBeamPlaceholder"
 			beam.color = Color(0.8, 0.78, 0.6, 0.10)
-			beam.polygon = PackedVector2Array([Vector2(0, -3), Vector2(210, -35), Vector2(210, 35), Vector2(0, 3)])
+			beam.polygon = PackedVector2Array([Vector2(14, -3), Vector2(145, -24), Vector2(145, 24), Vector2(14, 3)])
 			beam.z_index = -1
 			# Faces away from Els. Parent pickup hides it when its existing flag is set.
 			prop.add_child(beam)

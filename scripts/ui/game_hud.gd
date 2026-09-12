@@ -80,7 +80,13 @@ func _process(delta: float) -> void:
 	prompt.visible = false
 	if player != null and GameManager.state == GameManager.State.PLAYING:
 		prompt.visible = is_instance_valid(player.target_interactable) or player.hidden_spot != null
-		prompt.position = player.get_global_transform_with_canvas().origin + Vector2(-14, -98)
+		var target: Node2D = player.hidden_spot if player.hidden_spot != null else player.target_interactable
+		prompt.text = "[E]"
+		if is_instance_valid(target) and not target.display_name.is_empty():
+			prompt.text += " " + target.display_name
+		prompt.size = prompt.get_minimum_size()
+		var point: Vector2 = player.get_global_transform_with_canvas().origin
+		prompt.position = Vector2(clampf(point.x - prompt.size.x * 0.5, 12, root.size.x - prompt.size.x - 12), point.y - 98)
 	if not get_tree().paused:
 		subtitle_time -= delta
 		if subtitle_time <= 0.0:
@@ -168,4 +174,3 @@ func show_ending() -> void:
 	modal_box.add_child(content)
 	button("New game", GameManager.new_game).grab_focus()
 	button("Quit", func(): get_tree().quit())
-	

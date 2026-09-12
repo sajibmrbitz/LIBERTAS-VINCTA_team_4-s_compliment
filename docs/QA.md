@@ -1,5 +1,27 @@
 # Testing procedure
 
+## Environment integration validation - 2026-09-12
+
+The supplied estate props and piano were tested with the locally installed
+Godot 4.7 stable engine. `tests/verify_estate_assets.tscn` passed 751 headless checks
+with zero failures. Rendered runs at 1280x720 and 960x600 passed 814 checks and capture
+check twenty-one room, open-door and flashlight views per resolution. Visual review
+included the carried flashlight and floor beam, pickup visibility, angled benches,
+the piano key, door/window separation, floor coverage and stealth lanes.
+
+Checks cover all 45 catalog textures, collision/navigation integration,
+unobstructed E approaches to every interaction, hiding entry/exit, all three
+seal/key sequences, checkpoint ledger restoration, room reloads and the greybox
+override. A separate 67-check runtime route test also passed: foyer requirements,
+all floor transitions and return routes, open/close completion, exact arrival
+placement, three senses and Full Awakening.
+Tests freeze enemies while inspecting interactions; they are not an exhaustive
+ending playthrough or enemy-behavior regression suite. Export binaries were
+not built. The sandbox emitted a system certificate-store error at startup;
+there were no game script or asset-loading errors in the successful runs.
+
+See [environment assets](ENVIRONMENT_ASSETS.md) for commands and remaining art slots.
+
 ## Editor smoke test
 
 1. Open `project.godot` with Godot **4.7.2 stable** and wait for imports.
@@ -8,11 +30,11 @@
 4. Use A/D and W/S (or arrows); confirm horizontal movement is faster than depth movement, diagonals do not gain speed and there is no jumping.
 5. Approach the flashlight around x=430 and tool kit around x=900. E collects each once.
 6. Approach the foyer door around x=1590. First E gives “Locked.” / “Of course.”. With both pickups, another E opens it after a brief lockpick beat and “Hello?”.
-7. Ground floor: use E three times on the Music Room piano seal around x=1800, then collect the gold Hearing Key at x=2140. The end stairs are offscreen at the start.
+7. Ground floor: use E three times on the Music Room piano seal around x=1800, then collect the marked gold Hearing Key at (1960, 525), beside the piano. The end stairs are offscreen at the start.
 8. Sprint over the debris after the key, then compare crouching on the lower carpet lane. The zombie should investigate loud noise.
 9. Use the upper-floor stairs around x=6980. Complete the vanity near x=2150, then collect Sight at x=2370.
 10. Compare crossing moonlight with the flashlight on versus crouching in the lower shadow lane. Furniture should block vision.
-11. Use E at a blue hiding silhouette, then E to leave. Unseen entry is reliable. Entering directly in view is unsafe.
+11. Use E at a folding hiding screen, then E to leave. Unseen entry is reliable. Entering directly in view is unsafe. The greybox override uses blue silhouettes instead.
 12. Enter the basement. For Partial Mercy, use the maintenance exit near x=620 while holding exactly two keys.
 13. For the full route, continue through water/quiet bypass choices. Complete the ritual near x=4090 and collect Memory at x=4310. Let the monster observe a hiding entrance, escape, and watch its bounded re-check/predicted search.
 14. Use the far service return near x=6890, then return left along the ground floor and use the front door at x=180 for Full Awakening.

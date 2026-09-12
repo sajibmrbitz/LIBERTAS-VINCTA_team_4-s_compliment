@@ -1,5 +1,6 @@
 extends CharacterBody2D
 const CharacterAnimation := preload("res://scripts/player/character_animation.gd")
+const EstateArt := preload("res://scripts/levels/estate_art.gd")
 ## Ground-plane locomotion: collision is a foot footprint, independent of art.
 @export var walk_speed: float = 160.0
 @export var sprint_speed: float = 260.0
@@ -18,12 +19,18 @@ var animation_state: String = "idle"
 var animation_hold: float = 0.0
 @onready var visual: Node2D = $Visual
 @onready var sprite: AnimatedSprite2D = $Visual/AnimatedSprite2D
+@onready var held_flashlight: Sprite2D = $Visual/HeldFlashlight
 
 func _ready() -> void:
 	add_to_group("player")
 	motion_mode = CharacterBody2D.MOTION_MODE_FLOATING
 	EventBus.player_caught.connect(_caught)
+	held_flashlight.texture = EstateArt.new().texture_for("flashlight_pickup")
+	held_flashlight.scale = Vector2.ONE * 14.0 / held_flashlight.texture.get_width()
 	play_animation("idle")
+
+func _process(_delta: float) -> void:
+	_update_flashlight_presentation()
 
 func _physics_process(delta: float) -> void:
 	animation_hold = maxf(0.0, animation_hold - delta)
@@ -74,7 +81,7 @@ func _find_interactable() -> void:
 
 func set_flashlight(enabled: bool) -> void:
 	flashlight_enabled = enabled
-	$Visual/Flashlight.visible = enabled
+	$FlashlightFloor.visible = enabled
 	EventBus.flashlight_changed.emit(enabled)
 	EventBus.audio_requested.emit("flashlight")
 	play_action("flashlight")
@@ -102,7 +109,7 @@ func _caught() -> void:
 	play_animation("death")
 
 func _update_animation(axis: Vector2, speed: float) -> void:
-	$Visual/Flashlight.rotation = facing.angle()
+	$FlashlightFloor.rotation = facing.angle()
 	if animation_hold > 0.0:
 		return
 	var animation := "idle"
@@ -124,3 +131,11 @@ func play_animation(animation: String) -> void:
 	var has_art := CharacterAnimation.play(sprite, animation, facing)
 	sprite.visible = has_art
 	$Visual/PlaceholderVisual.visible = not has_art
+
+func _update_flashlight_presentation() -> void:
+	var has_flashlight: bool = bool(FreedomLedger.flags.get("flashlight", false))
+	held_flashlight.visible = has_flashlight and hidden_spot == null and not (animation_state == "flashlight" and animation_hold > 0.05)
+	held_flashlight.position = Vector2(facing.x * 15.0, -28.0 + facing.y * 7.0)
+	held_flashlight.rotation = facing.angle() - deg_to_rad(160.0)
+	held_flashlight.z_index = -1 if facing.y < -0.25 else 2
+	held_flashlight.modulate = Color.WHITE if flashlight_enabled else Color(0.62, 0.65, 0.65, 1.0)

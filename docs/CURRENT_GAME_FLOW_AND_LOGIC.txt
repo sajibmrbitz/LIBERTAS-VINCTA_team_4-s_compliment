@@ -39,27 +39,29 @@ No enemy is created in the intro.
 
 After about 11.7 seconds of unpaused intro time, control becomes available.
 Walk to the flashlight (430,480) and tool kit (900,430); press E near each.
-Try intro_exit (1590,480): the first interaction only acknowledges the lock.
-With both pickups, another E performs the short lock beat and corridor focus.
+Try intro_exit (1590,362): the first interaction only acknowledges the lock.
+With both pickups, another E performs the short lock beat and corridor focus, opens
+the door over a dark threshold, and walks Els through it.
 GameManager.travel("ground") reloads Main with the ground-floor instance.
+Els emerges from the initially open arrival door, walks to y=418, closes it, then
 Main saves an entry checkpoint and creates The Deprived One in Entities.
 
 Main progression:
 Ground: piano_seal at (1800,435), three E completions of 0.9 seconds each.
-Then hearing_key at (2140,475): restores Hearing, saves checkpoint.
-upper_stairs at (6980,480) requires hearing -> upper, entry=start.
+Then hearing_key at (1960,525): restores Hearing, saves checkpoint.
+upper_stairs at (6980,362) requires hearing -> upper, entry=start.
 Upper: vanity_seal (2150,440), requires hearing, three 1.1-second completions.
 Then sight_key (2370,480): restores Sight, saves checkpoint.
-basement_stairs (6980,480) requires sight -> basement, entry=start.
+basement_stairs (6980,362) requires sight -> basement, entry=start.
 Basement: ritual_seal (4090,430), requires sight, three 1.25-second completions.
 Then memory_key (4310,480): restores Memory, saves checkpoint.
-service_return (6890,480) requires memory -> ground, entry=end.
-Return left to front_door (180,475), press E with three keys -> Full Awakening.
+service_return (6890,362) requires memory -> ground, entry=end.
+Return left to front_door (180,362), press E with three keys -> Full Awakening.
 
 All other actual transitions:
-- Upper ground_stairs (180,480) -> ground, entry=end, no additional gate.
-- Basement upper_stairs (180,480) -> upper, entry=end, no additional gate.
-- Basement maintenance_exit (620,430) with exactly two keys -> Partial Mercy.
+- Upper ground_stairs (180,362) -> ground, entry=end, no additional gate.
+- Basement upper_stairs (180,362) -> upper, entry=end, no additional gate.
+- Basement maintenance_exit (620,362) with exactly two keys -> Partial Mercy.
 - Ground custodian_seal (5900,430) with <=1 key and >=3 letters -> Vantree.
 - Caught -> 1.2-second sequence -> saved room/position/ledger -> Main reload.
 - Restart checkpoint -> saved snapshot, or New game when no checkpoint exists.
@@ -156,9 +158,9 @@ Actual queued dialogue: "Mine..." (1.8 s), "How did it get over there?" (2.6 s).
 Later missing tool: "I need my tools."
 Later missing flashlight: "I should take my flashlight."
 [WORKING] Unlock with both: movement disabled; lockpick hook; wait 1.2 s;
-door/building_creak hooks; door Visual alpha=0.25; camera focuses for 2.0 s;
-"Hello?" (1.8 s); wait 2.0 s; intro_complete=true; travel to ground.
-[PLACEHOLDER] Corridor reveal is dark floor geometry and a faded prop, not final doorway art.
+door/building_creak hooks; camera focuses for 2.0 s; "Hello?" (1.8 s); wait
+2.0 s; the leaf foreshortens around its left edge, a framed black opening appears,
+Els walks through and intro_complete=true before travel to ground.
 [NOT IMPLEMENTED] Separate title reveal/splash/chapter card.
 [PLACEHOLDER] All intro audio streams remain unassigned; footsteps are the only installed audio.
 
@@ -172,9 +174,10 @@ Defaults: walk_speed=160, sprint_speed=260, crouch_speed=80, acceleration=1100.
 Crouch overrides sprint. No jumping or gravity; movement is on a bounded room plane.
 Animation follows input direction; real displacement gates footstep events.
 Interaction radius=76, nearest available interactable with clear mask-1 ray.
-F toggles light only after its pickup and outside hiding. E enters/leaves hiding.
+F toggles light only after its pickup and outside hiding. A 14px prop remains in
+Els's hand; the 130px trapezoid beam stays behind her on the floor. E enters/leaves hiding.
 24x14 rectangular footprint centered at (0,-7), unchanged by sprite integration.
-Visual/camera/flashlight nodes remain children, separate from collision.
+Visual, camera, held-flashlight and floor-light nodes remain separate from collision.
 
 [PARTIAL] Sprite integration repaired to res://assets/sprites/player/.
 res://scenes/player/female_frames.tres contains 80 named animations / 960 atlas cells.
@@ -191,7 +194,7 @@ movement -> walk_<direction>;
 sprint -> run_<direction>;
 crouch -> existing idle/walk, 0.6 playback speed plus Visual Y scale=0.65.
 There is no supplied crouch animation.
-Generic interaction -> interact; key/tool/letter -> pickup;
+Generic interaction/tool pouch -> interact; key/letter -> pickup;
 door/locked_door/puzzle -> unlock; flashlight toggle -> flashlight; caught -> death.
 damage and stagger are configured assets without current gameplay callers.
 play_action holds the visual for max(requested seconds,1.0), restarts the one-shot,
@@ -307,7 +310,7 @@ a human pass. No tutorial popup or "+1 Degree of Freedom" text is implemented.
 10. KEYS / SENSE RESTORATION
 ==================================================
 [WORKING] All use res://scenes/interactables/key_pickup.tscn / BaseInteractable.
-Hearing: ground_floor, hearing_key (2140,475), requires piano_seal.
+Hearing: ground_floor, hearing_key (1960,525), requires piano_seal.
 Sight: upper_floor, sight_key (2370,480), requires vanity_seal.
 Memory: basement_floor, memory_key (4310,480), requires ritual_seal.
 Each additionally obeys ledger order, disappears after collection, and cannot duplicate.
@@ -457,14 +460,16 @@ res://scenes/levels/upper_floor.tscn -- 7200; Portrait Gallery, Master Bedroom,
 Nursery / Linen Passage.
 res://scenes/levels/basement_floor.tscn -- 7200; Flooded Cellar, Wine Cellar,
 Ritual Chamber.
-Each shares PlayerSpawn=(240,490), ReturnSpawn=(width-330,490).
+Each shares PlayerSpawn=(240,490), ReturnSpawn=(width-330,490). Door travel overrides
+those generic markers: Els starts inside the matching open edge door and stops 56px
+in front of it before control and checkpoint saving resume.
 EnemySpawn=(2640,560) ground, (2750,560) upper, (4320,560) basement.
 If enemy spawn is within 650 of player entry, Main shifts it 850 horizontally and
 snaps it to a navigable grid point. Current senses apply immediately on room load.
 All transitions/entry choices are in section 1.
 
-[PLACEHOLDER] Every room still uses generated wall/floor/furniture geometry.
-Intro has one broken table; other room groups have six blocking furniture footprints.
+[WORKING] Every room uses imported wall/floor/furniture presentation over generated
+collision geometry. Furniture and floor decorations use catalogued footprints.
 Walkable depth is between back/front boundaries around y=354..634.
 Ground has glass and carpet lanes; upper has exposure/shadow lanes; basement has water.
 Room names subdivide long horizontal groups; there is no separate scene per named room.
@@ -473,37 +478,37 @@ ACTUAL PROP MAP (ID | preset | position | behavior/requirements)
 INTRO:
   flashlight | flashlight | (430,480) | no extra requirement
   lockpick_tool | lockpick_tool | (900,430) | no extra requirement
-  intro_exit | locked_door | (1590,480) | {"destination": "ground"}
+  intro_exit | locked_door | (1590,362) | {"destination": "ground"}
 GROUND:
-  front_door | exit_trigger | (180,475) | {"ending_type": "full_awakening", "text": "Three seals bind the front door."}
+  front_door | exit_trigger | (180,362) | {"ending_type": "full_awakening", "text": "Three seals bind the front door."}
   vantree_01 | letter_pickup | (600,430) | {"title": "Vantree — I", "text": "[Prototype letter]\\nThe Custodian keeps the ledger. The senses were severed for containment."}
   piano_seal | puzzle_interactable | (1800,435) | {"title": "Piano seal", "puzzle_steps": 3}
-  hearing_key | key_pickup | (2140,475) | {"sense": "hearing", "required_flag": "piano_seal"}
+  hearing_key | key_pickup | (1960,525) | {"sense": "hearing", "required_flag": "piano_seal"}
   ground_hide_01 | hiding_spot | (2420,420) | no extra requirement
   vantree_02 | letter_pickup | (3650,430) | {"title": "Vantree — II", "text": "[Prototype letter]\\nJailer and prisoner share a threshold. Restoring a sense weakens a seal."}
   ground_hide_02 | hiding_spot | (4160,575) | no extra requirement
   vantree_03 | letter_pickup | (5480,430) | {"title": "Vantree — III", "text": "[Prototype letter]\\nThe Vantree record leaves a choice: keep the remaining seals, or finish the awakening."}
   custodian_seal | exit_trigger | (5900,430) | {"ending_type": "vantree", "text": "The Vantree record is incomplete, or too many seals are broken."}
-  upper_stairs | door | (6980,480) | {"destination": "upper", "required_flag": "hearing", "text": "The hearing seal binds these stairs."}
+  upper_stairs | door | (6980,362) | {"destination": "upper", "required_flag": "hearing", "text": "The hearing seal binds these stairs."}
 UPPER:
-  ground_stairs | door | (180,480) | {"destination": "ground", "entrance": "end"}
+  ground_stairs | door | (180,362) | {"destination": "ground", "entrance": "end"}
   upper_hide_01 | hiding_spot | (1700,420) | no extra requirement
   vanity_seal | puzzle_interactable | (2150,440) | {"required_flag": "hearing", "puzzle_steps": 3, "action_seconds": 1.1}
   sight_key | key_pickup | (2370,480) | {"sense": "sight", "required_flag": "vanity_seal"}
   upper_hide_02 | hiding_spot | (3520,575) | no extra requirement
   vantree_04 | letter_pickup | (4420,430) | {"title": "Vantree — IV", "text": "[Prototype letter]\\nLight was useful while it could not see. The old shutters leave a strip of shadow."}
   linen_hide | hiding_spot | (5770,420) | no extra requirement
-  basement_stairs | door | (6980,480) | {"destination": "basement", "required_flag": "sight", "text": "The sight seal binds this passage."}
+  basement_stairs | door | (6980,362) | {"destination": "basement", "required_flag": "sight", "text": "The sight seal binds this passage."}
 BASEMENT:
-  upper_stairs | door | (180,480) | {"destination": "upper", "entrance": "end"}
-  maintenance_exit | exit_trigger | (620,430) | {"ending_type": "partial_mercy", "text": "The flood passage opens only while two senses are restored."}
+  upper_stairs | door | (180,362) | {"destination": "upper", "entrance": "end"}
+  maintenance_exit | exit_trigger | (620,362) | {"ending_type": "partial_mercy", "text": "The flood passage opens only while two senses are restored."}
   basement_hide_01 | hiding_spot | (1860,420) | no extra requirement
   vantree_05 | letter_pickup | (2840,430) | {"title": "Vantree — V", "text": "[Prototype letter]\\nThe final seal holds memory. A place of refuge can become a place it remembers."}
   basement_hide_02 | hiding_spot | (3650,575) | no extra requirement
   ritual_seal | puzzle_interactable | (4090,430) | {"required_flag": "sight", "puzzle_steps": 3, "action_seconds": 1.25}
   memory_key | key_pickup | (4310,480) | {"sense": "memory", "required_flag": "ritual_seal"}
   basement_hide_03 | hiding_spot | (5050,420) | no extra requirement
-  service_return | door | (6890,480) | {"destination": "ground", "entrance": "end", "required_flag": "memory", "text": "The final seal binds this return passage."}
+  service_return | door | (6890,362) | {"destination": "ground", "entrance": "end", "required_flag": "memory", "text": "The final seal binds this return passage."}
 
 [PLACEHOLDER] res://scenes/levels/hearing_test_level.tscn remains a legacy side-view
 corridor with marker placeholders. It is not loaded by Main and is not compatible as
@@ -658,7 +663,7 @@ walk.png -> walk (movement; slowed for crouch); 12 frames/direction, 8 direction
 run.png -> run (sprint); 12 frames/direction, 8 directions, 12 FPS; loops.
 interact.png -> interact (generic interaction); 12 frames/direction, 8 directions, 12 FPS; one-shot.
 unlock.png -> unlock (door/puzzle interaction); 12 frames/direction, 8 directions, 12 FPS; one-shot.
-pickup.png -> pickup (key/tool/letter); 12 frames/direction, 8 directions, 12 FPS; one-shot.
+pickup.png -> pickup (key/letter); 12 frames/direction, 8 directions, 12 FPS; one-shot.
 flashlight.png -> flashlight (toggle/pickup/hiding switch-off); 12 frames/direction, 8 directions, 12 FPS; one-shot.
 damage.png -> damage (configured, no gameplay caller); 12 frames/direction, 8 directions, 12 FPS; one-shot.
 stagger.png -> stagger (configured, no gameplay caller); 12 frames/direction, 8 directions, 12 FPS; one-shot.
@@ -962,18 +967,21 @@ Assign Texture2D to Visual/Sprite2D.texture; align scale/offset around root foot
 BaseInteractable hides its PlaceholderVisual when a texture is present.
 Keep root kind, IDs, gates and Visual node names. No interaction rewrite expected.
 
-[PLACEHOLDER] Flashlight/tool/key/letter pickups:
-Same assignment at Visual/Sprite2D in flashlight, lockpick_tool, key_pickup, letter_pickup.
-Coordinates/IDs are in data/estate_layout.json; keep collection independent of textures.
+[WORKING] Flashlight/tool/key/letter pickups:
+Distinct generated atlas regions are assigned at Visual/Sprite2D. Their markers
+render behind each prop with ordinary floor sorting. The 32px flashlight no longer
+draws over Els. The tool pouch uses interact.png, avoiding pickup.png's brass-key art.
+Coordinates/IDs remain in data/estate_layout.json; collection is texture-independent.
 
 [PLACEHOLDER] Player crouch/get-up:
 Add genuinely authored directional animations to female_frames.tres if later supplied;
 change only presentation mapping/intro visual tween. Retain movement/control gates.
 No true crouch or get-up frames are in the current ten sheets.
 
-[PLACEHOLDER] Flashlight:
-Player/Visual/Flashlight/PointLight2D.texture accepts final light texture.
-Replace/hide BeamPlaceholder as needed. Detection uses logical state, not this texture.
+[WORKING] Flashlight:
+Visual/HeldFlashlight displays a 14px atlas copy whenever Els owns it and is not
+hiding. FlashlightFloor/BeamPlaceholder is a 130px floor wedge behind Els; the old
+radial PointLight2D is disabled. Detection uses logical state, not these visuals.
 
 [PLACEHOLDER] UI:
 Assign Theme to Main/UI.ui_theme. Sense icons would need a small UI-only change;

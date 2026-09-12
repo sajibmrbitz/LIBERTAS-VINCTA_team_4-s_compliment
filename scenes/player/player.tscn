@@ -55,19 +55,25 @@ sprite_frames = ExtResource("3")
 animation = &"idle_e"
 autoplay = "idle_e"
 
-[node name="Flashlight" type="Node2D" parent="Visual"]
+[node name="HeldFlashlight" type="Sprite2D" parent="Visual"]
 visible = false
-position = Vector2(0, -24)
+texture_filter = 1
 
-[node name="BeamPlaceholder" type="Polygon2D" parent="Visual/Flashlight"]
-color = Color(0.8, 0.78, 0.6, 0.09)
-polygon = PackedVector2Array(0, -4, 220, -55, 220, 55, 0, 4)
+[node name="FlashlightFloor" type="Node2D" parent="."]
+visible = false
+position = Vector2(0, -5)
+z_index = -1
 
-[node name="PointLight2D" type="PointLight2D" parent="Visual/Flashlight"]
-position = Vector2(100, 0)
+[node name="BeamPlaceholder" type="Polygon2D" parent="FlashlightFloor"]
+color = Color(0.88, 0.83, 0.62, 0.17)
+polygon = PackedVector2Array(18, -3, 130, -26, 148, 0, 130, 26, 18, 3)
+
+[node name="PointLight2D" type="PointLight2D" parent="FlashlightFloor"]
+visible = false
+position = Vector2(72, 0)
 texture = SubResource("light")
-texture_scale = 1.7
-energy = 0.65
+texture_scale = 0.75
+energy = 0.25
 
 [node name="Camera2D" type="Camera2D" parent="."]
 

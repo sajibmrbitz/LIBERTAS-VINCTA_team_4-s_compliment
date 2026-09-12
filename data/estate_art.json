@@ -1,0 +1,174 @@
+{
+  "asset_root": "res://assets/environment/props/food_drink_2d_mega_props/Tiles/",
+  "furniture_scale": 0.65,
+  "decoration_scale": 0.75,
+  "bench_rotation_degrees": 4.0,
+  "decoration_footprints": {
+    "bench": [76, 24], "side_table": [30, 16], "sideboard": [76, 28],
+    "screen": [56, 20], "bookshelf": [42, 20], "coat_stand": [18, 12],
+    "wine_shelf": [60, 24], "wine_rack": [40, 22], "bottle_crate": [28, 18],
+    "dining_chair": [26, 18], "wood_chair": [24, 18], "high_chair": [28, 20],
+    "serving_cart": [44, 24], "stock_pot": [22, 14], "lectern": [36, 22]
+  },
+  "textures": {
+    "key": {"file": "res://assets/environment/props/estate_essentials/estate_essentials.png", "region": [90, 80, 354, 350], "trim": true},
+    "letter": {"file": "res://assets/environment/props/estate_essentials/estate_essentials.png", "region": [575, 110, 395, 300], "trim": true},
+    "flashlight_pickup": {"file": "res://assets/environment/props/estate_essentials/estate_essentials.png", "region": [1094, 116, 365, 295], "trim": true},
+    "tool_pouch": {"file": "res://assets/environment/props/estate_essentials/estate_essentials.png", "region": [103, 578, 331, 330], "trim": true},
+    "estate_door": {"file": "res://assets/environment/props/estate_essentials/estate_essentials.png", "region": [617, 480, 299, 490], "trim": true},
+    "stair_door": {"file": "res://assets/environment/props/estate_essentials/estate_essentials.png", "region": [1128, 480, 302, 490], "trim": true},
+    "wood_floor": {"file": "Architecture/fooddrink_architecture_floor_wood_restaurant_01.png", "region": [20, 22, 232, 164]},
+    "tile_floor": {"file": "Architecture/fooddrink_architecture_floor_tile_cafe_pattern_01.png", "region": [22, 23, 231, 165]},
+    "dark_floor": {"file": "Architecture/fooddrink_architecture_floor_dark_bar_01.png", "region": [22, 23, 231, 163]},
+    "panel_wall": {"file": "Architecture/fooddrink_architecture_wall_wainscot_restaurant_01.png", "region": [23, 18, 235, 171]},
+    "brick_wall": {"file": "Architecture/fooddrink_architecture_wall_brick_bar_01.png", "region": [23, 18, 235, 171]},
+    "kitchen_wall": {"file": "Architecture/fooddrink_architecture_wall_tile_kitchen_01.png", "region": [23, 18, 233, 171]},
+    "serving_hatch": {"file": "Architecture/fooddrink_architecture_wall_pass_window_01.png"},
+    "window": {"file": "Architecture/fooddrink_architecture_wall_display_window_large_01.png"},
+    "bench": {"file": "RestaurantFixtures/fooddrink_restaurant_fixtures_bench_waiting_01.png"},
+    "dining_chair": {"file": "RestaurantFixtures/fooddrink_restaurant_fixtures_chair_dining_padded_01.png"},
+    "screen": {"file": "RestaurantFixtures/fooddrink_restaurant_fixtures_divider_screen_folding_01.png"},
+    "high_chair": {"file": "RestaurantFixtures/fooddrink_restaurant_fixtures_high_chair_child_01.png"},
+    "lectern": {"file": "RestaurantFixtures/fooddrink_restaurant_fixtures_host_stand_podium_01.png"},
+    "family_table": {"file": "RestaurantFixtures/fooddrink_restaurant_fixtures_table_family_long_01.png"},
+    "dining_table": {"file": "RestaurantFixtures/fooddrink_restaurant_fixtures_table_dining_square_four_01.png"},
+    "side_table": {"file": "CafeFixtures/fooddrink_cafe_fixtures_table_cafe_small_round_01.png"},
+    "wood_chair": {"file": "CafeFixtures/fooddrink_cafe_fixtures_chair_wood_cafe_01.png"},
+    "settee": {"file": "CafeFixtures/fooddrink_cafe_fixtures_booth_sofa_double_01.png"},
+    "bookshelf": {"file": "CafeFixtures/fooddrink_cafe_fixtures_bookshelf_wall_cafe_01.png"},
+    "sideboard": {"file": "BarFixtures/fooddrink_bar_fixtures_bar_counter_straight_01.png"},
+    "wine_shelf": {"file": "BarFixtures/fooddrink_bar_fixtures_back_bar_shelf_bottles_01.png"},
+    "candle": {"file": "BarProps/fooddrink_bar_props_candle_holder_table_01.png"},
+    "coat_stand": {"file": "BarProps/fooddrink_bar_props_coat_hook_stand_01.png"},
+    "bottle_crate": {"file": "BarProps/fooddrink_bar_props_empty_bottles_crate_01.png"},
+    "bottles": {"file": "BarProps/fooddrink_bar_props_whiskey_bottles_row_blank_01.png"},
+    "wine_rack": {"file": "BarProps/fooddrink_bar_props_wine_rack_bottles_01.png"},
+    "vase": {"file": "CafeProps/fooddrink_cafe_props_vase_single_flower_01.png"},
+    "creamer": {"file": "CafeProps/fooddrink_cafe_props_sugar_creamer_pair_01.png"},
+    "water_set": {"file": "CafeProps/fooddrink_cafe_props_water_bottle_glasses_set_01.png"},
+    "book": {"file": "RestaurantProps/fooddrink_restaurant_props_menu_book_blank_01.png"},
+    "mirror_frame": {"file": "RestaurantProps/fooddrink_restaurant_props_qr_stand_blank_frame_01.png"},
+    "serving_cart": {"file": "RestaurantProps/fooddrink_restaurant_props_drink_cart_wheeled_01.png"},
+    "plates": {"file": "RestaurantProps/fooddrink_restaurant_props_plates_tower_01.png"},
+    "place_setting": {"file": "RestaurantProps/fooddrink_restaurant_props_place_setting_complete_01.png"},
+    "stock_pot": {"file": "RestaurantProps/fooddrink_restaurant_props_stock_pot_large_01.png"},
+    "pans": {"file": "RestaurantProps/fooddrink_restaurant_props_pans_commercial_pair_01.png"},
+    "dish_tub": {"file": "RestaurantProps/fooddrink_restaurant_props_bus_tub_dishes_01.png"},
+    "tray": {"file": "RestaurantProps/fooddrink_restaurant_props_serving_tray_round_01.png"},
+    "piano": {"file": "res://assets/environment/props/music_room/piano1.png", "region": [357, 49, 270, 287]}
+  },
+  "zones": {
+    "intro": {
+      "wall_tint": "#63776f", "floor_tint": "#606d69", "prop_tint": "#a6afab",
+      "surfaces": [[0, 1800, "panel_wall", "tile_floor"]],
+      "passage_labels": {"intro_exit": "Music Room"},
+      "furniture": {"BrokenTable": {"asset": "bench", "width": 152, "position": [990, 408], "footprint": [94, 30]}},
+      "decorations": [
+        ["coat_stand", 160, 392, 42], ["bench", 380, 392, 125],
+        ["side_table", 730, 392, 66, [["vase", 0, -47, 16]]],
+        ["screen", 1120, 392, 96], ["side_table", 1330, 392, 54, [["candle", 0, -39, 21]]],
+        ["side_table", 1470, 392, 54, [["candle", 0, -39, 21]]], ["bench", 1730, 392, 90]
+      ]
+    },
+    "ground": {
+      "wall_tint": "#697d77", "floor_tint": "#647770", "prop_tint": "#b3b3a8",
+      "passage_labels": {"front_door": "Front Door", "upper_stairs": "Upper Floor"},
+      "surfaces": [[0, 2400, "panel_wall", "wood_floor"], [2400, 4800, "panel_wall", "wood_floor"], [4800, 7200, "kitchen_wall", "tile_floor"]],
+      "furniture": {
+        "Furniture1": {"asset": "settee", "width": 162, "position": [1070, 432], "footprint": [98, 32]},
+        "Furniture2": {"asset": "sideboard", "width": 158, "position": [2130, 412], "footprint": [98, 32], "details": [["book", -31, -85, 32], ["candle", 34, -105, 19]]},
+        "Furniture3": {"asset": "family_table", "width": 176, "position": [3020, 460], "footprint": [110, 44], "details": [["place_setting", 10, -84, 38]]},
+        "Furniture4": {"asset": "dining_table", "width": 166, "position": [3910, 495], "footprint": [106, 44], "details": [["water_set", 0, -87, 28]]},
+        "Furniture5": {"asset": "sideboard", "width": 158, "position": [5090, 432], "footprint": [98, 32], "details": [["plates", -33, -85, 22], ["stock_pot", 24, -102, 36]]},
+        "Furniture6": {"asset": "sideboard", "width": 158, "position": [6120, 426], "footprint": [98, 32], "details": [["dish_tub", 4, -96, 42]]}
+      },
+      "interactables": {
+        "piano_seal": {"asset": "piano", "width": 186, "scale": 0.75, "footprint": [108, 32]},
+        "ground_hide_01": {"asset": "screen", "width": 116, "scale": 0.8},
+        "ground_hide_02": {"asset": "screen", "width": 116, "scale": 0.8, "flip": true},
+        "custodian_seal": {"asset": "side_table", "width": 64, "details": [["book", 0, -44, 34]], "footprint": [40, 20]}
+      },
+      "decorations": [
+        ["coat_stand", 350, 392, 43], ["bookshelf", 780, 392, 91],
+        ["side_table", 1190, 392, 68, [["book", 0, -43, 29]]],
+        ["dining_chair", 1420, 392, 50], ["side_table", 1640, 392, 54, [["candle", 0, -39, 22]]],
+        ["side_table", 1960, 392, 54, [["candle", 0, -39, 22]]], ["bookshelf", 2240, 392, 88],
+        ["serving_cart", 2650, 392, 71], ["dining_chair", 3160, 392, 51],
+        ["sideboard", 3470, 392, 136, [["tray", -24, -74, 34], ["creamer", 23, -89, 28]]],
+        ["sideboard", 3810, 392, 136, [["place_setting", -20, -76, 38], ["vase", 35, -92, 17]]],
+        ["dining_chair", 4410, 392, 51], ["serving_cart", 4650, 392, 72],
+        ["serving_hatch", 5170, 295, 173],
+        ["sideboard", 5200, 392, 136, [["pans", -23, -75, 35], ["plates", 31, -91, 23]]],
+        ["sideboard", 5680, 392, 136, [["stock_pot", -26, -74, 37], ["tray", 30, -91, 33]]],
+        ["bookshelf", 6280, 392, 91], ["bottle_crate", 6450, 392, 51],
+        ["sideboard", 6660, 392, 136, [["water_set", -22, -75, 27], ["dish_tub", 28, -90, 37]]],
+        ["side_table", 6860, 392, 54, [["candle", 0, -39, 22]]], ["bench", 7130, 392, 90]
+      ]
+    },
+    "upper": {
+      "wall_tint": "#797780", "floor_tint": "#5b6663", "prop_tint": "#aaa5b1",
+      "passage_labels": {"ground_stairs": "Ground Floor", "basement_stairs": "Cellar"},
+      "surfaces": [[0, 2400, "panel_wall", "wood_floor"], [2400, 4800, "panel_wall", "wood_floor"], [4800, 7200, "panel_wall", "wood_floor"]],
+      "carpet": true,
+      "furniture": {
+        "Furniture1": {"asset": "bench", "width": 158, "position": [1080, 434], "footprint": [96, 30]},
+        "Furniture2": {"asset": "sideboard", "width": 158, "position": [1930, 425], "footprint": [98, 32], "details": [["book", 0, -95, 33]]},
+        "Furniture3": {"asset": "settee", "width": 164, "position": [2940, 457], "footprint": [98, 32]},
+        "Furniture4": {"asset": "sideboard", "width": 158, "position": [4010, 448], "footprint": [98, 32], "details": [["vase", -37, -84, 19], ["book", 18, -100, 35]]},
+        "Furniture5": {"asset": "bench", "width": 158, "position": [5310, 430], "footprint": [96, 30]},
+        "Furniture6": {"asset": "sideboard", "width": 158, "position": [6040, 422], "footprint": [98, 32], "details": [["creamer", 0, -95, 31]]}
+      },
+      "interactables": {
+        "upper_hide_01": {"asset": "screen", "width": 116, "scale": 0.8},
+        "upper_hide_02": {"asset": "screen", "width": 116, "scale": 0.8, "flip": true},
+        "linen_hide": {"asset": "screen", "width": 116, "scale": 0.8},
+        "vanity_seal": {"asset": "sideboard", "width": 138, "scale": 0.72, "footprint": [80, 28], "details": [["mirror_frame", 0, -80, 55], ["vase", 43, -92, 16]]}
+      },
+      "decorations": [
+        ["bench", 420, 392, 124], ["bookshelf", 710, 392, 91],
+        ["side_table", 1210, 392, 54, [["candle", 0, -39, 22]]], ["bookshelf", 1460, 392, 91],
+        ["wood_chair", 1890, 392, 51], ["side_table", 2330, 392, 54, [["candle", 0, -39, 22]]],
+        ["screen", 2570, 392, 102],
+        ["side_table", 2840, 392, 68, [["water_set", 0, -47, 26]]],
+        ["dining_chair", 3200, 392, 52], ["bookshelf", 3760, 392, 91],
+        ["side_table", 4220, 392, 68, [["book", 0, -45, 29]]],
+        ["coat_stand", 4620, 392, 43], ["high_chair", 5140, 392, 58],
+        ["wood_chair", 5470, 392, 51], ["bookshelf", 6190, 392, 91],
+        ["bench", 6510, 392, 124], ["side_table", 6730, 392, 54, [["candle", 0, -39, 22]]],
+        ["bookshelf", 6860, 392, 75], ["side_table", 7130, 392, 54, [["candle", 0, -39, 22]]]
+      ]
+    },
+    "basement": {
+      "wall_tint": "#667e77", "floor_tint": "#778884", "prop_tint": "#969e98",
+      "passage_labels": {"upper_stairs": "Upper Floor", "maintenance_exit": "Maintenance Exit", "service_return": "Service Passage"},
+      "surfaces": [[0, 2400, "brick_wall", "dark_floor"], [2400, 4800, "brick_wall", "dark_floor"], [4800, 7200, "brick_wall", "dark_floor"]],
+      "furniture": {
+        "Furniture1": {"asset": "sideboard", "width": 158, "position": [1010, 435], "footprint": [98, 32], "details": [["bottle_crate", 0, -95, 47]]},
+        "Furniture2": {"asset": "sideboard", "width": 158, "position": [2070, 440], "footprint": [98, 32], "details": [["stock_pot", -26, -87, 35], ["bottles", 32, -104, 33]]},
+        "Furniture3": {"asset": "sideboard", "width": 158, "position": [3060, 452], "footprint": [98, 32], "details": [["bottles", -25, -87, 33], ["bottles", 25, -102, 33]]},
+        "Furniture4": {"asset": "wine_shelf", "width": 154, "position": [3880, 435], "footprint": [92, 30]},
+        "Furniture5": {"asset": "sideboard", "width": 158, "position": [5330, 432], "footprint": [98, 32], "details": [["book", 0, -95, 34], ["candle", -47, -81, 21], ["candle", 43, -108, 21]]},
+        "Furniture6": {"asset": "sideboard", "width": 158, "position": [6220, 439], "footprint": [98, 32], "details": [["candle", -35, -84, 22], ["candle", 35, -105, 22]]}
+      },
+      "interactables": {
+        "basement_hide_01": {"asset": "screen", "width": 116, "scale": 0.8},
+        "basement_hide_02": {"asset": "screen", "width": 116, "scale": 0.8, "flip": true},
+        "basement_hide_03": {"asset": "screen", "width": 116, "scale": 0.8},
+        "ritual_seal": {"asset": "lectern", "width": 91, "scale": 0.75, "footprint": [52, 24], "details": [["book", 0, -94, 44], ["candle", -64, -6, 25], ["candle", 65, -6, 25]]}
+      },
+      "decorations": [
+        ["bottle_crate", 360, 392, 53], ["stock_pot", 790, 392, 41],
+        ["bottle_crate", 1270, 392, 53], ["bottle_crate", 1340, 392, 53],
+        ["wine_rack", 1620, 392, 77], ["side_table", 2240, 392, 54, [["candle", 0, -39, 22]]],
+        ["wine_shelf", 2500, 392, 104], ["wine_rack", 2710, 392, 77],
+        ["wine_shelf", 3200, 392, 104], ["wine_shelf", 3390, 392, 104],
+        ["bottle_crate", 3530, 392, 53], ["wine_rack", 3840, 392, 77],
+        ["wine_shelf", 4490, 392, 104], ["bottle_crate", 4680, 392, 53],
+        ["side_table", 5280, 392, 54, [["candle", 0, -39, 23]]], ["side_table", 5560, 392, 54, [["candle", 0, -39, 23]]],
+        ["lectern", 5710, 392, 73, [["book", 0, -75, 35]]],
+        ["side_table", 6180, 392, 54, [["candle", 0, -39, 23]]], ["screen", 6450, 392, 99], ["side_table", 6680, 392, 54, [["candle", 0, -39, 23]]],
+        ["wine_rack", 6770, 392, 65], ["bench", 7040, 392, 90], ["side_table", 7150, 392, 54, [["candle", 0, -39, 23]]]
+      ]
+    }
+  }
+}

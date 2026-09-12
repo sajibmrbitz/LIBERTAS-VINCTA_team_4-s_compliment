@@ -4,6 +4,7 @@ extends Node2D
 @export_enum("door", "locked_door", "key", "letter", "flashlight", "tool", "hiding", "puzzle", "exit") var kind: String = "door"
 @export var interaction_id: String = ""
 @export var title: String = ""
+@export var display_name: String = ""
 @export_multiline var text: String = ""
 @export var sense: String = ""
 @export var required_flag: String = ""
@@ -43,8 +44,10 @@ func interact(player: Node2D) -> void:
 	busy = true
 	EventBus.interaction_started.emit(self)
 	var action := "interact"
-	if kind in ["key", "tool", "letter"]:
+	if kind in ["key", "letter"]:
 		action = "pickup"
+	elif kind == "tool":
+		action = "interact"
 	elif kind in ["locked_door", "door", "puzzle"]:
 		action = "unlock"
 	player.play_action(action, action_seconds if kind == "puzzle" else 1.0)
@@ -102,23 +105,31 @@ func interact(player: Node2D) -> void:
 				await get_tree().create_timer(1.2, false).timeout
 				EventBus.audio_requested.emit("door")
 				EventBus.audio_requested.emit("building_creak")
-				$Visual.modulate.a = 0.25
 				player.get_node("Camera2D").cinematic_focus(global_position + Vector2(200, -70), 2.0)
 				say("Hello?", 1.8)
 				await get_tree().create_timer(2.0, false).timeout
 				FreedomLedger.flags["intro_complete"] = true
+				await _depart(player)
 				GameManager.travel.call_deferred("ground")
 		"door":
 			if not required_flag.is_empty() and not FreedomLedger.has_requirement(required_flag):
 				say(text if not text.is_empty() else "The passage is sealed.")
 			else:
-				EventBus.audio_requested.emit("door")
+				await _depart(player)
 				GameManager.travel.call_deferred(destination, entrance)
 		"exit":
 			if FreedomLedger.eligible(ending_type):
+				await _depart(player)
 				EventBus.ending_triggered.emit(ending_type)
 			else:
 				say(text if not text.is_empty() else "This way is still sealed.")
 	busy = false
 	EventBus.interaction_finished.emit(self)
 	refresh()
+
+func _depart(player: CharacterBody2D) -> void:
+	var presentation: Node = get_node_or_null("Visual/DoorPresentation")
+	if presentation != null and presentation.has_method("depart"):
+		await presentation.depart(player)
+	else:
+		EventBus.audio_requested.emit("door")

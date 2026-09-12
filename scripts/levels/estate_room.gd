@@ -1,9 +1,11 @@
 extends Node2D
 ## Layout data supplies replaceable props; collision/navigation are independent of art.
+const EstateArt := preload("res://scripts/levels/estate_art.gd")
 @export_enum("intro", "ground", "upper", "basement") var zone_id: String = "ground"
 @export var debug_noise: bool = false
 @export var environment_art: PackedScene
 @export var show_placeholder_environment: bool = true
+@export var use_imported_assets: bool = true
 var room_width: float = 7200.0
 var layout: Dictionary
 var blockers: Array[Rect2] = []
@@ -12,6 +14,7 @@ var noise_rings: Array[Dictionary] = []
 var geometry: Node2D
 var props: Node2D
 var markers: Node2D
+var estate_art: RefCounted
 
 func _ready() -> void:
 	add_to_group("room")
@@ -22,12 +25,18 @@ func _ready() -> void:
 	geometry = $Geometry
 	props = $Props
 	markers = $Markers
+	if _uses_imported_art():
+		estate_art = EstateArt.new()
 	_build_backdrop()
 	_wall("BackWall", Rect2(0, 330, room_width, 24))
 	_wall("FrontBoundary", Rect2(0, 634, room_width, 30))
 	_wall("LeftBoundary", Rect2(-32, 330, 32, 334))
 	_wall("RightBoundary", Rect2(room_width, 330, 32, 334))
-	if zone_id == "intro":
+	if estate_art != null:
+		for label in estate_art.data.zones[zone_id].furniture:
+			var spec: Dictionary = estate_art.data.zones[zone_id].furniture[label]
+			_furniture(label, Vector2(spec.position[0], spec.position[1]), Vector2(spec.footprint[0], spec.footprint[1]))
+	elif zone_id == "intro":
 		_furniture("BrokenTable", Vector2(670, 560), Vector2(140, 52))
 	else:
 		for i in range(1, 7):
@@ -47,13 +56,18 @@ func _ready() -> void:
 	_marker("PlayerSpawn", Vector2(240, 490))
 	_marker("ReturnSpawn", Vector2(room_width - 330, 490))
 	_marker("EnemySpawn", Vector2(float(layout.enemy), 560))
+	if estate_art != null:
+		estate_art.dress(self)
 	_build_grid()
-	$Backdrop.visible = show_placeholder_environment
+	$Backdrop.visible = show_placeholder_environment or _uses_imported_art()
 	if environment_art != null:
 		var art := environment_art.instantiate()
 		art.name = "EnvironmentArt"
 		add_child(art)
 	EventBus.noise_created.connect(_noise)
+
+func _uses_imported_art() -> bool:
+	return use_imported_assets and environment_art == null
 
 func _marker(label: String, point: Vector2) -> void:
 	var marker := Marker2D.new()
@@ -64,13 +78,18 @@ func _marker(label: String, point: Vector2) -> void:
 func _polygon(parent: Node, label: String, rect: Rect2, color: Color) -> Polygon2D:
 	var polygon := Polygon2D.new()
 	polygon.name = label
-	polygon.visible = show_placeholder_environment
+	polygon.visible = show_placeholder_environment or _uses_imported_art()
 	polygon.color = color
 	polygon.polygon = PackedVector2Array([rect.position, rect.position + Vector2(rect.size.x, 0), rect.end, rect.position + Vector2(0, rect.size.y)])
 	parent.add_child(polygon)
 	return polygon
 
 func _build_backdrop() -> void:
+	if estate_art != null:
+		estate_art.build_backdrop(self)
+		_build_surface_markings()
+		estate_art.dress_surfaces(self)
+		return
 	_polygon($Backdrop, "WallPlaceholder", Rect2(-200, -100, room_width + 400, 460), Color("#171d25"))
 	_polygon($Backdrop, "FloorPlaceholder", Rect2(0, 354, room_width, 280), Color("#30353a"))
 	var section_width := room_width / float(layout.names.size())
@@ -96,6 +115,9 @@ func _build_backdrop() -> void:
 	$Backdrop.add_child(distant)
 	for x in range(500, int(room_width), 960):
 		_polygon(distant, "Window" + str(x), Rect2(x, 150, 90, 100), Color(0.25, 0.30, 0.35, 0.25))
+	_build_surface_markings()
+
+func _build_surface_markings() -> void:
 	if zone_id == "ground":
 		_polygon($Backdrop, "BrokenGlass", Rect2(2520, 355, 820, 180), Color(0.37, 0.4, 0.42, 0.7))
 		_polygon($Backdrop, "CarpetBypass", Rect2(2380, 550, 1200, 74), Color("#273733"))
@@ -107,7 +129,8 @@ func _build_backdrop() -> void:
 		_polygon($Backdrop, "Water", Rect2(900, 355, 2500, 190), Color(0.18, 0.32, 0.38, 0.8))
 	elif zone_id == "intro":
 		_polygon($Backdrop, "Moonlight", Rect2(180, 355, 390, 190), Color(0.5, 0.58, 0.68, 0.22))
-		_polygon($Backdrop, "DarkCorridorBeyondDoor", Rect2(1600, 355, 200, 279), Color("#161b22"))
+		if not _uses_imported_art():
+			_polygon($Backdrop, "DarkCorridorBeyondDoor", Rect2(1600, 355, 200, 279), Color("#161b22"))
 
 func _wall(label: String, rect: Rect2) -> void:
 	var body := StaticBody2D.new()
@@ -121,7 +144,8 @@ func _wall(label: String, rect: Rect2) -> void:
 	collision.name = "CollisionShape2D"
 	collision.shape = shape
 	body.add_child(collision)
-	_polygon(body, "PlaceholderVisual", Rect2(-rect.size * 0.5, rect.size), Color("#171b21"))
+	var placeholder := _polygon(body, "PlaceholderVisual", Rect2(-rect.size * 0.5, rect.size), Color("#171b21"))
+	placeholder.visible = show_placeholder_environment and not _uses_imported_art()
 	geometry.add_child(body)
 	blockers.append(rect)
 

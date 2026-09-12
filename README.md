@@ -8,7 +8,9 @@
 
 A compact psychological survival horror / stealth exploration game set in Hollowmere Estate. The project uses Godot 2D to compose a three-quarter elevated side view: upright characters, visible floor depth, horizontal exploration and restrained depth movement. No jumping, gravity-based platforming, 3D, combat or inventory combinations.
 
-The non-asset framework is playable from Awakening through three short ending branches. The female main character and zombie enemy use the supplied sprite sheets. Environment visuals, letter copy and audio slots remain prototypes.
+The game is playable from Awakening through three short ending branches. The female main character and zombie enemy use the supplied sprite sheets. All four floors now use selected estate furniture, wall and floor textures from the supplied 2D props pack, with the grand piano at the Music Room seal. Generated pickup and door/stair sprites replace their rectangles; furniture scale, exit coverage and piano key visibility are corrected throughout. Benches face slightly toward the camera, Els visibly carries the flashlight, and doors animate open, traversal and arrival closing. Letter copy, some audio slots and specialized room artwork remain prototypes.
+
+Room dressing is configured in `data/estate_art.json`; see [environment asset placement](docs/ENVIRONMENT_ASSETS.md) for the selected assets, remaining gaps and verification commands.
 
 ## Run
 
