@@ -1,9 +1,11 @@
-[gd_scene load_steps=5 format=3]
-[ext_resource type="Script" path="res://scripts/ui/front_end.gd" id="1"]
+[gd_scene format=3 uid="uid://di3mrcs7dkeyt"]
+
+[ext_resource type="Script" uid="uid://bnkhab6djftq3" path="res://scripts/ui/front_end.gd" id="1"]
 [ext_resource type="Theme" path="res://themes/libertas_ui_theme.tres" id="2"]
-[ext_resource type="Script" path="res://scripts/ui/ui_audio.gd" id="audio"]
+[ext_resource type="Script" uid="uid://dl8jm34njtevq" path="res://scripts/ui/ui_audio.gd" id="audio"]
 [ext_resource type="PackedScene" path="res://scenes/ui/components/menu_background.tscn" id="background"]
-[node name="FrontEnd" type="Control"]
+
+[node name="FrontEnd" type="Control" unique_id=188035244]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -13,7 +15,10 @@ grow_vertical = 2
 theme = ExtResource("2")
 script = ExtResource("1")
 
-[node name="BackgroundRoot" parent="." instance=ExtResource("background")]
+[node name="BackgroundRoot" parent="." unique_id=1327950661 instance=ExtResource("background")]
+layout_mode = 1
+grow_horizontal = 2
+grow_vertical = 2
 
-[node name="UIAudio" type="Node" parent="."]
+[node name="UIAudio" type="Node" parent="." unique_id=1781891434]
 script = ExtResource("audio")
