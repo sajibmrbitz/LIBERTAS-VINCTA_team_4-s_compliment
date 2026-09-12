@@ -200,6 +200,22 @@ func can_see_player() -> bool:
 		return false
 	return clear_sight(player.global_position)
 
+func can_see_hiding_spot(spot_position: Vector2) -> bool:
+	var space_state := get_world_2d().direct_space_state
+	# Utilize the same Y-offset logic from clear_sight() to prevent floor clipping
+	var query := PhysicsRayQueryParameters2D.create(global_position + Vector2(0, -7), spot_position + Vector2(0, -7), 1, [get_rid()])
+	
+	var result := space_state.intersect_ray(query)
+	
+	if result.is_empty():
+		return true
+		
+	# If the ray hits the interactable hiding spot itself instead of a wall, it is still valid
+	if result.collider.is_in_group("interactable"):
+		return true
+		
+	return false
+
 func _hidden(id: String) -> void:
 	# Only observed entrances are recorded, never every hiding signal globally.
 	var observed := FreedomLedger.sight_restored and observation_grace > 0.0 and clear_sight(player.global_position)
@@ -233,7 +249,8 @@ func _predict() -> void:
 
 func _check_remembered_hide() -> void:
 	if player.hidden_spot != null and global_position.distance_to(player.hidden_spot.global_position) < 45.0:
-		EventBus.player_caught.emit()
+		if can_see_hiding_spot(player.hidden_spot.global_position):
+			EventBus.player_caught.emit()
 
 func _observe_debug() -> void:
 	$DebugState.visible = debug_detection

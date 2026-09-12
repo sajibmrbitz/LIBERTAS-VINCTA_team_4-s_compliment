@@ -142,7 +142,8 @@ func show_letter(title: String, text: String) -> void:
 	GameManager.read_letter()
 	clear_modal(title)
 	modal_mode = "letter"
-	var content := make_label(text, 20)
+	
+	var content := make_label(text.replace("\\n", "\n"), 20)
 	content.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	content.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	modal_box.add_child(content)
@@ -167,3 +168,4 @@ func show_ending() -> void:
 	modal_box.add_child(content)
 	button("New game", GameManager.new_game).grab_focus()
 	button("Quit", func(): get_tree().quit())
+	
