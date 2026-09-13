@@ -92,6 +92,10 @@ func _verify_zone(zone: String, art: RefCounted, seen_rooms: Array[String]) -> D
 			_check(prop.hiding_priority in ["low", "medium", "high"], zone + ": invalid hiding priority: " + id)
 		if prop.kind == "recharge":
 			recharge_count += 1
+		if id == "piano_seal":
+			_check(prop._action_animation() == "interact", "ground: piano uses the key-unlock animation")
+			_check(prop.action_position_offset == Vector2(-78, -4), "ground: piano action position is misaligned")
+			_check(prop.action_facing == Vector2.RIGHT, "ground: piano action does not face its lock")
 	var bench_count := 0
 	for candidate in room.props.find_children("*", "Sprite2D", true, false):
 		var bench := candidate as Sprite2D

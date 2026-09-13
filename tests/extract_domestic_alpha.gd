@@ -65,10 +65,10 @@ func _try_add(image: Image, mask: PackedByteArray, queue: PackedInt32Array, x: i
 func _is_background(color: Color) -> bool:
 	var low := minf(color.r, minf(color.g, color.b))
 	var high := maxf(color.r, maxf(color.g, color.b))
-	return low >= 0.82 and high - low <= 0.08
+	return low >= 0.38 and high - low <= 0.12
 
 
 func _is_fringe(color: Color) -> bool:
 	var low := minf(color.r, minf(color.g, color.b))
 	var high := maxf(color.r, maxf(color.g, color.b))
-	return low >= 0.62 and high - low <= 0.10
+	return low >= 0.20 and high - low <= 0.10

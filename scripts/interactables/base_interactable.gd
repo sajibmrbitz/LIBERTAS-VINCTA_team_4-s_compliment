@@ -18,6 +18,9 @@ extends Node2D
 @export var ending_type: String = "untouched"
 @export var puzzle_steps: int = 3
 @export var action_seconds: float = 0.9
+@export var action_animation_override: String = ""
+@export var action_position_offset: Vector2 = Vector2.ZERO
+@export var action_facing: Vector2 = Vector2.ZERO
 @export_enum("low", "medium", "high") var hiding_priority: String = "low"
 @export var channel_seconds: float = 20.0
 
@@ -58,6 +61,7 @@ func interact(player: Node2D) -> void:
 		return
 	busy = true
 	EventBus.interaction_started.emit(self)
+	_prepare_action_pose(player)
 	player.play_action(_action_animation(), action_seconds if kind in ["puzzle", "recharge", "anchor"] else 1.0)
 	match kind:
 		"flashlight": _take_flashlight(player)
@@ -79,11 +83,21 @@ func interact(player: Node2D) -> void:
 	refresh()
 
 func _action_animation() -> String:
+	if not action_animation_override.is_empty():
+		return action_animation_override
 	if kind in ["key", "letter", "item", "flashlight"]:
 		return "pickup"
 	if kind in ["locked_door", "door", "puzzle", "vent", "anchor"]:
 		return "unlock"
 	return "interact"
+
+func _prepare_action_pose(player: Node2D) -> void:
+	if action_position_offset != Vector2.ZERO:
+		player.global_position = global_position + action_position_offset
+		if player is CharacterBody2D:
+			player.velocity = Vector2.ZERO
+	if action_facing != Vector2.ZERO:
+		player.facing = action_facing.normalized()
 
 func _take_flashlight(player: Node2D) -> void:
 	FreedomLedger.flags[interaction_id] = true

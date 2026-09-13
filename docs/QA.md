@@ -6,7 +6,7 @@ Validated with Godot 4.7 stable on 2026-09-13.
 
 | Suite | Coverage | Result |
 | --- | --- | --- |
-| `tests/verify_estate_assets.tscn` | 7 zones, 37 room regions, 56 texture entries, every progression prop, doors, pickup markers, paths, hiding priorities, recharge coverage, and simultaneous Nexus anchor framing | 662 checks, 0 failures |
+| `tests/verify_estate_assets.tscn` | 7 zones, 37 room regions, 60 texture entries, every progression prop, doors, pickup markers, paths, hiding priorities, recharge coverage, and simultaneous Nexus anchor framing | 676 checks, 0 failures |
 | `tests/verify_game_systems.tscn` | Input map, all Part II seeds, movement and battery tunables, noise radii, nine enemy states, hearing escalation, sight confirmation, Memory pursuit, Blood/partial magic costs, stun, and interrupted channel reset | 48 checks, 0 failures |
 | `tests/verify_game_route.tscn` | Awakening, Hearing key, four-letter Vantree gate, all floor transitions, Part II seed, Roots, Echoes, three mechanic uses, Nexus, Severance, and two Loop resets | 92 checks, 0 failures |
 

@@ -52,7 +52,10 @@ func _ready() -> void:
 		prop.position = Vector2(spec[2], spec[3])
 		if spec.size() > 4:
 			for key in spec[4]:
-				prop.set(key, spec[4][key])
+				var value = spec[4][key]
+				if key in ["action_position_offset", "action_facing"] and value is Array and value.size() >= 2:
+					value = Vector2(float(value[0]), float(value[1]))
+				prop.set(key, value)
 		props.add_child(prop)
 		_marker(spec[1].to_pascal_case() + "Point", prop.position)
 	_marker("PlayerSpawn", Vector2(240, 490))
@@ -129,7 +132,7 @@ func _build_surface_markings() -> void:
 			_polygon($Backdrop, "Moonlight" + str(x), Rect2(x, 355, 650, 180), Color(0.55, 0.60, 0.64, 0.35))
 		_polygon($Backdrop, "LinenShadowLane", Rect2(2700, 550, 3600, 74), Color("#22282e"))
 	elif zone_id == "basement":
-		_polygon($Backdrop, "Water", Rect2(900, 355, 2500, 190), Color(0.18, 0.32, 0.38, 0.8))
+		_polygon($Backdrop, "Water", Rect2(900, 355, 1100, 190), Color(0.18, 0.32, 0.38, 0.8))
 	elif zone_id == "roots":
 		_polygon($Backdrop, "FloodedNave", Rect2(1000, 355, 1000, 190), Color(0.14, 0.30, 0.34, 0.72))
 		_polygon($Backdrop, "RootShadow", Rect2(2000, 355, 1000, 279), Color(0.09, 0.12, 0.12, 0.34))

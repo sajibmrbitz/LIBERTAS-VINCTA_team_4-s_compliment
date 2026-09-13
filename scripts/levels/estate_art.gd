@@ -270,6 +270,8 @@ func dress_surfaces(room: Node2D) -> void:
 	var backdrop: Node2D = room.get_node("Backdrop")
 	if room.zone_id == "ground":
 		backdrop.get_node("BrokenGlass").color = Color(0.44, 0.55, 0.53, 0.08)
+		backdrop.get_node("CarpetBypass").color = Color(0.16, 0.23, 0.21, 0.48)
+		_tile_band(backdrop, "tile_floor", Rect2(2380, 550, 1200, 74), Vector2(116, 74), Color(0.34, 0.44, 0.40, 0.34))
 		var random := RandomNumberGenerator.new()
 		random.seed = 147
 		for i in 95:
@@ -283,10 +285,12 @@ func dress_surfaces(room: Node2D) -> void:
 			_rect(backdrop, Rect2(2386, y, 1188, 2), Color("#556351"))
 	elif room.zone_id == "basement":
 		backdrop.get_node("Water").color = Color(0.13, 0.31, 0.31, 0.56)
-		for x in range(920, 3380, 63):
+		for x in range(920, 1980, 63):
 			var y := 381.0 + float((x * 17) % 137)
 			_rect(backdrop, Rect2(x, y, 23, 1), Color(0.45, 0.62, 0.57, 0.25))
-		_rect(backdrop, Rect2(900, 543, 2500, 2), Color(0.29, 0.45, 0.39, 0.38))
+		_rect(backdrop, Rect2(900, 543, 1100, 2), Color(0.29, 0.45, 0.39, 0.38))
 	elif room.zone_id == "upper":
+		backdrop.get_node("LinenShadowLane").color = Color(0.12, 0.15, 0.17, 0.46)
+		_tile_band(backdrop, "tile_floor", Rect2(2700, 550, 3600, 74), Vector2(116, 74), Color(0.28, 0.25, 0.31, 0.28))
 		for x in [2650, 4300, 5950]:
 			backdrop.get_node("Moonlight" + str(x)).color = Color(0.62, 0.69, 0.70, 0.17)

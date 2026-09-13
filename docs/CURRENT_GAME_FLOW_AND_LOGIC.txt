@@ -131,7 +131,7 @@ detection or damage resets progress.
 
 AUTOMATED STATUS
 
-- Asset/layout: 662 checks, zero failures.
+- Asset/layout: 676 checks, zero failures.
 - Systems: 48 checks, zero failures.
 - Canonical route: 92 checks, zero failures.
 

@@ -8,7 +8,8 @@
     "screen": [56, 20], "bookshelf": [42, 20], "coat_stand": [18, 12],
     "wine_shelf": [60, 24], "wine_rack": [40, 22], "bottle_crate": [28, 18],
     "dining_chair": [26, 18], "wood_chair": [24, 18], "high_chair": [28, 20],
-    "serving_cart": [44, 24], "stock_pot": [22, 14], "lectern": [36, 22]
+    "serving_cart": [44, 24], "stock_pot": [22, 14], "lectern": [36, 22],
+    "bed": [120, 42], "toy_chest": [76, 28], "washstand": [80, 30], "bathtub": [112, 34]
   },
   "textures": {
     "key": {"file": "res://assets/environment/props/estate_essentials/estate_essentials.png", "region": [90, 80, 354, 350], "trim": true},
@@ -66,7 +67,11 @@
     "pans": {"file": "RestaurantProps/fooddrink_restaurant_props_pans_commercial_pair_01.png"},
     "dish_tub": {"file": "RestaurantProps/fooddrink_restaurant_props_bus_tub_dishes_01.png"},
     "tray": {"file": "RestaurantProps/fooddrink_restaurant_props_serving_tray_round_01.png"},
-    "piano": {"file": "res://assets/environment/props/music_room/piano1.png", "region": [357, 49, 270, 287]}
+    "piano": {"file": "res://assets/environment/props/music_room/piano1.png", "region": [357, 49, 270, 287]},
+    "bed": {"file": "res://assets/environment/props/estate_domestic/estate_domestic_props_alpha.png", "region": [0, 0, 627, 627], "trim": true},
+    "toy_chest": {"file": "res://assets/environment/props/estate_domestic/estate_domestic_props_alpha.png", "region": [627, 0, 627, 627], "trim": true},
+    "washstand": {"file": "res://assets/environment/props/estate_domestic/estate_domestic_props_alpha.png", "region": [0, 627, 627, 627], "trim": true},
+    "bathtub": {"file": "res://assets/environment/props/estate_domestic/estate_domestic_props_alpha.png", "region": [627, 627, 627, 627], "trim": true}
   },
   "zones": {
     "intro": {
@@ -83,15 +88,15 @@
     },
     "ground": {
       "wall_tint": "#697d77", "floor_tint": "#647770", "prop_tint": "#b3b3a8",
-      "passage_labels": {"front_door": "Front Door", "upper_stairs": "Upper Floor"},
+      "passage_labels": {"front_door": "Front Door", "upper_stairs": "Upper Floor", "basement_stairs": "Cellar"},
       "surfaces": [[0, 2400, "panel_wall", "wood_floor"], [2400, 4800, "panel_wall", "wood_floor"], [4800, 7200, "kitchen_wall", "tile_floor"]],
       "furniture": {
         "Furniture1": {"asset": "settee", "width": 162, "position": [1070, 432], "footprint": [98, 32]},
         "Furniture2": {"asset": "sideboard", "width": 158, "position": [2130, 412], "footprint": [98, 32], "details": [["book", -31, -85, 32], ["candle", 34, -105, 19]]},
-        "Furniture3": {"asset": "family_table", "width": 176, "position": [3020, 460], "footprint": [110, 44], "details": [["place_setting", 10, -84, 38]]},
-        "Furniture4": {"asset": "dining_table", "width": 166, "position": [3910, 495], "footprint": [106, 44], "details": [["water_set", 0, -87, 28]]},
+        "Furniture3": {"asset": "bench", "width": 158, "position": [3230, 432], "footprint": [96, 30]},
+        "Furniture4": {"asset": "bookshelf", "width": 150, "position": [3740, 410], "footprint": [64, 26]},
         "Furniture5": {"asset": "sideboard", "width": 158, "position": [5090, 432], "footprint": [98, 32], "details": [["plates", -33, -85, 22], ["stock_pot", 24, -102, 36]]},
-        "Furniture6": {"asset": "sideboard", "width": 158, "position": [6120, 426], "footprint": [98, 32], "details": [["dish_tub", 4, -96, 42]]}
+        "Furniture6": {"asset": "bench", "width": 158, "position": [5900, 430], "footprint": [96, 30]}
       },
       "interactables": {
         "the_note": {"asset": "book", "width": 46, "scale": 0.8},
@@ -109,8 +114,8 @@
         ["side_table", 1960, 392, 54, [["candle", 0, -39, 22]]], ["bookshelf", 2240, 392, 88],
         ["serving_cart", 2650, 392, 71], ["dining_chair", 3160, 392, 51],
         ["sideboard", 3470, 392, 136, [["tray", -24, -74, 34], ["creamer", 23, -89, 28]]],
-        ["sideboard", 3810, 392, 136, [["place_setting", -20, -76, 38], ["vase", 35, -92, 17]]],
-        ["dining_chair", 4410, 392, 51], ["serving_cart", 4650, 392, 72],
+        ["side_table", 4060, 392, 68, [["book", 0, -45, 29]]],
+        ["dining_chair", 4260, 392, 51], ["serving_cart", 4650, 392, 72],
         ["serving_hatch", 5170, 295, 173],
         ["sideboard", 5200, 392, 136, [["pans", -23, -75, 35], ["plates", 31, -91, 23]]],
         ["sideboard", 5680, 392, 136, [["stock_pot", -26, -74, 37], ["tray", 30, -91, 33]]],
@@ -121,20 +126,20 @@
     },
     "upper": {
       "wall_tint": "#797780", "floor_tint": "#5b6663", "prop_tint": "#aaa5b1",
-      "passage_labels": {"ground_stairs": "Ground Floor", "basement_stairs": "Cellar"},
+      "passage_labels": {"ground_stairs": "Ground Floor", "upper_stairs": "Ground Floor", "basement_stairs": "Cellar"},
       "surfaces": [[0, 2400, "panel_wall", "wood_floor"], [2400, 4800, "panel_wall", "wood_floor"], [4800, 7200, "panel_wall", "wood_floor"]],
       "carpet": true,
       "furniture": {
         "Furniture1": {"asset": "bench", "width": 158, "position": [1080, 434], "footprint": [96, 30]},
-        "Furniture2": {"asset": "sideboard", "width": 158, "position": [1930, 425], "footprint": [98, 32], "details": [["book", 0, -95, 33]]},
+        "Furniture2": {"asset": "sideboard", "width": 158, "position": [3500, 425], "footprint": [98, 32], "details": [["book", 0, -95, 33]]},
         "Furniture3": {"asset": "settee", "width": 164, "position": [2940, 457], "footprint": [98, 32]},
-        "Furniture4": {"asset": "sideboard", "width": 158, "position": [4010, 448], "footprint": [98, 32], "details": [["vase", -37, -84, 19], ["book", 18, -100, 35]]},
+        "Furniture4": {"asset": "washstand", "width": 170, "position": [4140, 430], "footprint": [100, 34]},
         "Furniture5": {"asset": "bench", "width": 158, "position": [5310, 430], "footprint": [96, 30]},
         "Furniture6": {"asset": "sideboard", "width": 158, "position": [6040, 422], "footprint": [98, 32], "details": [["creamer", 0, -95, 31]]}
       },
       "interactables": {
-        "upper_hide_01": {"asset": "settee", "width": 176, "scale": 0.76},
-        "upper_hide_02": {"asset": "bottle_crate", "width": 92, "scale": 0.8},
+        "upper_hide_01": {"asset": "bed", "width": 220, "scale": 0.72, "footprint": [120, 42]},
+        "upper_hide_02": {"asset": "toy_chest", "width": 142, "scale": 0.76, "footprint": [76, 28]},
         "vanity_seal": {"asset": "sideboard", "width": 138, "scale": 0.72, "footprint": [80, 28], "details": [["mirror_frame", 0, -80, 55], ["vase", 43, -92, 16]]}
       },
       "decorations": [
@@ -144,16 +149,16 @@
         ["screen", 2570, 392, 102],
         ["side_table", 2840, 392, 68, [["water_set", 0, -47, 26]]],
         ["dining_chair", 3200, 392, 52], ["bookshelf", 3760, 392, 91],
-        ["side_table", 4220, 392, 68, [["book", 0, -45, 29]]],
-        ["coat_stand", 4620, 392, 43], ["high_chair", 5140, 392, 58],
-        ["wood_chair", 5470, 392, 51], ["bookshelf", 6190, 392, 91],
-        ["bench", 6510, 392, 124], ["side_table", 6730, 392, 54, [["candle", 0, -39, 22]]],
+        ["screen", 4540, 392, 102],
+        ["bathtub", 4780, 438, 170], ["high_chair", 2190, 392, 58],
+        ["wood_chair", 5810, 392, 51], ["bookshelf", 6190, 392, 91],
+        ["bench", 6510, 392, 124], ["side_table", 6630, 392, 54, [["candle", 0, -39, 22]]],
         ["bookshelf", 6860, 392, 75], ["side_table", 7130, 392, 54, [["candle", 0, -39, 22]]]
       ]
     },
     "basement": {
       "wall_tint": "#667e77", "floor_tint": "#778884", "prop_tint": "#969e98",
-      "passage_labels": {"upper_stairs": "Upper Floor", "maintenance_exit": "Maintenance Exit", "service_return": "Service Passage"},
+      "passage_labels": {"upper_stairs": "Upper Floor", "ground_stairs": "Ground Floor", "maintenance_exit": "Maintenance Exit", "service_return": "Service Passage", "ritual_conduit": "Cathedral Roots"},
       "surfaces": [[0, 2400, "brick_wall", "dark_floor"], [2400, 4800, "brick_wall", "dark_floor"], [4800, 7200, "brick_wall", "dark_floor"]],
       "furniture": {
         "Furniture1": {"asset": "sideboard", "width": 158, "position": [1010, 435], "footprint": [98, 32], "details": [["bottle_crate", 0, -95, 47]]},
@@ -161,7 +166,7 @@
         "Furniture3": {"asset": "sideboard", "width": 158, "position": [3060, 452], "footprint": [98, 32], "details": [["bottles", -25, -87, 33], ["bottles", 25, -102, 33]]},
         "Furniture4": {"asset": "wine_shelf", "width": 154, "position": [3880, 435], "footprint": [92, 30]},
         "Furniture5": {"asset": "sideboard", "width": 158, "position": [5330, 432], "footprint": [98, 32], "details": [["book", 0, -95, 34], ["candle", -47, -81, 21], ["candle", 43, -108, 21]]},
-        "Furniture6": {"asset": "sideboard", "width": 158, "position": [6220, 439], "footprint": [98, 32], "details": [["candle", -35, -84, 22], ["candle", 35, -105, 22]]}
+        "Furniture6": {"asset": "wine_shelf", "width": 142, "position": [5960, 428], "footprint": [84, 30]}
       },
       "interactables": {
         "ritual_seal": {"asset": "ritual_stone", "width": 150, "scale": 0.75, "footprint": [88, 28]}
@@ -194,6 +199,7 @@
         "crypt_alcove_04": {"asset": "sarcophagus", "width": 130, "scale": 0.72, "flip": true}
       },
       "decorations": [
+        ["cat_rubble", 430, 405, 120], ["candle", 760, 392, 24],
         ["cat_rubble", 2240, 405, 185], ["cat_rubble", 2710, 575, 155],
         ["sarcophagus", 4250, 405, 135], ["sarcophagus", 4860, 405, 135],
         ["candle", 3380, 392, 24], ["candle", 3730, 392, 24]
@@ -212,7 +218,8 @@
       "decorations": [
         ["ritual_stone", 620, 575, 125], ["cat_rubble", 3480, 405, 155],
         ["cat_rubble", 4210, 575, 140], ["sarcophagus", 2580, 405, 125],
-        ["candle", 1450, 392, 24], ["candle", 1910, 392, 24]
+        ["candle", 1450, 392, 24], ["candle", 1910, 392, 24],
+        ["ritual_stone", 4740, 405, 105], ["candle", 4960, 392, 24]
       ]
     },
     "nexus": {
