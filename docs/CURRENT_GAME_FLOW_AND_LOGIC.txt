@@ -70,12 +70,24 @@ The literal finite-state machine contains:
   PREDICT_HUNT
   AMBUSH
 
-Stage 0 wanders for 8-15 seconds per target and cannot catch Els. Stage 1 escalates
-two audible pings inside six seconds into HUNT_AUDIO. Stage 2 confirms vision for
-0.6 seconds and breaks a lost chase after a random 5-8 seconds. Stage 3 retains five
-locations, pre-seeds used hiding spots on Memory pickup, checks hiding priorities
-with repeated use capped at High, and performs a 35 percent exit-ambush check every
-three seconds.
+Stage 0 wanders for 8-15 seconds per target and cannot catch Els. Stage 1 patrols at
+142 px/s and escalates two audible pings inside six seconds into a 216 px/s,
+ten-second HUNT_AUDIO; each fresh audible ping redirects and renews that hunt.
+Stage 2 confirms vision for 0.6 seconds and chases at 282 px/s, faster than Els can
+sprint in a straight line, then breaks a lost chase after a random 5-8 seconds.
+Stage 3 retains five locations, pre-seeds used hiding spots on Memory pickup, moves
+at 238 px/s while predicting, checks hiding priorities with repeated use capped at
+High, and performs a 55 percent forward-exit ambush check every 2.5 seconds. An
+ambush remains active for ten seconds.
+
+STORY PRESSURE
+
+- One-time in-world reactions now build across the piano, vanity, nursery, basement,
+  ritual chamber, carved-name reveal, Vault of Whispers, and Ley-Nexus.
+- Restoring each sense gives Els a distinct realization of what she has returned to
+  the entity. The first key also forces the search score and monster cue.
+- Search and chase states drive separate music levels, red peripheral pressure, and
+  brief camera impact on detection, damage, and sense restoration.
 
 PLAYER SYSTEMS
 
@@ -131,8 +143,8 @@ detection or damage resets progress.
 
 AUTOMATED STATUS
 
-- Asset/layout: 676 checks, zero failures.
-- Systems: 48 checks, zero failures.
+- Asset/layout: 679 checks, zero failures.
+- Systems: 57 checks, zero failures.
 - Canonical route: 92 checks, zero failures.
 
 See tests/verify_estate_assets.tscn, tests/verify_game_systems.tscn, and

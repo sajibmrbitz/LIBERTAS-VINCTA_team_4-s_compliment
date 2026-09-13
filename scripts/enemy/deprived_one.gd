@@ -15,16 +15,23 @@ enum State {
 }
 
 @export var blind_speed: float = 115.0
-@export var patrol_speed: float = 128.0
-@export var audio_hunt_speed: float = 192.0
-@export var sight_chase_speed: float = 230.0
-@export var true_form_speed: float = 205.0
+@export var patrol_speed: float = 142.0
+@export var audio_hunt_speed: float = 216.0
+@export var sight_chase_speed: float = 282.0
+@export var true_form_speed: float = 238.0
 @export var hearing_scale: float = 740.0
 @export var vision_range: float = 384.0
 @export var shadow_vision_range: float = 128.0
 @export var field_of_view: float = 110.0
-@export var flashlight_range_multiplier: float = 1.35
-@export var catch_distance: float = 26.0
+@export var flashlight_range_multiplier: float = 1.5
+@export var catch_distance: float = 32.0
+@export var audio_hunt_seconds: float = 10.0
+@export var path_refresh_seconds: float = 0.28
+@export_range(0.0, 1.0) var ambush_chance: float = 0.55
+@export var ambush_interval: float = 2.5
+@export var ambush_seconds: float = 10.0
+@export var contact_damage: float = 30.0
+@export var remembered_hide_damage: float = 45.0
 @export var debug_detection: bool = false
 
 var state: State = State.WANDER_BLIND
@@ -47,7 +54,7 @@ var noise_pings: Array[int] = []
 var witnessed_hide: String = ""
 var route_clock: float = 0.0
 var stalled_time: float = 0.0
-var ambush_clock: float = 3.0
+var ambush_clock: float = 0.0
 var hit_cooldown: float = 0.0
 var stun_seconds: float = 0.0
 var detection_active: bool = false
@@ -65,6 +72,7 @@ func _ready() -> void:
 	EventBus.player_left_hiding.connect(_left_hiding)
 	EventBus.sense_restored.connect(_restored)
 	EventBus.player_caught.connect(_attack)
+	ambush_clock = ambush_interval
 	_play_visual("idle")
 	change_state(_patrol_state())
 	_observe_debug()
@@ -79,7 +87,7 @@ func change_state(next: State) -> void:
 		State.INVESTIGATE:
 			state_limit = 4.0
 		State.HUNT_AUDIO:
-			state_limit = 6.0
+			state_limit = audio_hunt_seconds
 		State.CHASE:
 			chase_break = randf_range(5.0, 8.0)
 		State.INVESTIGATE_LAST_SEEN:
@@ -87,7 +95,7 @@ func change_state(next: State) -> void:
 		State.PREDICT_HUNT:
 			state_limit = 8.0
 		State.AMBUSH:
-			state_limit = 4.5
+			state_limit = ambush_seconds
 	var searching := state in [State.INVESTIGATE, State.HUNT_AUDIO, State.INVESTIGATE_LAST_SEEN, State.PREDICT_HUNT, State.AMBUSH]
 	EventBus.tension_changed.emit("CHASE" if state == State.CHASE else ("SEARCHING" if searching else "CALM"))
 	if searching:
@@ -194,8 +202,8 @@ func _update_state(delta: float) -> void:
 				_choose_patrol_target()
 				state_clock = 0.0
 			if _stage() >= 3 and ambush_clock <= 0.0:
-				ambush_clock = 3.0
-				if randf() <= 0.35:
+				ambush_clock = ambush_interval
+				if randf() <= ambush_chance:
 					_predict_exit()
 		State.INVESTIGATE:
 			if global_position.distance_to(target) < 36.0:
@@ -247,7 +255,7 @@ func _choose_patrol_target() -> void:
 func _move(delta: float) -> void:
 	path_clock -= delta
 	if path_clock <= 0.0:
-		path_clock = 0.45
+		path_clock = path_refresh_seconds
 		path = room.find_path(global_position, target)
 	while not path.is_empty() and global_position.distance_to(path[0]) < 14.0:
 		path.remove_at(0)
@@ -282,6 +290,8 @@ func _move_speed() -> float:
 		return true_form_speed if _stage() >= 3 else sight_chase_speed
 	if state == State.HUNT_AUDIO:
 		return audio_hunt_speed
+	if _stage() >= 3 and state in [State.PREDICT_HUNT, State.AMBUSH, State.INVESTIGATE_LAST_SEEN]:
+		return true_form_speed
 	return patrol_speed
 
 func _resolve_contact() -> void:
@@ -294,11 +304,12 @@ func _resolve_contact() -> void:
 	if _stage() == 0:
 		hit_cooldown = 2.0
 		player.play_action("stagger", 0.7)
+		EventBus.noise_created.emit(player.global_position, 320.0, "GENERIC")
 		velocity = -facing * blind_speed
 		return
 	if FreedomLedger.current_part == 2:
-		hit_cooldown = 1.25
-		player.take_hit(25.0)
+		hit_cooldown = 1.1
+		player.take_hit(contact_damage)
 	else:
 		EventBus.player_caught.emit()
 
@@ -312,6 +323,9 @@ func _hear(point: Vector2, intensity: float, surface: String) -> void:
 	noise_pings = noise_pings.filter(func(stamp: int): return now - stamp <= 6000)
 	noise_pings.append(now)
 	target = point
+	if state == State.HUNT_AUDIO:
+		state_clock = 0.0
+		return
 	if surface == "GLASS" or noise_pings.size() >= 2:
 		_begin_detection()
 		change_state(State.HUNT_AUDIO)
@@ -378,10 +392,10 @@ func _hide_score(spot: BaseInteractable) -> int:
 	priority = mini(3, priority + int(FreedomLedger.hiding_usage.get(spot.interaction_id, 0)))
 	return priority * 10
 
-func _predict_exit() -> void:
+func _predict_exit() -> bool:
 	var exits: Array[Vector2] = room.known_exit_positions()
 	if exits.is_empty():
-		return
+		return false
 	var heading: Vector2 = player.facing
 	var best: Vector2 = exits[0]
 	var best_dot: float = -2.0
@@ -390,13 +404,16 @@ func _predict_exit() -> void:
 		if dot > best_dot:
 			best_dot = dot
 			best = point
+	if best_dot < 0.45:
+		return false
 	target = best
 	change_state(State.AMBUSH)
+	return true
 
 func _check_remembered_hide() -> void:
 	if player.hidden_spot != null and global_position.distance_to(player.hidden_spot.global_position) < 45.0 and clear_sight(player.hidden_spot.global_position):
 		if FreedomLedger.current_part == 2:
-			player.take_hit(35.0)
+			player.take_hit(remembered_hide_damage)
 		else:
 			EventBus.player_caught.emit()
 

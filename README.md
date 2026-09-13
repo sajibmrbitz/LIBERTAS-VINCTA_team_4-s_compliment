@@ -6,9 +6,9 @@
 
 **Engine:** Godot 4.7 stable
 
-LIBERTAS VINCTA is a 2D psychological survival-horror game set in Hollowmere Estate and the Sunken Cathedral beneath it. Els Vantree restores senses to the Deprived One by taking sealed keys. Every restored sense changes its behavior, and taking all three keys creates a false escape that loops the house instead of winning.
+LIBERTAS VINCTA is a 2D psychological survival-horror game set in Hollowmere Estate and the Sunken Cathedral beneath it. Els Vantree restores senses to the Deprived One by taking sealed keys. Every restored sense makes it faster and more perceptive: it renews hunts from fresh sounds, outruns a straight sprint once it can see, and predicts familiar hides and exits once it remembers. Taking all three keys creates a false escape that loops the house instead of winning.
 
-The game contains the complete Part I estate route, the Part II Cathedral Roots, Chamber of Echoes, and Ley-Nexus, six successful endings across both parts, and the three-key Loop failure state.
+The game contains the complete Part I estate route, the Part II Cathedral Roots, Chamber of Echoes, and Ley-Nexus, six successful endings across both parts, and the three-key Loop failure state. One-time environmental story reactions, sensory escalation cues, threat music, camera impact, and peripheral danger feedback carry the tension between major reveals.
 
 ## Run
 
@@ -76,6 +76,6 @@ godot --headless --path . tests/verify_game_systems.tscn
 godot --headless --path . tests/verify_game_route.tscn
 ```
 
-Current results: 662 asset/layout checks, 48 systems checks, and 92 route checks, all with zero failures. The route test covers Awakening, Vantree Part I, Part II, the Echo skill gate, Severance, and the false-exit Loop reset.
+Current results: 679 asset/layout checks, 57 systems checks, and 92 route checks, all with zero failures. The route test covers Awakening, Vantree Part I, Part II, the Echo skill gate, Severance, and the false-exit Loop reset.
 
 See [QA](docs/QA.md), [asset credits](ASSET_CREDITS.md), and [AI disclosure](AI_DISCLOSURE.md).

@@ -295,13 +295,30 @@ func _enter_room(id: String) -> void:
 	FreedomLedger.flags["visited_" + id] = true
 	EventBus.room_entered.emit(id)
 	match id:
-		"GF-03": EventBus.tension_changed.emit("SEARCHING")
+		"GF-03":
+			EventBus.tension_changed.emit("SEARCHING")
+			if FreedomLedger.current_stage == 0:
+				_story_once("piano_warning", "ELS", "The piano is locked... but something inside it is breathing in time.", "monster_breathing")
 		"GF-04":
 			var player = get_tree().get_first_node_in_group("player")
 			if player != null and not player.is_crouching:
 				EventBus.noise_created.emit(Vector2(2520.0, 410.0), 420.0, "GENERIC")
-		"UF-02": FreedomLedger.flags["vision_vfx_primed"] = true
-		"BS-05": FreedomLedger.flags["ritual_chamber_seen"] = true
+		"UF-02":
+			FreedomLedger.flags["vision_vfx_primed"] = true
+			_story_once("vanity_warning", "ELS", "These scratches all end at the vanity. Something waited here.")
+		"UF-03":
+			if FreedomLedger.sight_restored:
+				_story_once("nursery_watches", "ELS", "Every painted face is watching the same empty corner.", "monster_search")
+		"BS-01":
+			if FreedomLedger.current_stage >= 2:
+				_story_once("basement_followed", "ELS", "It followed me downstairs. It does not need the light anymore.", "monster_breathing")
+		"BS-03":
+			_story_once("custodian_bones", "ELS", "Vantree rings. Every body down here belonged to my family.")
+		"BS-05":
+			FreedomLedger.flags["ritual_chamber_seen"] = true
+			_story_once("fourth_ward", "ELS", "Three wards broken. The fourth is still breathing... and my name is beneath it.", "monster_search")
+		"CR-04":
+			_story_once("name_carving", "ELS", "My name... carved here centuries before I was born.")
 		"CE-01":
 			if not FreedomLedger.flags.get("mechanic_intro_seen", false):
 				FreedomLedger.flags["mechanic_intro_seen"] = true
@@ -312,8 +329,21 @@ func _enter_room(id: String) -> void:
 		"CE-03":
 			if FreedomLedger.part2_seed.get("blood_magic", false) and not FreedomLedger.flags.get("entity_spoke", false):
 				FreedomLedger.flags["entity_spoke"] = true
+				EventBus.audio_requested.emit("monster_breathing")
 				EventBus.subtitle_requested.emit("THE DEPRIVED", "Els. You have brought your name home.", 4.0)
-		"LN-CENTER": FreedomLedger.flags["finale_started"] = true
+				EventBus.subtitle_requested.emit("ELS", "No. I brought back the choice you buried.", 3.5)
+		"LN-CENTER":
+			FreedomLedger.flags["finale_started"] = true
+			_story_once("nexus_choice", "ELS", "Three chains. Destroy it, replace it... or become the lock.", "monster_search")
+
+func _story_once(beat: String, speaker: String, line: String, cue: String = "") -> void:
+	var flag := "story_" + beat
+	if FreedomLedger.flags.get(flag, false):
+		return
+	FreedomLedger.flags[flag] = true
+	if not cue.is_empty():
+		EventBus.audio_requested.emit(cue)
+	EventBus.subtitle_requested.emit(speaker, line, 4.0)
 
 func _draw() -> void:
 	if debug_noise:

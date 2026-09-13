@@ -4,6 +4,7 @@ const ROOM := preload("res://scenes/levels/ground_floor.tscn")
 const PLAYER := preload("res://scenes/player/player.tscn")
 const ENEMY := preload("res://scenes/enemy/deprived_one.tscn")
 const ANCHOR := preload("res://scenes/interactables/anchor.tscn")
+const AUDIO := preload("res://scenes/systems/audio_director.tscn")
 
 var checks := 0
 var failures: Array[String] = []
@@ -21,6 +22,10 @@ func _check(value: bool, message: String) -> void:
 
 func _run() -> void:
 	_check_inputs_and_seeds()
+	var audio: Node = AUDIO.instantiate()
+	add_child(audio)
+	_check(audio.players.has("monster_screech") and audio.players.monster_screech.stream != null, "Monster escalation cue is not playable")
+	_check(audio.players.SEARCHING.stream != null and audio.players.CHASE.stream != null, "Threat music layers are incomplete")
 	var room: Node2D = ROOM.instantiate()
 	add_child(room)
 	var player: CharacterBody2D = PLAYER.instantiate()
@@ -54,14 +59,20 @@ func _run() -> void:
 	var expected_states := ["WANDER_BLIND", "PATROL_AUDIO", "INVESTIGATE", "HUNT_AUDIO", "PATROL_SIGHT", "CHASE", "INVESTIGATE_LAST_SEEN", "PREDICT_HUNT", "AMBUSH"]
 	_check(enemy.State.keys() == expected_states, "Enemy state table does not match the specification")
 	_check(enemy.state == enemy.State.WANDER_BLIND, "Stage 0 did not begin blind wandering")
-	_check(is_equal_approx(enemy.blind_speed, 115.0) and is_equal_approx(enemy.patrol_speed, 128.0), "Enemy patrol speeds changed")
-	_check(is_equal_approx(enemy.audio_hunt_speed, 192.0) and is_equal_approx(enemy.sight_chase_speed, 230.0) and is_equal_approx(enemy.true_form_speed, 205.0), "Enemy hunt speeds changed")
+	_check(is_equal_approx(enemy.blind_speed, 115.0) and is_equal_approx(enemy.patrol_speed, 142.0), "Enemy patrol speeds changed")
+	_check(is_equal_approx(enemy.audio_hunt_speed, 216.0) and is_equal_approx(enemy.sight_chase_speed, 282.0) and is_equal_approx(enemy.true_form_speed, 238.0), "Enemy hunt speeds changed")
+	_check(is_equal_approx(enemy.audio_hunt_seconds, 10.0) and is_equal_approx(enemy.path_refresh_seconds, 0.28), "Enemy pursuit timing changed")
+	_check(is_equal_approx(enemy.ambush_chance, 0.55) and is_equal_approx(enemy.ambush_interval, 2.5) and is_equal_approx(enemy.ambush_seconds, 10.0), "Enemy ambush pressure changed")
+	_check(enemy.sight_chase_speed > player.sprint_speed, "Stage 2 can still be escaped by sprinting in a straight line")
 	FreedomLedger.restore_sense("hearing")
 	_check(enemy.state == enemy.State.PATROL_AUDIO, "Key 1 did not activate PATROL_AUDIO")
 	enemy._hear(Vector2(600, 500), 300.0, "WOOD")
 	_check(enemy.state == enemy.State.INVESTIGATE, "First audible ping did not trigger INVESTIGATE")
 	enemy._hear(Vector2(610, 500), 300.0, "WOOD")
 	_check(enemy.state == enemy.State.HUNT_AUDIO, "Two pings inside six seconds did not trigger HUNT_AUDIO")
+	enemy.state_clock = 9.5
+	enemy._hear(Vector2(625, 500), 300.0, "WOOD")
+	_check(enemy.state == enemy.State.HUNT_AUDIO and enemy.state_clock == 0.0 and enemy.target == Vector2(625, 500), "Fresh noise did not renew and redirect the audio hunt")
 	FreedomLedger.restore_sense("sight")
 	_check(enemy.state == enemy.State.PATROL_SIGHT, "Key 2 did not activate PATROL_SIGHT")
 	enemy.facing = Vector2.LEFT
@@ -75,6 +86,16 @@ func _run() -> void:
 	FreedomLedger.restore_sense("memory")
 	_check(enemy.state == enemy.State.PREDICT_HUNT, "Key 3 did not immediately activate PREDICT_HUNT")
 	_check("dining_table_hide" in enemy.recent_hides, "Stage 3 did not pre-seed used hiding places")
+	_check(is_equal_approx(enemy._move_speed(), enemy.true_form_speed), "Stage 3 prediction dropped back to patrol speed")
+	player.facing = Vector2.RIGHT
+	_check(enemy._predict_exit() and enemy.state == enemy.State.AMBUSH, "Stage 3 did not intercept a known exit ahead of the player")
+	var story_lines: Array[String] = []
+	var story_listener := func(_speaker: String, line: String, _duration: float): story_lines.append(line)
+	EventBus.subtitle_requested.connect(story_listener)
+	room._story_once("test_once", "ELS", "test line")
+	room._story_once("test_once", "ELS", "test line")
+	_check(story_lines == ["test line"], "One-time story beat repeated")
+	EventBus.subtitle_requested.disconnect(story_listener)
 	var hide: BaseInteractable = room.props.get_node("DiningTableHide")
 	for _i in 5:
 		FreedomLedger.record_hiding_use(hide.interaction_id)
@@ -84,6 +105,7 @@ func _run() -> void:
 	enemy.queue_free()
 	player.queue_free()
 	room.queue_free()
+	audio.queue_free()
 	await get_tree().process_frame
 	print("SYSTEM CHECK: %s checks, %s failures. Tunables, state machine, resources, abilities, and channel resets verified." % [checks, failures.size()])
 	get_tree().quit(0 if failures.is_empty() else 1)

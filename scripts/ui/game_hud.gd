@@ -19,6 +19,8 @@ var subtitle_queue: Array[Dictionary] = []
 var subtitle_time: float = 0.0
 var modal_mode: String = ""
 var ending_shown: bool = false
+var threat_state: String = "CALM"
+var threat_clock: float = 0.0
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
@@ -87,6 +89,8 @@ func _ready() -> void:
 	root.add_child(pause_menu)
 	EventBus.subtitle_requested.connect(enqueue_subtitle)
 	EventBus.sense_restored.connect(transaction)
+	EventBus.tension_changed.connect(_set_threat_state)
+	EventBus.player_detected.connect(_detection_impact)
 	EventBus.player_caught.connect(func(): create_tween().tween_property(fade, "color:a", 1.0, 1.0))
 	EventBus.anchor_progress.connect(_anchor_progress)
 	EventBus.anchor_cleansed.connect(func(_id, _total): anchor_status.text = "")
@@ -103,7 +107,7 @@ func _build_peripheral() -> void:
 		edge.anchor_top = spec[1]
 		edge.anchor_right = spec[2]
 		edge.anchor_bottom = spec[3]
-		edge.color = Color(0.03, 0.04, 0.045, 0.0)
+		edge.color = Color(0.16, 0.018, 0.025, 0.0)
 		edge.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		root.add_child(edge)
 		peripheral.append(edge)
@@ -117,6 +121,7 @@ func make_label(text: String, size: int = 18) -> Label:
 	return label
 
 func _process(delta: float) -> void:
+	threat_clock += delta
 	_layout_for_viewport()
 	subtitle.visible = SessionSettings.subtitles_enabled
 	var playing_hud := GameManager.zone != "intro" and GameManager.state != GameManager.State.ENDING
@@ -131,10 +136,16 @@ func _process(delta: float) -> void:
 	room_name.text = room.current_room_id if room != null else ""
 	var player = get_tree().get_first_node_in_group("player")
 	prompt.visible = false
+	var strain := 0.0
 	if player != null:
-		var strain := clampf((player.breath_seconds - 4.0) / 2.0, 0.0, 1.0) if player.holding_breath else 0.0
-		for edge in peripheral:
-			edge.color.a = strain * 0.62
+		strain = clampf((player.breath_seconds - 4.0) / 2.0, 0.0, 1.0) if player.holding_breath else 0.0
+	var threat_edge := 0.0
+	if threat_state == "SEARCHING":
+		threat_edge = 0.045 + (sin(threat_clock * 3.2) + 1.0) * 0.018
+	elif threat_state == "CHASE":
+		threat_edge = 0.12 + (sin(threat_clock * 7.0) + 1.0) * 0.055
+	for edge in peripheral:
+		edge.color.a = maxf(strain * 0.62, threat_edge)
 	if player != null and GameManager.state == GameManager.State.PLAYING:
 		prompt.visible = is_instance_valid(player.target_interactable) or player.hidden_spot != null
 		var target: Node2D = player.hidden_spot if player.hidden_spot != null else player.target_interactable
@@ -175,8 +186,16 @@ func enqueue_subtitle(speaker: String, text: String, duration: float) -> void:
 	subtitle_queue.append({"speaker": speaker, "text": text, "duration": duration})
 
 func transaction(_sense: String) -> void:
+	pulse.color = Color(0.38, 0.07, 0.08, 0.16)
 	pulse.color.a = 0.16
 	create_tween().tween_property(pulse, "color:a", 0.0, 0.65)
+
+func _set_threat_state(next: String) -> void:
+	threat_state = next
+
+func _detection_impact(_source: Node) -> void:
+	pulse.color = Color(0.5, 0.025, 0.035, 0.24)
+	create_tween().tween_property(pulse, "color:a", 0.0, 0.42)
 
 func _anchor_progress(id: String, seconds: float, required: float) -> void:
 	anchor_status.text = "%s  %02d / %02d" % [id, floori(seconds), floori(required)] if seconds > 0.0 else ""

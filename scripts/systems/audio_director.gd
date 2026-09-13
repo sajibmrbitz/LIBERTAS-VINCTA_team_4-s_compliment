@@ -8,15 +8,16 @@ extends Node
 @export var wood_footsteps: AudioStream
 @export var stone_footsteps: AudioStream = preload("res://assets/audio/running_footstep.wav")
 @export var water_footsteps: AudioStream
-@export var key_sting: AudioStream
-@export var monster_breathing: AudioStream
-@export var monster_search: AudioStream
+@export var key_sting: AudioStream = preload("res://assets/audio/492781__hugobozz__heavy-breathing-recorded-with-rode-shotgun-microphone-post-processed-in-reaper.wav")
+@export var monster_breathing: AudioStream = preload("res://assets/audio/492781__hugobozz__heavy-breathing-recorded-with-rode-shotgun-microphone-post-processed-in-reaper.wav")
+@export var monster_search: AudioStream = preload("res://assets/audio/492781__hugobozz__heavy-breathing-recorded-with-rode-shotgun-microphone-post-processed-in-reaper.wav")
+@export var monster_screech: AudioStream = preload("res://assets/audio/492781__hugobozz__heavy-breathing-recorded-with-rode-shotgun-microphone-post-processed-in-reaper.wav")
 @export var door: AudioStream
 @export var lockpick: AudioStream
 @export var flashlight: AudioStream
 @export var ui: AudioStream
 @export var calm_music: AudioStream
-@export var searching_music: AudioStream
+@export var searching_music: AudioStream = preload("res://assets/audio/840338__imp_sounds__horror-scary-soundtrack.mp3")
 @export var chase_music: AudioStream = preload("res://assets/audio/840338__imp_sounds__horror-scary-soundtrack.mp3")
 
 var players: Dictionary = {}
@@ -26,11 +27,23 @@ var fade_tween: Tween
 func _ready() -> void:
 	_setup_footstep_randomizer()
 	
-	for cue in ["rain", "drip", "breathing", "building_creak", "house_ambience", "wood_footsteps", "stone_footsteps", "water_footsteps", "key_sting", "monster_breathing", "monster_search", "door", "lockpick", "flashlight", "ui"]:
+	for cue in ["rain", "drip", "breathing", "building_creak", "house_ambience", "wood_footsteps", "stone_footsteps", "water_footsteps", "key_sting", "monster_breathing", "monster_search", "monster_screech", "door", "lockpick", "flashlight", "ui"]:
 		var audio := AudioStreamPlayer.new()
 		audio.name = cue.to_pascal_case()
 		audio.bus = "Ambience" if cue in ["rain", "drip", "breathing", "building_creak", "house_ambience"] else "SFX"
 		audio.stream = get(cue)
+		if cue == "key_sting":
+			audio.volume_db = -8.0
+			audio.pitch_scale = 1.65
+		elif cue == "monster_screech":
+			audio.volume_db = 2.0
+			audio.pitch_scale = 1.35
+		elif cue == "monster_search":
+			audio.volume_db = -7.0
+			audio.pitch_scale = 0.82
+		elif cue == "monster_breathing":
+			audio.volume_db = -4.0
+			audio.pitch_scale = 0.68
 		add_child(audio)
 		players[cue] = audio
 		if cue in ["rain", "house_ambience"]:
@@ -68,7 +81,10 @@ func set_tension(state: String) -> void:
 		var audio: AudioStreamPlayer = players[candidate]
 		if candidate == state and audio.stream != null and not audio.playing:
 			audio.play()
-		fade_tween.tween_property(audio, "volume_db", -8.0 if candidate == state else -60.0, 1.2)
+		var target_db := -60.0
+		if candidate == state:
+			target_db = -18.0 if state == "SEARCHING" else (-7.0 if state == "CHASE" else -12.0)
+		fade_tween.tween_property(audio, "volume_db", target_db, 1.2)
 
 func _setup_footstep_randomizer() -> void:
 	if wood_footsteps == null:
@@ -87,4 +103,3 @@ func _setup_footstep_randomizer() -> void:
 			if stream != null:
 				randomizer.add_stream(randomizer.streams_count, stream)
 		wood_footsteps = randomizer
-		
